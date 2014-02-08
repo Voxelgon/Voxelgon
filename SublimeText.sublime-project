@@ -1,0 +1,9 @@
+{
+	"folders":
+	[
+		{
+			"path": "Assets/UnityScript",
+			"file_exclude_patterns": ["*.meta"]
+		}
+	]
+}
