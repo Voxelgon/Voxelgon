@@ -12,7 +12,7 @@ namespace Voxelgon {
 			float m2 = r2.mass;
 
 			float v1 = (u1*(m1-m2)+(2*(m2*u2)))/(m1+m2);
-			return(mathf.abs(r1 - v1));
+			return(Mathf.Abs(u1 - v1));
 		}
 	}
 }
