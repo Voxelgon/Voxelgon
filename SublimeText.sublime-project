@@ -2,7 +2,13 @@
 	"folders":
 	[
 		{
-			"path": "Assets/UnityScript",
+			"path": "Assets/Plugins",
+			"name": "C#",
+			"file_exclude_patterns": ["*.meta"]
+		},
+		{
+			"path": "Assets/PluginsJS",
+			"name": "JavaScript",
 			"file_exclude_patterns": ["*.meta"]
 		}
 	]
