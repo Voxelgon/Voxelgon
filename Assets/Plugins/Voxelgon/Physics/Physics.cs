@@ -5,7 +5,7 @@ namespace Voxelgon {
 	public class Physics { 
 		//returns the change in velocity when two rigidbodys collide. For use
 		//with unityengine's OnCollisionEnter() message. 
-		public static float elasticDeltaV(Rigidbody r1,Rigidbody r2) {
+		public static float ElasticDeltaV(Rigidbody r1,Rigidbody r2) {
 			float u1 = r1.velocity.magnitude;
 			float u2 = r2.velocity.magnitude;
 			float m1 = r1.mass;
