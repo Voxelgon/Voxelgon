@@ -12,7 +12,8 @@ namespace Voxelgon {
 			angle = (angle + 360) % 360;
 			return angle;
 		}
-
+		//returns the difference in angle between two points relative to the origin in degrees.
+		//2d (x,z) only right now		
 		public static float ThreePointAngle(Vector3 origin, Vector3 child1, Vector3 child2) {
 			float angle1 = Math.TwoPointAngle(origin, child1);
 			float angle2 = Math.TwoPointAngle(origin, child2);
