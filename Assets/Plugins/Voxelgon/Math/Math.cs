@@ -2,7 +2,7 @@
 using System.Collections;
 
 namespace Voxelgon {
-	public class math {	
+	public class Math {	
 		//returns the angle in degrees from the x axis to a line between origin and child
 		//2d (x,z) only right now
 		public static float TwoPointAngle(Vector3 origin, Vector3 child) {
