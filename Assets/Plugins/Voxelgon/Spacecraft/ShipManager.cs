@@ -6,7 +6,7 @@ using Voxelgon;
 
 [RequireComponent (typeof (Rigidbody))]
 
-public class RCSmanager : MonoBehaviour {
+public class ShipManager : MonoBehaviour {
 
 	//Setup Variables for gathering Ports
 	public enum Direction{
