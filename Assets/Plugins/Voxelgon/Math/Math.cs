@@ -12,5 +12,12 @@ namespace Voxelgon {
 			angle = (angle + 360) % 360;
 			return angle;
 		}
+
+		public static float ThreePointAngle(Vector3 origin, Vector3 child1, Vector3 child2) {
+			float angle1 = Math.TwoPointAngle(origin, child1);
+			float angle2 = Math.TwoPointAngle(origin, child2);
+			float angle = (angle2-angle1);
+			return angle;
+		}
 	}
 }
