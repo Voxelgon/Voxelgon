@@ -23,5 +23,14 @@ namespace Voxelgon {
 			
 			return angle;
 		}
+
+		//gives angle relative to vector through child from origin
+		//2d (x,z) only right now	
+		public static float RelativeAngle(Vector3 origin, Transform child) {
+			float baseAngle = Math.TwoPointAngle(origin, child.localPosition);
+			float childAngle = child.localEulerAngles.y;
+			
+			return 180-(((childAngle - baseAngle)+360)%360);
+		}
 	}
 }
