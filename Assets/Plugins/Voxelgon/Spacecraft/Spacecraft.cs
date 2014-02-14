@@ -5,4 +5,3 @@ using System.Collections.Generic;
 public class Spacecraft : MonoBehaviour {
 
 }
-SYNTAX ERROR :D
