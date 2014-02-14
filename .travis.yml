@@ -13,7 +13,7 @@ before_install:
  - sudo installer -pkg "/Volumes/Mono Framework MDK ${MONO_VER}/MonoFramework-MDK-${MONO_VER}.macos10.xamarin.x86.pkg" -target /
  - wget "http://netstorage.unity3d.com/unity/unity-4.3.4.dmg"
  - hdid "unity-4.3.4.dmg"
- - cd "/Volumes/Unity\ Installer"
+ - cd "/Volumes/Unity Installer"
  - sudo installer -pkg "./Unity.pkg" -target /
 
 script:
