@@ -13,5 +13,5 @@ before_install:
  - sudo installer -pkg "/Volumes/Mono Framework MDK ${MONO_VER}/MonoFramework-MDK-${MONO_VER}.macos10.xamarin.x86.pkg" -target /
 
 script:
- - xbuild voxelgon.sln
+ - xbuild voxelgon-csharp.sln
  - .ci/nunit.sh Tests/bin/Debug/Tests.dll
