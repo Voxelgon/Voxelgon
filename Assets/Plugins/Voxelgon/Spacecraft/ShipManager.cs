@@ -31,16 +31,19 @@ public class ShipManager : MonoBehaviour {
 		portGroups.Add( Direction.TransBack, new List<GameObject>() );
 
 		Vector3 origin = transform.rigidbody.centerOfMass;
+		Debug.Log(origin);
+		
 		Component[] PortScripts = gameObject.GetComponentsInChildren(typeof(RCSport));
 		
 		foreach(Component i in PortScripts) {
 			float angle = Voxelgon.Math.RelativeAngle(origin, i.transform);
+			Debug.Log(angle);
 
-			if(angle >= 0){
+			if(angle >= 0.1){
 				portGroups[Direction.YawLeft].Add(i.gameObject);
 				Debug.Log("This port is for turning Left!");
 
-			} else if(angle <=0){
+			} else if(angle <= 0.1){
 				portGroups[Direction.YawRight].Add(i.gameObject);
 				Debug.Log("This port is for turning right!");
 
