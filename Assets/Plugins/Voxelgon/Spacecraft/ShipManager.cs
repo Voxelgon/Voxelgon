@@ -39,15 +39,15 @@ public class ShipManager : MonoBehaviour {
 		
 		foreach(Component i in PortScripts) {
 			float angle = Voxelgon.Math.RelativeAngle(origin, i.transform);
-			Debug.Log(angle);
+			//Debug.Log(angle);
 
 			if(angle > portTransCutoff){
 				portGroups[Direction.YawLeft].Add(i.gameObject);
-				Debug.Log("This port is for turning Left!");
+				//Debug.Log("This port is for turning Left!");
 
 			} else if(angle < (-1 * portTransCutoff)){
 				portGroups[Direction.YawRight].Add(i.gameObject);
-				Debug.Log("This port is for turning right!");
+				//Debug.Log("This port is for turning right!");
 
 			}
 		}
