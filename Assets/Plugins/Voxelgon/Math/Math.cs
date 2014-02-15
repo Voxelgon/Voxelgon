@@ -29,7 +29,9 @@ namespace Voxelgon {
 		public static float RelativeAngle(Vector3 origin, Transform child) {
 			float baseAngle = Math.TwoPointAngle(origin, child.localPosition);
 			float childAngle = child.localEulerAngles.y;
-			
+			Debug.Log("angle from origin" + baseAngle);
+			Debug.Log("angle of child" + childAngle);
+
 			return 180-(((childAngle - baseAngle)+360)%360);
 		}
 	}
