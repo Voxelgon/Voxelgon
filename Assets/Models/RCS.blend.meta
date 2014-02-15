@@ -8,10 +8,11 @@ ModelImporter:
     2300000: //RootNode
     3300000: //RootNode
     4300000: Cylinder_012
+    4300002: RCS
     7400000: Default Take
     9500000: //RootNode
   materials:
-    importMaterials: 1
+    importMaterials: 0
     materialName: 0
     materialSearch: 1
   animations:
@@ -29,7 +30,7 @@ ModelImporter:
   meshes:
     lODScreenPercentages: []
     globalScale: .100000001
-    meshCompression: 0
+    meshCompression: 2
     addColliders: 0
     importBlendShapes: 1
     swapUVChannels: 0
@@ -43,10 +44,10 @@ ModelImporter:
     secondaryUVPackMargin: 4
   tangentSpace:
     normalSmoothAngle: 60
-    splitTangentsAcrossUV: 1
+    splitTangentsAcrossUV: 0
     normalImportMode: 1
-    tangentImportMode: 1
-  importAnimation: 1
+    tangentImportMode: 2
+  importAnimation: 0
   copyAvatar: 0
   humanDescription:
     human: []
