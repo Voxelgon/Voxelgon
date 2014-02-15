@@ -8,6 +8,8 @@ using Voxelgon;
 
 public class ShipManager : MonoBehaviour {
 
+	public float portTransCutoff = 5;
+
 	//Setup Variables for gathering Ports
 	public enum Direction{
 		YawLeft,
@@ -39,11 +41,11 @@ public class ShipManager : MonoBehaviour {
 			float angle = Voxelgon.Math.RelativeAngle(origin, i.transform);
 			Debug.Log(angle);
 
-			if(angle >= 0.1){
+			if(angle > portTransCutoff){
 				portGroups[Direction.YawLeft].Add(i.gameObject);
 				Debug.Log("This port is for turning Left!");
 
-			} else if(angle <= 0.1){
+			} else if(angle < (-1 * portTransCutoff)){
 				portGroups[Direction.YawRight].Add(i.gameObject);
 				Debug.Log("This port is for turning right!");
 

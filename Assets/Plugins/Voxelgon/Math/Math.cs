@@ -8,9 +8,13 @@ namespace Voxelgon {
 		//2d (x,z) only right now
 		public static float TwoPointAngle(Vector3 origin, Vector3 child) {
 			Vector3 deltaT = child - origin;
-			Quaternion quat = new Quaternion(deltaT.x, deltaT.y, deltaT.z, 0);
-			float angle = quat.eulerAngles.y;
-			
+			float angle = Mathf.Atan(deltaT.z/deltaT.x) * Mathf.Rad2Deg;
+
+			if(deltaT.x < 0) {
+				angle = angle + 180;
+			}
+
+			angle = (angle + 360) % 360;
 			return angle;
 		}
 		
