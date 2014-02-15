@@ -53,6 +53,8 @@ public class ShipManager : MonoBehaviour {
 		}
 	}
 	
+	
+	//Startup Script
 	public void Start() {
 	SetupPorts();
 	}
