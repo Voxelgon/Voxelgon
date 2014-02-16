@@ -10,6 +10,7 @@ public class ShipManager : MonoBehaviour {
 
 	public float portYawCutoff = 30;	//angle +/- before the port is no longer for rotation
 	public float portTransCutoff = 15;	//angle inside the 90 degree cone for each translation direction 
+
 	//input Variables
 	public float linAxis;
 	public float latAxis;
