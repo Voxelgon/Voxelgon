@@ -10,6 +10,11 @@ public class ShipManager : MonoBehaviour {
 
 	public float portTransCutoff = 5;
 
+	//input Variables
+	public float linAxis;
+	public float latAxis;
+	public float yawAxis;
+
 	//Setup Variables for gathering Ports
 	public enum Direction{
 		YawLeft,
@@ -53,7 +58,18 @@ public class ShipManager : MonoBehaviour {
 		}
 	}
 	
-	
+	//updates input variables
+	public void UpdateInputs() {
+		linAxis = Input.GetAxis("Thrust");
+		latAxis = Input.GetAxis("Strafe");
+		yawAxis = Input.GetAxis("Yaw");		
+	}
+
+	//Called every frame
+	public void Update() {
+		UpdateInputs();
+	}
+
 	//Startup Script
 	public void Start() {
 	SetupPorts();
