@@ -33,7 +33,7 @@ public class ShipManager : MonoBehaviour {
 		portGroups.Add( Direction.TransBack, new List<GameObject>() );
 
 		Vector3 origin = transform.rigidbody.centerOfMass;
-		Debug.Log(origin);
+		//Debug.Log(origin);
 		
 		Component[] PortScripts = gameObject.GetComponentsInChildren(typeof(RCSport));
 		
