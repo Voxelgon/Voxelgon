@@ -8,7 +8,7 @@ using Voxelgon;
 
 public class ShipManager : MonoBehaviour {
 
-	public float portTransCutoff = 5;
+	public float portYawCutoff = 15;
 
 	//input Variables
 	public float linAxis;
@@ -16,44 +16,72 @@ public class ShipManager : MonoBehaviour {
 	public float yawAxis;
 
 	//Setup Variables for gathering Ports
-	public enum Direction{
+	public enum YawState {
 		YawLeft,
-		YawRight,
+		YawRight
+	}
+
+	public enum TransState {
 		TransLeft,
 		TransRight,
 		TransForw,
 		TransBack
 	}
 
-	//dictionary of ports
-	public Dictionary<Direction, List<GameObject> > portGroups = new Dictionary<Direction, List<GameObject> > ();
+	//dictionaries of ports
+	public Dictionary<YawState, List<GameObject> > yawPorts = new Dictionary<YawState, List<GameObject> > ();
+	public Dictionary<TransState, List<GameObject> > transPorts = new Dictionary<TransState, List<GameObject> > ();
 
 	public void SetupPorts(){
-
-		portGroups.Add( Direction.YawLeft, new List<GameObject>() );
-		portGroups.Add( Direction.YawRight, new List<GameObject>() );
-		portGroups.Add( Direction.TransLeft, new List<GameObject>() );
-		portGroups.Add( Direction.TransRight, new List<GameObject>() );
-		portGroups.Add( Direction.TransForw, new List<GameObject>() );
-		portGroups.Add( Direction.TransBack, new List<GameObject>() );
+		
+		//Yaw port lists
+		yawPorts.Add(YawState.YawLeft, new List<GameObject>());
+		yawPorts.Add(YawState.YawRight,new List<GameObject>());
+		
+		//Translation port lists
+		transPorts.Add(TransState.TransLeft, new List<GameObject>());
+		transPorts.Add(TransState.TransRight,new List<GameObject>());
+		transPorts.Add(TransState.TransForw, new List<GameObject>());
+		transPorts.Add(TransState.TransBack, new List<GameObject>());
 
 		Vector3 origin = transform.rigidbody.centerOfMass;
 		//Debug.Log(origin);
 		
 		Component[] PortScripts = gameObject.GetComponentsInChildren(typeof(RCSport));
 		
-		foreach(Component i in PortScripts) {
-			float angle = Voxelgon.Math.RelativeAngle(origin, i.transform);
+		foreach(Component port in PortScripts) {
+			float angle = Voxelgon.Math.RelativeAngle(origin, port.transform);
+			float childAngle = port.transform.localEulerAngles.y;
 			//Debug.Log(angle);
 
-			if(angle > portTransCutoff){
-				portGroups[Direction.YawLeft].Add(i.gameObject);
+			if(angle > portYawCutoff){
+				yawPorts[YawState.YawLeft].Add(port.gameObject);
 				//Debug.Log("This port is for turning Left!");
 
-			} else if(angle < (-1 * portTransCutoff)){
-				portGroups[Direction.YawRight].Add(i.gameObject);
+			} else if(angle < (-1 * portYawCutoff)){
+				yawPorts[YawState.YawRight].Add(port.gameObject);
 				//Debug.Log("This port is for turning right!");
+			} else {
+				if((childAngle >= 315) && (childAngle < 45)) {
 
+					//0 degrees
+					transPorts[TransState.TransForw].Add(port.gameObject);
+
+				} else if((childAngle >= 45) && (childAngle < 135)) {
+
+					//90 degrees
+					transPorts[TransState.TransRight].Add(port.gameObject);
+
+				} else if((childAngle >= 135) && (childAngle < 225)) {
+
+					//180 degrees
+					transPorts[TransState.TransBack].Add(port.gameObject);
+
+				} else if((childAngle >= 225) && (childAngle < 315)) {
+
+					//270 degrees
+					transPorts[TransState.TransLeft].Add(port.gameObject);
+				}
 			}
 		}
 	}
