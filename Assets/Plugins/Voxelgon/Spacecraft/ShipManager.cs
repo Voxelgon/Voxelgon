@@ -8,8 +8,8 @@ using Voxelgon;
 
 public class ShipManager : MonoBehaviour {
 
-	public float portYawCutoff = 15;
-
+	public float portYawCutoff = 30;	//angle +/- before the port is no longer for rotation
+	public float portTransCutoff = 15;	//angle inside the 90 degree cone for each translation direction 
 	//input Variables
 	public float linAxis;
 	public float latAxis;
@@ -62,22 +62,25 @@ public class ShipManager : MonoBehaviour {
 				yawPorts[YawState.YawRight].Add(port.gameObject);
 				//Debug.Log("This port is for turning right!");
 			} else {
-				if((childAngle >= 315) && (childAngle < 45)) {
+				if((childAngle > 315 + portTransCutoff) || (childAngle < 45 - portTransCutoff)) {
 
 					//0 degrees
 					transPorts[TransState.TransForw].Add(port.gameObject);
+				}
 
-				} else if((childAngle >= 45) && (childAngle < 135)) {
+				if((childAngle > 45 + portTransCutoff) && (childAngle < 135 - portTransCutoff)) {
 
 					//90 degrees
 					transPorts[TransState.TransRight].Add(port.gameObject);
+				}
 
-				} else if((childAngle >= 135) && (childAngle < 225)) {
+				if((childAngle > 135 + portTransCutoff) && (childAngle < 225 - portTransCutoff)) {
 
 					//180 degrees
 					transPorts[TransState.TransBack].Add(port.gameObject);
+				}
 
-				} else if((childAngle >= 225) && (childAngle < 315)) {
+				if((childAngle > 225 + portTransCutoff) && (childAngle < 315 - portTransCutoff)) {
 
 					//270 degrees
 					transPorts[TransState.TransLeft].Add(port.gameObject);
