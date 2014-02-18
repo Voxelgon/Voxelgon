@@ -12,9 +12,9 @@ public class ShipManager : MonoBehaviour {
 	public float portTransCutoff = 15;	//angle inside the 90 degree cone for each translation direction 
 
 	//input Variables
-	public float linAxis;
-	public float latAxis;
-	public float yawAxis;
+	public float linInput;
+	public float latInput;
+	public float yawInput;
 
 	//Setup Variables for gathering Ports
 	public enum PortFunction {
@@ -124,13 +124,13 @@ public class ShipManager : MonoBehaviour {
 	
 	//updates input variables
 	public void UpdateInputs() {
-		yawAxis = Input.GetAxis("Yaw");	
-		linAxis = Input.GetAxis("Thrust");
-		latAxis = Input.GetAxis("Strafe");
+		yawInput = Input.GetAxis("Yaw");	
+		linInput = Input.GetAxis("Thrust");
+		latInput = Input.GetAxis("Strafe");
 
-		yaw = (int) yawAxis;
-		lin = (int) linAxis;
-		lat = (int) latAxis;
+		yaw = (int) yawInput;
+		lin = (int) linInput;
+		lat = (int) latInput;
 
 		//yaw
 		if(yaw == 1) {
