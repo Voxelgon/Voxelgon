@@ -30,7 +30,6 @@ public class RCSport : MonoBehaviour {
 		if ((ship.controlMatrix[function] == true) && (portEnabled == false)) {
 			portEnabled = true;
 			enable();
-			Debug.Log("ENABLE");
 
 		} else if((ship.controlMatrix[function] == false) && (portEnabled == true)) {
 			portEnabled = false;
