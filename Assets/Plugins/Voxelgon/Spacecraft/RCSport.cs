@@ -26,7 +26,7 @@ public class RCSport : MonoBehaviour {
 		animator.Play("ThrusterDisable");
 	}
 
-	public void Update() {
+	public void FixedUpdate() {
 		if ((ship.controlMatrix[function] == true) && (portEnabled == false)) {
 			portEnabled = true;
 			enable();
