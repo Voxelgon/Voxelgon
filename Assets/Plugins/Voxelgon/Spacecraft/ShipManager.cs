@@ -77,19 +77,23 @@ public class ShipManager : MonoBehaviour {
 			Debug.Log(angle);
 
 			RCSport portScript = port.GetComponent<RCSport>();
-			portScript.ship = gameObject;
+			portScript.ship = this;
 
 			//tag port appropriately
 			if((angle > portYawCutoff) && (angle < 180 - portYawCutoff)){
 				
 				//30 degrees to 150 degrees
 				ports[PortFunction.YawLeft].Add(port.gameObject);
+				portScript.function = PortFunction.YawLeft;
+
 				Debug.Log("This port is for turning Left!");
 
 			} else if((angle < (-1 * portYawCutoff)) && (angle > (-1 * (180 - portYawCutoff)))){
 				
 				//-150 degrees to -30 degrees
 				ports[PortFunction.YawRight].Add(port.gameObject);
+				portScript.function = PortFunction.YawRight;
+
 				Debug.Log("This port is for turning right!");
 
 			} else {
@@ -98,24 +102,32 @@ public class ShipManager : MonoBehaviour {
 
 					//0 degrees
 					ports[PortFunction.TransForw].Add(port.gameObject);
+					portScript.function = PortFunction.TransForw;
+
 					Debug.Log("This port is for translating forward!");
 
 				} else if((childAngle > 45 + portTransCutoff) && (childAngle < 135 - portTransCutoff)) {
 
 					//90 degrees
 					ports[PortFunction.TransRight].Add(port.gameObject);
+					portScript.function = PortFunction.TransRight;
+
 					Debug.Log("This port is for translating right!");
 
 				} else if((childAngle > 135 + portTransCutoff) && (childAngle < 225 - portTransCutoff)) {
 
 					//180 degrees
 					ports[PortFunction.TransBack].Add(port.gameObject);
+					portScript.function = PortFunction.TransBack;
+
 					Debug.Log("This port is for translating back!");
 
 				} else if((childAngle > 225 + portTransCutoff) && (childAngle < 315 - portTransCutoff)) {
 
 					//270 degrees
 					ports[PortFunction.TransLeft].Add(port.gameObject);
+					portScript.function = PortFunction.TransLeft;
+
 					Debug.Log("This port is for translating left!");
 				}
 			}
