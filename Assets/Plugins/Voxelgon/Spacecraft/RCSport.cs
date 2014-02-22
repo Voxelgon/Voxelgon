@@ -6,9 +6,11 @@ public class RCSport : MonoBehaviour {
 	public GameObject particleSys;
 	public Animation animator;
 
-	public bool portEnabled;
+	public int engaged;
 
-	public ShipManager.PortFunction function;
+	public ShipManager.PortRotFunction rotFunction;
+	public ShipManager.PortTransFunction transFunction;
+
 	public ShipManager ship;
 
 	public void Start() {
@@ -26,14 +28,20 @@ public class RCSport : MonoBehaviour {
 		animator.Play("ThrusterDisable");
 	}
 
-	public void FixedUpdate() {
-		if ((ship.controlMatrix[function] == true) && (portEnabled == false)) {
-			portEnabled = true;
+	public void CheckInput() {
+		if((ship.rotControls[rotFunction] > engaged) || (ship.transControls[transFunction] > engaged)) {
+			engaged = 1;
+
 			enable();
 
-		} else if((ship.controlMatrix[function] == false) && (portEnabled == true)) {
-			portEnabled = false;
+		} else if((ship.rotControls[rotFunction] < engaged) && (ship.transControls[transFunction] < engaged)) {
+			engaged = 0;
+
 			disable();
 		}
+	}
+
+	public void FixedUpdate() {
+		CheckInput();
 	}
 }
