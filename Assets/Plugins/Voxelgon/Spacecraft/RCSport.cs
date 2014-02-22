@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using Voxelgon;
 
 public class RCSport : MonoBehaviour {
 
@@ -12,10 +13,16 @@ public class RCSport : MonoBehaviour {
 	public ShipManager.PortTransFunction transFunction;
 
 	public ShipManager ship;
+	public Rigidbody rbdy;
+	public Vector3 forceVector = new Vector3();
 
 	public void Start() {
 		particleSys = gameObject.GetComponentInChildren<ParticleSystem>().gameObject;
 		animator = particleSys.GetComponent<Animation>();
+
+		rbdy = GameObjectExtensions.FirstAncestorOfType<Rigidbody>(gameObject);
+
+		forceVector = Voxelgon.Math.QuatToVector(transform.rotation);
 	}
 
 	public void enable() {
@@ -43,5 +50,10 @@ public class RCSport : MonoBehaviour {
 
 	public void FixedUpdate() {
 		CheckInput();
+		if (engaged == 1) {
+			forceVector = transform.TransformDirection(new Vector3(1,0,0));
+			rbdy.AddForceAtPosition(forceVector * 1, transform.position);
+			Debug.Log(forceVector);
+		}
 	}
 }
