@@ -36,12 +36,12 @@ public class RCSport : MonoBehaviour {
 	}
 
 	public void CheckInput() {
-		if((ship.rotControls[rotFunction] > engaged) || (ship.transControls[transFunction] > engaged)) {
+		if(((ship.rotControls[rotFunction] + 2 * ship.transControls[transFunction]) > engaged) && (engaged != 1)) {
 			engaged = 1;
 
 			enable();
 
-		} else if((ship.rotControls[rotFunction] < engaged) && (ship.transControls[transFunction] < engaged)) {
+		} else if(((ship.rotControls[rotFunction] + 2 * ship.transControls[transFunction]) < engaged) && (engaged == 1)) {
 			engaged = 0;
 
 			disable();
