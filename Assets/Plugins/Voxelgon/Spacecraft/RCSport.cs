@@ -20,7 +20,7 @@ public class RCSport : MonoBehaviour {
 		particleSys = gameObject.GetComponentInChildren<ParticleSystem>().gameObject;
 		animator = particleSys.GetComponent<Animation>();
 
-		rbdy = GameObjectExtensions.FirstAncestorOfType<Rigidbody>(gameObject);
+		rbdy = transform.parent.rigidbody;
 
 		forceVector = Voxelgon.Math.QuatToVector(transform.rotation);
 	}
