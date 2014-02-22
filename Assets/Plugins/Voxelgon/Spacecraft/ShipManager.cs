@@ -82,21 +82,21 @@ public class ShipManager : MonoBehaviour {
 			RCSport portScript = port.GetComponent<RCSport>();
 			portScript.ship = this;
 
-
+			Debug.Log(angle + ":" + portScript.name);
 			//Rotation
 			if((angle > portYawCutoff) && (angle < 180 - portYawCutoff)){
 				
 				//30 degrees to 150 degrees
-				rotPorts[PortRotFunction.Left].Add(port.gameObject);
+				rotPorts[PortRotFunction.Right].Add(port.gameObject);
 
-				portScript.rotFunction = PortRotFunction.Left;
+				portScript.rotFunction = PortRotFunction.Right;
 
 			} else if((angle < (-1 * portYawCutoff)) && (angle > (-1 * (180 - portYawCutoff)))){
 				
 				//-150 degrees to -30 degrees
-				rotPorts[PortRotFunction.Right].Add(port.gameObject);
+				rotPorts[PortRotFunction.Left].Add(port.gameObject);
 
-				portScript.rotFunction = PortRotFunction.Right;
+				portScript.rotFunction = PortRotFunction.Left;
 
 			} else {
 

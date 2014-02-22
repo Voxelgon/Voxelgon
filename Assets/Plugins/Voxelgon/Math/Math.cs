@@ -8,9 +8,9 @@ namespace Voxelgon {
 		//2d (x,z) only right now
 		public static float TwoPointAngle(Vector3 origin, Vector3 child) {
 			Vector3 deltaT = child - origin;
-			float angle = Mathf.Atan(deltaT.z/deltaT.x) * Mathf.Rad2Deg;
+			float angle = (Mathf.Atan2(deltaT.x, deltaT.z) * Mathf.Rad2Deg) + 90;
 
-			if(deltaT.x < 0) {
+			if(deltaT.y < 0) {
 				angle = angle + 180;
 			}
 
@@ -33,10 +33,10 @@ namespace Voxelgon {
 		public static float RelativeAngle(Vector3 origin, Transform child) {
 			float baseAngle = Math.TwoPointAngle(origin, child.localPosition);
 			float childAngle = child.localEulerAngles.y;
-			//Debug.Log("angle from origin " + baseAngle);
+			Debug.Log("angle from origin " + baseAngle);
 			//Debug.Log("angle of child " + childAngle);
 
-			return 180-(((childAngle - baseAngle)+360)%360);
+			return 180 - (((childAngle - baseAngle)+360)%360);
 		}
 	}
 }
