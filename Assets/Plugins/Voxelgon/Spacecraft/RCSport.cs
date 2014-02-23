@@ -53,7 +53,6 @@ public class RCSport : MonoBehaviour {
 		if (engaged == 1) {
 			forceVector = transform.TransformDirection(new Vector3(1,0,0));
 			rbdy.AddForceAtPosition(forceVector * 1, transform.position);
-			Debug.Log(forceVector);
 		}
 	}
 }
