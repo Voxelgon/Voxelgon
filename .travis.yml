@@ -18,12 +18,12 @@ before_install:
 script:
  - xbuild voxelgon-csharp.sln
  
- notifications:
-  irc:
-    channels:
-      - "irc.subluminal.net#Voxelgon"
-    template:
-      - "%{repository_slug} (%{commit}) : %{message} by %{author} "
-      - "Build details: %{build_url}"
-    on_success: always
-    on_failure: always
+notifications:
+ irc:
+  channels:
+   - "irc.subluminal.net#Voxelgon"
+  template:
+   - "%{repository_slug} (%{commit}) : %{message} by %{author} "
+   - "Build details: %{build_url}"
+  on_success: always
+  on_failure: always
