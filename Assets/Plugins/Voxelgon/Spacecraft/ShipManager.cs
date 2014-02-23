@@ -9,21 +9,23 @@ using Voxelgon;
 public class ShipManager : MonoBehaviour {
 
 	public float portYawCutoff = 30;	//angle +/- before the port is no longer for rotation
-	public float portTransCutoff = 15;	//angle inside the 90 degree cone for each translation direction 
-
 	//input Variables
 	public float linInput;
 	public float latInput;
 	public float yawInput;
 
 	//Setup Variables for gathering Ports
-	public enum PortFunction {
-		YawLeft,
-		YawRight,
-		TransLeft,
-		TransRight,
-		TransForw,
-		TransBack
+	public enum PortRotFunction {
+		Left,
+		Right,
+		None
+	}
+
+	public enum PortTransFunction {
+		Left,
+		Right,
+		Forward,
+		Back
 	}
 
 	//translation/yaw
@@ -31,109 +33,112 @@ public class ShipManager : MonoBehaviour {
 	public int lin;
 	public int lat;
 
-	//dictionary of ports
-	public Dictionary<PortFunction, List<GameObject> > ports = new Dictionary<PortFunction, List<GameObject> > ();
+	//dictionaries of ports for reference
+	public Dictionary<PortRotFunction, List<GameObject> > rotPorts = new Dictionary<PortRotFunction, List<GameObject> > ();
+	public Dictionary<PortTransFunction, List<GameObject> > transPorts = new Dictionary<PortTransFunction, List<GameObject> > ();
 
-	//dictionary of boolians for ports to access
-	public Dictionary<PortFunction, bool> controlMatrix = new Dictionary<PortFunction, bool> ();
+	//dictionaries of ints for ports to access for control purposes
+	public Dictionary<PortRotFunction, int> rotControls = new Dictionary<PortRotFunction, int> ();
+	public Dictionary<PortTransFunction, int> transControls = new Dictionary<PortTransFunction, int> ();
 
 
 	public void SetupPorts(){
 		
 		//Yaw port lists
-		ports.Add(PortFunction.YawLeft, new List<GameObject>());
-		ports.Add(PortFunction.YawRight,new List<GameObject>());
+		rotPorts.Add(PortRotFunction.Left, new List<GameObject>());
+		rotPorts.Add(PortRotFunction.Right, new List<GameObject>());
 		
 		//Linear port lists
-		ports.Add(PortFunction.TransForw, new List<GameObject>());
-		ports.Add(PortFunction.TransBack, new List<GameObject>());
+		transPorts.Add(PortTransFunction.Forward, new List<GameObject>());
+		transPorts.Add(PortTransFunction.Back, new List<GameObject>());
 		
-		//Lateral ports lists
-		ports.Add(PortFunction.TransLeft, new List<GameObject>());
-		ports.Add(PortFunction.TransRight,new List<GameObject>());
+		//Lateral port lists
+		transPorts.Add(PortTransFunction.Left, new List<GameObject>());
+		transPorts.Add(PortTransFunction.Right, new List<GameObject>());
 		
 
 		//Yaw control lists
-		controlMatrix.Add(PortFunction.YawLeft, new bool ());
-		controlMatrix.Add(PortFunction.YawRight,new bool ());
+		rotControls.Add(PortRotFunction.Left, new int ());
+		rotControls.Add(PortRotFunction.Right, new int ());
+		rotControls.Add(PortRotFunction.None, new int ());
 		
 		//Linear control lists
-		controlMatrix.Add(PortFunction.TransForw, new bool ());
-		controlMatrix.Add(PortFunction.TransBack, new bool ());
+		transControls.Add(PortTransFunction.Forward, new int ());
+		transControls.Add(PortTransFunction.Back, new int ());
 		
 		//Lateral control lists
-		controlMatrix.Add(PortFunction.TransLeft, new bool ());
-		controlMatrix.Add(PortFunction.TransRight,new bool ());
+		transControls.Add(PortTransFunction.Left, new int ());
+		transControls.Add(PortTransFunction.Right, new int ());
 
 
 		Vector3 origin = transform.rigidbody.centerOfMass;
-		//Debug.Log(origin);
-		
 		Component[] PortScripts = gameObject.GetComponentsInChildren(typeof(RCSport));
-		
+
 		foreach(Component port in PortScripts) {
+			
 			float angle = Voxelgon.Math.RelativeAngle(origin, port.transform);
 			float childAngle = port.transform.localEulerAngles.y;
-			Debug.Log(angle);
 
 			RCSport portScript = port.GetComponent<RCSport>();
 			portScript.ship = this;
 
-			//tag port appropriately
+
+			//Rotation
 			if((angle > portYawCutoff) && (angle < 180 - portYawCutoff)){
 				
 				//30 degrees to 150 degrees
-				ports[PortFunction.YawLeft].Add(port.gameObject);
-				portScript.function = PortFunction.YawLeft;
+				rotPorts[PortRotFunction.Right].Add(port.gameObject);
 
-				Debug.Log("This port is for turning Left!");
+				portScript.rotFunction = PortRotFunction.Right;
 
 			} else if((angle < (-1 * portYawCutoff)) && (angle > (-1 * (180 - portYawCutoff)))){
 				
 				//-150 degrees to -30 degrees
-				ports[PortFunction.YawRight].Add(port.gameObject);
-				portScript.function = PortFunction.YawRight;
+				rotPorts[PortRotFunction.Left].Add(port.gameObject);
 
-				Debug.Log("This port is for turning right!");
+				portScript.rotFunction = PortRotFunction.Left;
 
 			} else {
 
-				if((childAngle > 315 + portTransCutoff) || (childAngle < 45 - portTransCutoff)) {
+				//not suitable for rotation
+				portScript.rotFunction = PortRotFunction.None;
+			}
 
-					//0 degrees
-					ports[PortFunction.TransForw].Add(port.gameObject);
-					portScript.function = PortFunction.TransForw;
 
-					Debug.Log("This port is for translating forward!");
+			//Translation
+			if((childAngle > 315) || (childAngle < 45)) {
 
-				} else if((childAngle > 45 + portTransCutoff) && (childAngle < 135 - portTransCutoff)) {
+				//0 degrees
+				transPorts[PortTransFunction.Forward].Add(port.gameObject);
 
-					//90 degrees
-					ports[PortFunction.TransRight].Add(port.gameObject);
-					portScript.function = PortFunction.TransRight;
+				portScript.transFunction = PortTransFunction.Forward;
 
-					Debug.Log("This port is for translating right!");
+			} else if((childAngle > 45) && (childAngle < 135)) {
 
-				} else if((childAngle > 135 + portTransCutoff) && (childAngle < 225 - portTransCutoff)) {
+				//90 degrees
+				transPorts[PortTransFunction.Right].Add(port.gameObject);
 
-					//180 degrees
-					ports[PortFunction.TransBack].Add(port.gameObject);
-					portScript.function = PortFunction.TransBack;
+				portScript.transFunction = PortTransFunction.Right;
 
-					Debug.Log("This port is for translating back!");
+			} else if((childAngle > 135) && (childAngle < 225)) {
 
-				} else if((childAngle > 225 + portTransCutoff) && (childAngle < 315 - portTransCutoff)) {
+				//180 degrees
+				transPorts[PortTransFunction.Back].Add(port.gameObject);
 
-					//270 degrees
-					ports[PortFunction.TransLeft].Add(port.gameObject);
-					portScript.function = PortFunction.TransLeft;
+				portScript.transFunction = PortTransFunction.Back;
 
-					Debug.Log("This port is for translating left!");
-				}
+			} else if((childAngle > 225) && (childAngle < 315)) {
+
+				//270 degrees
+				transPorts[PortTransFunction.Left].Add(port.gameObject);
+
+				portScript.transFunction = PortTransFunction.Left;
+
 			}
 		}
 	}
 	
+
 	//updates input variables
 	public void UpdateInputs() {
 		yawInput = Input.GetAxis("Yaw");	
@@ -144,65 +149,32 @@ public class ShipManager : MonoBehaviour {
 		lin = (int) linInput;
 		lat = (int) latInput;
 
-		//yaw
-		if(yaw == 1) {
+		//           up
+		//           +1
+		//	  	     /\
+		//           ||
+		// left -1 <====> +1 right
+		//           ||
+		//           \/
+		//           -1
+		//          down
 
-			//yaw right
-			controlMatrix[PortFunction.YawRight] = true;
-			controlMatrix[PortFunction.YawLeft] = false;
-		} else if(yaw == -1) {
+		rotControls[PortRotFunction.Right] = yaw;
+		rotControls[PortRotFunction.Left] = -yaw;
 
-			//yaw left
-			controlMatrix[PortFunction.YawRight] = false;
-			controlMatrix[PortFunction.YawLeft] = true;
-		} else {
+		transControls[PortTransFunction.Forward] = lin;
+		transControls[PortTransFunction.Back] = -lin;
 
-			//no yaw
-			controlMatrix[PortFunction.YawRight] = false;
-			controlMatrix[PortFunction.YawLeft] = false;
-		}
-
-		//linear/thrust
-		if(yaw == 1) {
-
-			//thrust forward
-			controlMatrix[PortFunction.TransForw] = true;
-			controlMatrix[PortFunction.TransBack] = false;
-		} else if(yaw == -1) {
-
-			//thrust back
-			controlMatrix[PortFunction.TransForw] = false;
-			controlMatrix[PortFunction.TransBack] = true;
-		} else {
-
-			//no thrust
-			controlMatrix[PortFunction.TransForw] = false;
-			controlMatrix[PortFunction.TransBack] = false;
-		}
-
-		//lateral/strafe
-		if(yaw == 1) {
-
-			//thrust right
-			controlMatrix[PortFunction.TransRight] = true;
-			controlMatrix[PortFunction.TransLeft] = false;
-		} else if(yaw == -1) {
-
-			//thrust left
-			controlMatrix[PortFunction.TransRight] = false;
-			controlMatrix[PortFunction.TransLeft] = true;
-		} else {
-
-			//no thrust
-			controlMatrix[PortFunction.TransRight] = false;
-			controlMatrix[PortFunction.TransLeft] = false;
-		}
+		transControls[PortTransFunction.Right] = lat;
+		transControls[PortTransFunction.Left] = -lat;
 	}
+
 
 	//Called every frame
-	public void Update() {
+	public void FixedUpdate() {
 		UpdateInputs();
 	}
+
 
 	//Startup Script
 	public void Start() {
