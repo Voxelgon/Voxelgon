@@ -17,3 +17,11 @@ before_install:
 
 script:
  - xbuild voxelgon-csharp.sln
+ 
+notifications:
+ irc:
+  channels:
+   - "irc.subluminal.net#Voxelgon"
+  on_success: always
+  on_failure: always
+  skip_join: true
