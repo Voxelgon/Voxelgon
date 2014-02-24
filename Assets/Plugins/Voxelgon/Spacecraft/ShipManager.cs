@@ -9,10 +9,16 @@ using Voxelgon;
 public class ShipManager : MonoBehaviour {
 
 	public float portYawCutoff = 30;	//angle +/- before the port is no longer for rotation
+	
 	//input Variables
 	public float linInput;
 	public float latInput;
 	public float yawInput;
+	
+	public float allInput;
+
+	public bool killRot;
+	public bool killTrans;
 
 	//Setup Variables for gathering Ports
 	public enum PortRotFunction {
@@ -32,6 +38,10 @@ public class ShipManager : MonoBehaviour {
 	public int yaw;
 	public int lin;
 	public int lat;
+
+	public int brakingYaw = 0;
+	public int brakingLin = 0;
+	public int brakingLat = 0;
 
 	//dictionaries of ports for reference
 	public Dictionary<PortRotFunction, List<GameObject> > rotPorts = new Dictionary<PortRotFunction, List<GameObject> > ();
@@ -138,16 +148,28 @@ public class ShipManager : MonoBehaviour {
 		}
 	}
 	
-
-	//updates input variables
-	public void UpdateInputs() {
+	private void UpdateInputs() {
 		yawInput = Input.GetAxis("Yaw");	
 		linInput = Input.GetAxis("Thrust");
 		latInput = Input.GetAxis("Strafe");
 
-		yaw = (int) yawInput;
-		lin = (int) linInput;
-		lat = (int) latInput;
+		if(Input.GetButtonUp("Kill Rotation")) {
+			killRot = !killRot;
+		}
+
+		if(Input.GetButtonDown("Kill Translation")) {
+			killTrans = !killTrans;
+		}
+
+		allInput = (yawInput + linInput + latInput);
+	}
+
+	//updates input variables
+	private void UpdatePorts() {
+
+		yaw = (int) yawInput + brakingYaw;
+		lin = (int) linInput + brakingLin;
+		lat = (int) latInput + brakingLat;
 
 		//           up
 		//           +1
@@ -167,17 +189,42 @@ public class ShipManager : MonoBehaviour {
 
 		transControls[PortTransFunction.Right] = lat;
 		transControls[PortTransFunction.Left] = -lat;
+
+		if((killRot) && (yawInput == 0) && (Mathf.Abs(rigidbody.angularVelocity.y) > 0.05)) {
+			brakingYaw = (int) -Mathf.Sign(rigidbody.angularVelocity.y);
+
+		} else {
+			brakingYaw = 0;
+		}
+
+		if((killTrans) && (linInput == 0) && (latInput == 0) && (Mathf.Abs(transform.InverseTransformDirection(rigidbody.velocity).x) > 0.1)) {
+			brakingLin = (int) -Mathf.Sign(transform.InverseTransformDirection(rigidbody.velocity).x);
+
+		} else {
+			brakingLin = 0;
+		}
+
+		if((killTrans) && (latInput == 0)&& (linInput == 0) && (Mathf.Abs(transform.InverseTransformDirection(rigidbody.velocity).z) > 0.1)) {
+			brakingLat = (int) Mathf.Sign(transform.InverseTransformDirection(rigidbody.velocity).z);
+
+		} else {
+			brakingLat = 0;
+		}
+
 	}
 
 
 	//Called every frame
 	public void FixedUpdate() {
+		UpdatePorts();
+	}
+
+	public void Update() {
 		UpdateInputs();
 	}
 
-
 	//Startup Script
 	public void Start() {
-	SetupPorts();
+		SetupPorts();
 	}
 }
