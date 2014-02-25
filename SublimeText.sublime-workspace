@@ -4,12 +4,156 @@
 		"selected_items":
 		[
 			[
-				"fun",
-				"function"
+				"lat",
+				"latInput"
+			],
+			[
+				"lin",
+				"linInput"
+			],
+			[
+				"bra",
+				"brakingLat"
+			],
+			[
+				"rig",
+				"rigidbody"
+			],
+			[
+				"kil",
+				"killRot"
+			],
+			[
+				"kill",
+				"killTrans"
 			],
 			[
 				"Get",
-				"GetComponent"
+				"GetButton"
+			],
+			[
+				"In",
+				"Input"
+			],
+			[
+				"ki",
+				"killTrans"
+			],
+			[
+				"U",
+				"UpdatePorts"
+			],
+			[
+				"tra",
+				"transform"
+			],
+			[
+				"sh",
+				"ship"
+			],
+			[
+				"ship",
+				"shipRigidbody"
+			],
+			[
+				"Port",
+				"PortTransFunction"
+			],
+			[
+				"yaw",
+				"yawInput"
+			],
+			[
+				"Po",
+				"PortRotFunction"
+			],
+			[
+				"rot",
+				"rotFunction"
+			],
+			[
+				"enabl",
+				"enabled"
+			],
+			[
+				"Tran",
+				"TransLeft"
+			],
+			[
+				"Tr",
+				"TransBack"
+			],
+			[
+				"Tra",
+				"TransForw"
+			],
+			[
+				"port",
+				"portScript"
+			],
+			[
+				"Trans",
+				"TransForw"
+			],
+			[
+				"Yaw",
+				"YawRight"
+			],
+			[
+				"Por",
+				"PortFunction"
+			],
+			[
+				"cont",
+				"controlMatrix"
+			],
+			[
+				"con",
+				"controlMatrix"
+			],
+			[
+				"tran",
+				"TransForw"
+			],
+			[
+				"tr",
+				"transPorts"
+			],
+			[
+				"ya",
+				"yawPorts"
+			],
+			[
+				"Y",
+				"YawState"
+			],
+			[
+				"Setu",
+				"SetupInputs"
+			],
+			[
+				"ch",
+				"childAngle"
+			],
+			[
+				"Se",
+				"SetupPorts"
+			],
+			[
+				"Ya",
+				"YawLeft"
+			],
+			[
+				"angl",
+				"angle2"
+			],
+			[
+				"elastic",
+				"elasticDeltaV"
+			],
+			[
+				"fun",
+				"function"
 			],
 			[
 				"se",
@@ -27,6 +171,46 @@
 	},
 	"buffers":
 	[
+		{
+			"file": "Assets/Plugins/Voxelgon/Physics/Physics.cs",
+			"settings":
+			{
+				"buffer_size": 496,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "Assets/Plugins/Voxelgon/Math/Math.cs",
+			"settings":
+			{
+				"buffer_size": 1444,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "Assets/Plugins/Voxelgon/Spacecraft/ShipManager.cs",
+			"settings":
+			{
+				"buffer_size": 5943,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": ".travis.yml",
+			"settings":
+			{
+				"buffer_size": 794,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "Assets/Plugins/Voxelgon/Spacecraft/RCSport.cs",
+			"settings":
+			{
+				"buffer_size": 1378,
+				"line_ending": "Unix"
+			}
+		}
 	],
 	"build_system": "",
 	"command_palette":
@@ -36,7 +220,7 @@
 		[
 			[
 				"",
-				"Package Control: Add Repository"
+				"Package Control: Install Package"
 			],
 			[
 				"packa",
@@ -51,7 +235,7 @@
 				"Package Control: Create Binary Package File"
 			]
 		],
-		"width": 467.0
+		"width": 620.0
 	},
 	"console":
 	{
@@ -60,7 +244,7 @@
 	"distraction_free":
 	{
 		"menu_visible": true,
-		"show_minimap": false,
+		"show_minimap": true,
 		"show_open_files": false,
 		"show_tabs": false,
 		"side_bar_visible": false,
@@ -68,14 +252,30 @@
 	},
 	"file_history":
 	[
+		"/Users/drewcassidy/Projects/Git_Repositories/voxelgon/Assets/Plugins/Voxelgon/Gameobject/GameObjectExtensions.cs",
+		"/Users/drewcassidy/Library/Application Support/Sublime Text 2/Packages/User/Preferences.sublime-settings",
+		"/Users/drewcassidy/Projects/Git_Repositories/voxelgon/SublimeText.sublime-project",
+		"/Users/drewcassidy/Projects/Git_Repositories/voxelgon/Assets/Plugins/Voxelgon/Spacecraft/InputManager.cs",
+		"/Users/drewcassidy/Projects/Git_Repositories/voxelgon/Assets/Plugins/Voxelgon/Spacecraft/Spacecraft.cs",
+		"/Users/drewcassidy/Projects/Git_Repositories/voxelgon/.travis.yml",
+		"/Users/drewcassidy/Desktop/thing.svg",
+		"/Users/drewcassidy/Projects/Git_Repositories/voxelgon/Assembly-CSharp-firstpass-vs.csproj",
+		"/Users/drewcassidy/Projects/Git_Repositories/voxelgon/voxelgon.sln",
+		"/Users/drewcassidy/Projects/Git_Repositories/voxelgon/voxelgon-csharp.sln",
+		"/Users/drewcassidy/Projects/Git_Repositories/voxelgon/Assets/Plugins/Voxelgon/Spacecraft/RCSmanager.cs",
+		"/Users/drewcassidy/Projects/Git_Repositories/voxelgon/Assets/Plugins/Voxelgon/Physics/Softbody.cs",
+		"/Users/drewcassidy/Projects/Git_Repositories/voxelgon/Assets/Plugins/Voxelgon/Spacecraft.cs",
+		"/Users/drewcassidy/Projects/Git_Repositories/voxelgon/Assets/PluginsJS/MonoBehaviour/Object Scripts/ShipControl.js",
+		"/Users/drewcassidy/Projects/Git_Repositories/voxelgon/Assets/PluginsJS/MonoBehaviour/Object Scripts/SpaceCraft.js",
+		"/Users/drewcassidy/Projects/Git_Repositories/voxelgonmessy/Assets/Source/ObjectScripts/Asteroid.js",
+		"/Users/drewcassidy/Projects/Git_Repositories/voxelgon/Assets/Plugins/Softbody.cs",
 		"/Users/drewcassidy/Library/Application Support/Steam/SteamApps/common/Starbound/linux32/launch_starbound_server.sh",
 		"/Users/drewcassidy/Projects/Git_Repositories/voxelgon/Main.sublime-project",
-		"/Users/drewcassidy/Library/Application Support/Sublime Text 2/Packages/User/Preferences.sublime-settings",
 		"/Users/drewcassidy/Downloads/UnitySublimeTextLineHelper/wrapper.ini"
 	],
 	"find":
 	{
-		"height": 0.0
+		"height": 35.0
 	},
 	"find_in_files":
 	{
@@ -89,10 +289,71 @@
 		"case_sensitive": false,
 		"find_history":
 		[
+			"killTrans",
+			"forcevector",
+			"Right",
+			"Left",
+			"ports[",
+			"ports",
+			"portS",
+			"ports",
+			"Trans",
+			"bool",
+			"portTransCutoff",
+			"Trans",
+			"function",
+			"Function",
+			"function",
+			"Function",
+			"function",
+			"Function",
+			"function",
+			"controlMatrix",
+			"Yaw",
+			"ports",
+			"Trans",
+			"Yaw",
+			"Trans",
+			"PortTrans",
+			"enabled;$",
+			"enabled",
+			"Strafe",
+			"GetAxis",
+			"Axis",
+			"TransBack",
+			"TransForw",
+			"YawLeft",
+			"YawRight",
+			"PortUse",
+			"port",
+			"ports",
+			"State",
+			"state",
+			"State",
+			"nt",
+			"TransForw",
+			"Yaw",
+			"latP",
+			"linP",
+			"yawP",
+			"+",
+			"-",
+			"transState",
+			"portTransCutoff",
+			"i",
+			"portGroups",
+			"Direction",
+			"YawState",
+			"Direction",
+			"Setup",
+			"portGroups",
+			"private",
+			"float",
+			"var",
 			"meshFilters",
 			"hild"
 		],
-		"highlight": true,
+		"highlight": false,
 		"in_selection": false,
 		"preserve_case": false,
 		"regex": false,
@@ -108,8 +369,151 @@
 	"groups":
 	[
 		{
+			"selected": 3,
 			"sheets":
 			[
+				{
+					"buffer": 0,
+					"file": "Assets/Plugins/Voxelgon/Physics/Physics.cs",
+					"settings":
+					{
+						"buffer_size": 496,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								487,
+								487
+							]
+						],
+						"settings":
+						{
+							"rulers":
+							[
+								80
+							],
+							"syntax": "Packages/Unity3D/UnityC#.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 1,
+					"file": "Assets/Plugins/Voxelgon/Math/Math.cs",
+					"settings":
+					{
+						"buffer_size": 1444,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								1435,
+								1435
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Unity3D/UnityC#.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 2,
+					"file": "Assets/Plugins/Voxelgon/Spacecraft/ShipManager.cs",
+					"settings":
+					{
+						"buffer_size": 5943,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								5120,
+								5120
+							]
+						],
+						"settings":
+						{
+							"rulers":
+							[
+								120
+							],
+							"syntax": "Packages/Unity3D/UnityC#.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 2779.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 3,
+					"file": ".travis.yml",
+					"settings":
+					{
+						"buffer_size": 794,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/YAML/YAML.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 4,
+					"file": "Assets/Plugins/Voxelgon/Spacecraft/RCSport.cs",
+					"settings":
+					{
+						"buffer_size": 1378,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								1368,
+								1368
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Unity3D/UnityC#.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 70.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				}
 			]
 		}
 	],
@@ -154,6 +558,10 @@
 		"height": 0.0,
 		"selected_items":
 		[
+			[
+				"",
+				"C#/Voxelgon/Spacecraft.cs"
+			]
 		],
 		"width": 0.0
 	},
@@ -169,6 +577,6 @@
 	"show_open_files": false,
 	"show_tabs": true,
 	"side_bar_visible": true,
-	"side_bar_width": 262.0,
+	"side_bar_width": 149.0,
 	"status_bar_visible": true
 }

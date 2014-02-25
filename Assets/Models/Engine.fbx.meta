@@ -1,52 +1,47 @@
 fileFormatVersion: 2
-guid: 8e77773d797ef4b9b8b76a9e7769de3d
+guid: 59c74d150cbe745088d4b59031cb5220
 ModelImporter:
   serializedVersion: 16
   fileIDToRecycleName:
-    100000: Cube
-    100002: Cylinder_002
-    100004: //RootNode
-    100006: Cylinder
-    100008: Cylinder_001
-    100010: Torus
-    100012: Body_009
-    100014: Cylinder_003
-    400000: Cube
-    400002: Cylinder_002
-    400004: //RootNode
-    400006: Cylinder
-    400008: Cylinder_001
-    400010: Torus
-    400012: Body_009
-    400014: Cylinder_003
-    2300000: Cube
-    2300002: Cylinder_002
-    2300004: Cylinder
-    2300006: Cylinder_001
-    2300008: Torus
-    2300010: Body_009
-    2300012: Cylinder_003
-    3300000: Cube
-    3300002: Cylinder_002
-    3300004: Cylinder
-    3300006: Cylinder_001
-    3300008: Torus
-    3300010: Body_009
-    3300012: Cylinder_003
-    4300000: Cylinder_002
-    4300002: Cube
-    4300004: Torus
-    4300006: Cylinder
-    4300008: Body_009
-    4300010: Cylinder_003
+    100000: Body
+    100002: Camera
+    100004: Cowling
+    100006: Cube
+    100008: //RootNode
+    100010: FanBlades
+    100012: Lamp
+    100014: MountingPlate
+    400000: Body
+    400002: Camera
+    400004: Cowling
+    400006: Cube
+    400008: //RootNode
+    400010: FanBlades
+    400012: Lamp
+    400014: MountingPlate
+    2300000: Body
+    2300002: Cowling
+    2300004: Cube
+    2300006: FanBlades
+    2300008: MountingPlate
+    3300000: Body
+    3300002: Cowling
+    3300004: Cube
+    3300006: FanBlades
+    3300008: MountingPlate
+    4300000: Cube
+    4300002: MountingPlate
+    4300004: Body
+    4300006: Cowling
+    4300008: FanBlades
     7400000: Default Take
     9500000: //RootNode
   materials:
     importMaterials: 1
-    materialName: 0
+    materialName: 1
     materialSearch: 1
   animations:
-    legacyGenerateAnimations: 0
+    legacyGenerateAnimations: 4
     bakeSimulation: 0
     optimizeGameObjects: 0
     animationCompression: 1
@@ -73,11 +68,11 @@ ModelImporter:
     secondaryUVHardAngle: 88
     secondaryUVPackMargin: 4
   tangentSpace:
-    normalSmoothAngle: 24
-    splitTangentsAcrossUV: 0
+    normalSmoothAngle: 60
+    splitTangentsAcrossUV: 1
     normalImportMode: 0
     tangentImportMode: 1
-  importAnimation: 1
+  importAnimation: 0
   copyAvatar: 0
   humanDescription:
     human: []
