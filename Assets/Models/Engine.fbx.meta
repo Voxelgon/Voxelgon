@@ -11,6 +11,8 @@ ModelImporter:
     100010: FanBlades
     100012: Lamp
     100014: MountingPlate
+    100016: Bolt_001
+    100018: Collider
     400000: Body
     400002: Camera
     400004: Cowling
@@ -19,21 +21,33 @@ ModelImporter:
     400010: FanBlades
     400012: Lamp
     400014: MountingPlate
+    400016: Bolt_001
+    400018: Collider
     2300000: Body
     2300002: Cowling
     2300004: Cube
     2300006: FanBlades
     2300008: MountingPlate
+    2300010: Bolt_001
+    2300012: Collider
     3300000: Body
     3300002: Cowling
     3300004: Cube
     3300006: FanBlades
     3300008: MountingPlate
+    3300010: Bolt_001
+    3300012: Collider
     4300000: Cube
     4300002: MountingPlate
     4300004: Body
     4300006: Cowling
     4300008: FanBlades
+    4300010: Bolt_001
+    4300012: Collider
+    6400000: Body
+    6400002: FanBlades
+    6400004: Bolt_001
+    6400006: Collider
     7400000: Default Take
     9500000: //RootNode
   materials:
