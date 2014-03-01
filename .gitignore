@@ -3,8 +3,8 @@
 /obj
 /library
 
-
-*.csproj
 Assembly-UnityScript-firstpass-vs.unityproj
 Assembly-UnityScript-firstpass.unityproj
 Assembly-UnityScript-vs.unityproj
+
+Assembly-CSharp-firstpass.csproj
