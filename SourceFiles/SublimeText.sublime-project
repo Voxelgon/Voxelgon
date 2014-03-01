@@ -2,12 +2,12 @@
 	"folders":
 	[
 		{
-			"path": "Assets/Plugins",
+			"path": "../Assets/Plugins",
 			"name": "C#",
 			"file_exclude_patterns": ["*.meta"]
 		},
 		{
-			"path": "Assets/PluginsJS",
+			"path": "../Assets/PluginsJS",
 			"name": "JavaScript",
 			"file_exclude_patterns": ["*.meta"]
 		}
