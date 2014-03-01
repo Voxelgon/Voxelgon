@@ -5,11 +5,11 @@
 	<Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
 	<ProductVersion>10.0.20506</ProductVersion>
 	<SchemaVersion>2.0</SchemaVersion>
-	<ProjectGuid>{81B335F3-4D4D-176C-10B5-CB2ABB30072E}</ProjectGuid>
+	<ProjectGuid>{700E4893-274B-CDB7-05E8-2DA3024C6EDA}</ProjectGuid>
 	<OutputType>Library</OutputType>
 	<AppDesignerFolder>Properties</AppDesignerFolder>
 	<RootNamespace></RootNamespace>
-	<AssemblyName>Assembly-CSharp-firstpass</AssemblyName>
+	<AssemblyName>Assembly-CSharp</AssemblyName>
 	<TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
 	<FileAlignment>512</FileAlignment>
 	<BaseDirectory>Assets</BaseDirectory>
@@ -46,14 +46,15 @@
 	</Reference>
   </ItemGroup>
   <ItemGroup>
-     <Compile Include="Assets\Plugins\SimpleJSON\SimpleJSON.cs" />
-     <Compile Include="Assets\Plugins\Voxelgon\Math\Math.cs" />
-     <Compile Include="Assets\Plugins\Voxelgon\Physics\Physics.cs" />
-     <Compile Include="Assets\Plugins\Voxelgon\Physics\Softbody.cs" />
-     <Compile Include="Assets\Plugins\Voxelgon\Spacecraft\RCSport.cs" />
-     <Compile Include="Assets\Plugins\Voxelgon\Spacecraft\ShipManager.cs" />
-     <Compile Include="Assets\Plugins\Voxelgon\Spacecraft\Spacecraft.cs" />
+     <Compile Include="Assets\JSON Tests\CSharp\Test_CSharp.cs" />
      <None Include="Assets\Standard Assets\Particles\Sources\Shaders\Particle Alpha Blend (Queue +100).shader" />
+     <None Include="Assets\JSON Tests\TroubleShoot.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="Assembly-CSharp-firstpass.csproj">
+      <Project>{81B335F3-4D4D-176C-10B5-CB2ABB30072E}</Project>      <Name>Assembly-CSharp-firstpass</Name>    </ProjectReference>
+    <ProjectReference Include="Assembly-UnityScript-firstpass.unityproj">
+      <Project>{D9C18AB8-85D4-4ED1-10BD-F91A6EBC6AD1}</Project>      <Name>Assembly-UnityScript-firstpass</Name>    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
