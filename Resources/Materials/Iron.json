@@ -1,0 +1,12 @@
+{
+	"name": "Iron",
+
+	"element": {
+		"number": 26,
+		"mass": 55.845,
+		
+		"symbol": "Fe",
+		"type": "metal",
+		"state": "solid",
+	}
+}

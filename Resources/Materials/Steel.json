@@ -1,0 +1,27 @@
+{
+	"name": "Steel",
+
+	"alloy": {
+		"makeup": [
+			{
+				"element": "Iron",
+				"percentage": 95
+			},
+			{
+				"element": "Carbon",
+				"percentage": 5
+			}
+		],
+	},
+
+	"material": {
+		"strength": 10,
+
+		"shielding": 2.5, //Halving thickness
+		"radiation": 0.0, //radiation emited (Bq)
+
+		"magnetic": true,
+		"organic": false,
+		"conductive": true
+	}	
+}
