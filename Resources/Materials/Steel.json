@@ -1,6 +1,8 @@
 {
 	"name": "Steel",
 
+	"density": 7.75,
+
 	"alloy": {
 		"makeup": [
 			{
