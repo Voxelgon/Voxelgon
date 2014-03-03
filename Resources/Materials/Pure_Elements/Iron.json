@@ -1,8 +1,10 @@
 {
 	"name": "Iron",
 
-	"density": 7.874,
-
+	"item": {
+		"density": 7.874,
+	},
+	
 	"element": {
 		"number": 26,
 		"mass": 55.845,

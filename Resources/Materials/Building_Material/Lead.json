@@ -1,7 +1,9 @@
 {
 	"name": "Lead",
 
-	"density": 11.34,
+	"item":{
+		"density": 11.34,
+	},
 
 	"element": {
 		"number": 82,

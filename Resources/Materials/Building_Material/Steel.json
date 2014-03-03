@@ -1,8 +1,10 @@
 {
 	"name": "Steel",
 
-	"density": 7.75,
-
+	"item": {
+		"density": 7.75,
+	},
+	
 	"alloy": {
 		"makeup": [
 			{
@@ -15,6 +17,7 @@
 			}
 		],
 	},
+
 
 	"material": {
 		"strength": 10,

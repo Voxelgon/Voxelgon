@@ -1,7 +1,9 @@
 {
 	"name": "Titanium",
-
-	"density": 4.506,
+	
+	"item": {
+		"density": 4.506,	
+	},
 
 	"element": {
 		"number": 22,

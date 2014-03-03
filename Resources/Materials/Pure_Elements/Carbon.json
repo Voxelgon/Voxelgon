@@ -1,7 +1,9 @@
 {
 	"name": "Carbon",
-
-	"density": 1.8,
+	
+	"item": {
+		"density": 1.8,
+	},
 
 	"element": {
 		"number": 8,
