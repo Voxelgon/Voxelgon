@@ -8,7 +8,7 @@
 	"element": {
 		"number": 82,
 		"mass": 207.2,
-		
+
 		"symbol": "Pb",
 		"type": "metal",
 		"state": "solid",
@@ -17,11 +17,11 @@
 	"material": {
 		"strength": 2,
 
-		"shielding": 1.0, //Halving thickness
-		"radiation": 0.0, //radiation emited (Bq)
+		"shielding": 1.0,
+		"radiation": 0.0,
 
 		"magnetic": true,
 		"organic": false,
 		"conductive": true
-	}	
+	}
 }

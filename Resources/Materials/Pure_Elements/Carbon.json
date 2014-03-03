@@ -1,6 +1,6 @@
 {
 	"name": "Carbon",
-	
+
 	"item": {
 		"density": 1.8,
 	},
@@ -8,7 +8,7 @@
 	"element": {
 		"number": 8,
 		"mass": 12.011,
-		
+
 		"symbol": "C",
 		"type": "nonmetal",
 		"state": "solid",

@@ -21,11 +21,11 @@
 	"material": {
 		"strength": 10,
 
-		"shielding": 2.5, //Halving thickness
-		"radiation": 0.0, //radiation emited (Bq)
+		"shielding": 2.5,
+		"radiation": 0.0,
 
 		"magnetic": true,
 		"organic": false,
 		"conductive": true
-	}	
+	}
 }

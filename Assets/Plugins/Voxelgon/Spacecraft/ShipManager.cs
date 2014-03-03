@@ -9,12 +9,12 @@ using Voxelgon;
 public class ShipManager : MonoBehaviour {
 
 	public float portYawCutoff = 30;	//angle +/- before the port is no longer for rotation
-	
+
 	//input Variables
 	public float linInput;
 	public float latInput;
 	public float yawInput;
-	
+
 	public float allInput;
 
 	public bool killRot;
@@ -53,29 +53,29 @@ public class ShipManager : MonoBehaviour {
 
 
 	public void SetupPorts(){
-		
+
 		//Yaw port lists
 		rotPorts.Add(PortRotFunction.Left, new List<GameObject>());
 		rotPorts.Add(PortRotFunction.Right, new List<GameObject>());
-		
+
 		//Linear port lists
 		transPorts.Add(PortTransFunction.Forward, new List<GameObject>());
 		transPorts.Add(PortTransFunction.Back, new List<GameObject>());
-		
+
 		//Lateral port lists
 		transPorts.Add(PortTransFunction.Left, new List<GameObject>());
 		transPorts.Add(PortTransFunction.Right, new List<GameObject>());
-		
+
 
 		//Yaw control lists
 		rotControls.Add(PortRotFunction.Left, new int ());
 		rotControls.Add(PortRotFunction.Right, new int ());
 		rotControls.Add(PortRotFunction.None, new int ());
-		
+
 		//Linear control lists
 		transControls.Add(PortTransFunction.Forward, new int ());
 		transControls.Add(PortTransFunction.Back, new int ());
-		
+
 		//Lateral control lists
 		transControls.Add(PortTransFunction.Left, new int ());
 		transControls.Add(PortTransFunction.Right, new int ());
@@ -85,7 +85,7 @@ public class ShipManager : MonoBehaviour {
 		Component[] PortScripts = gameObject.GetComponentsInChildren(typeof(RCSport));
 
 		foreach(Component port in PortScripts) {
-			
+
 			float angle = Voxelgon.Math.RelativeAngle(origin, port.transform);
 			float childAngle = port.transform.localEulerAngles.y;
 
@@ -95,14 +95,14 @@ public class ShipManager : MonoBehaviour {
 
 			//Rotation
 			if((angle > portYawCutoff) && (angle < 180 - portYawCutoff)){
-				
+
 				//30 degrees to 150 degrees
 				rotPorts[PortRotFunction.Right].Add(port.gameObject);
 
 				portScript.rotFunction = PortRotFunction.Right;
 
 			} else if((angle < (-1 * portYawCutoff)) && (angle > (-1 * (180 - portYawCutoff)))){
-				
+
 				//-150 degrees to -30 degrees
 				rotPorts[PortRotFunction.Left].Add(port.gameObject);
 
@@ -147,9 +147,9 @@ public class ShipManager : MonoBehaviour {
 			}
 		}
 	}
-	
+
 	private void UpdateInputs() {
-		yawInput = Input.GetAxis("Yaw");	
+		yawInput = Input.GetAxis("Yaw");
 		linInput = Input.GetAxis("Thrust");
 		latInput = Input.GetAxis("Strafe");
 

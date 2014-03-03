@@ -1,14 +1,14 @@
 {
 	"name": "Titanium",
-	
+
 	"item": {
-		"density": 4.506,	
+		"density": 4.506,
 	},
 
 	"element": {
 		"number": 22,
 		"mass": 47.867,
-		
+
 		"symbol": "Ti",
 		"type": "metal",
 		"state": "solid",
