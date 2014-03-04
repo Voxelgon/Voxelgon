@@ -2,6 +2,7 @@ using UnityEngine;
 
 using System.Collections;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using System.IO;
 
 using SimpleJSON;
@@ -12,6 +13,21 @@ namespace Voxelgon{
 
         static string resourcePath;
 
+        static string[] ignoredFiles= new string[] {
+            ".[Dd][Ss]_[Ss]tore$",
+            ".[Mm]eta$"
+        };
+
+        //returns TRUE if the given path is ignored
+        static public bool Ignored(string path){
+            foreach (string r in ignoredFiles) {
+                if (Regex.Match(path, r).Success) {
+                    return true;
+                }
+            }
+
+            return false;
+        }
 
         //returns the parent (../) directory of the given path
         static public string Parent(string path) {
@@ -21,14 +37,23 @@ namespace Voxelgon{
 
         //returns a list of files under the given path directory
         static public List<string> GetFiles(string path) {
-            List<string> files = new List<string>(Directory.GetFiles(path));
+            List<string> filesRaw = new List<string>(Directory.GetFiles(path));
+            List<string> files = new List<string>();
+
+            foreach(string file in filesRaw){
+                if(!Ignored(file)){
+                    files.Add(file);
+                }
+            }
+
             return files;
         }
 
         //returns a list of directories under the given directory
         static public List<string> GetDirectories(string path) {
-            List<string> files = new List<string>(Directory.GetDirectories(path));
-            return files;
+            List<string> dirs = new List<string>(Directory.GetDirectories(path));
+
+            return dirs;
         }
 
         //returns a list of all files under the given directory in the file tree
