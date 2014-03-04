@@ -4,8 +4,8 @@ using System.Collections;
 namespace Voxelgon {
   public class Manager : MonoBehaviour {
 
-    public void start() {
-
+    public void Start() {
+        Voxelgon.Asset.Import();
     }
   }
 }
