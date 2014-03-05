@@ -8,6 +8,8 @@ using Voxelgon;
 
 public class ShipManager : MonoBehaviour {
 
+    public float portYawCutoff = 30;	//angle +/- before the port is no longer for rotation
+
     //input Variables
     public float linInput;
     public float latInput;
