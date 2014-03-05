@@ -2,7 +2,7 @@
 using System.Collections;
 
 namespace Voxelgon {
-	public class Softbody : Physics {
+    public class Softbody : Physics {
 
-	}
+    }
 }
