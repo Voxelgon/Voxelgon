@@ -2,10 +2,10 @@ using UnityEngine;
 using System.Collections;
 
 namespace Voxelgon {
-  public class Manager : MonoBehaviour {
+    public class Manager : MonoBehaviour {
 
-    public void Start() {
-        Voxelgon.Asset.Import();
+        public void Start() {
+            Voxelgon.Asset.Import();
+        }
     }
-  }
 }
