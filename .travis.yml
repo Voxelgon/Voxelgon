@@ -2,7 +2,7 @@ language: objective-c
 
 env:
  global:
-  - EnableNuGetPackageRestore=true 
+  - EnableNuGetPackageRestore=true
  matrix:
   - MONO_VER="2.10.11"
   - MONO_VER="3.0.12"
@@ -17,7 +17,7 @@ before_install:
 
 script:
  - xbuild voxelgon-csharp.sln
- 
+
 notifications:
  irc:
   channels:
