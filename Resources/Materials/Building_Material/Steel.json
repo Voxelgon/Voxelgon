@@ -1,31 +1,31 @@
 {
-	"name": "Steel",
+    "name": "Steel",
 
-	"item": {
-		"density": 7.75,
-	},
+    "item": {
+        "density": 7.75,
+    },
 
-	"alloy": {
-		"makeup": [
-			{
-				"element": "Iron",
-				"percentage": 95
-			},
-			{
-				"element": "Carbon",
-				"percentage": 5
-			}
-		],
-	},
+    "alloy": {
+        "makeup": [
+            {
+                "element": "Iron",
+                "percentage": 95
+            },
+            {
+                "element": "Carbon",
+                "percentage": 5
+            }
+        ],
+    },
 
-	"material": {
-		"strength": 10,
+    "material": {
+        "strength": 10,
 
-		"shielding": 2.5,
-		"radiation": 0.0,
+        "shielding": 2.5,
+        "radiation": 0.0,
 
-		"magnetic": true,
-		"organic": false,
-		"conductive": true
-	}
+        "magnetic": true,
+        "organic": false,
+        "conductive": true
+    }
 }

@@ -1,27 +1,27 @@
 {
-	"name": "Lead",
+    "name": "Lead",
 
-	"item":{
-		"density": 11.34,
-	},
+    "item":{
+        "density": 11.34,
+    },
 
-	"element": {
-		"number": 82,
-		"mass": 207.2,
+    "element": {
+        "number": 82,
+        "mass": 207.2,
 
-		"symbol": "Pb",
-		"type": "metal",
-		"state": "solid",
-	},
+        "symbol": "Pb",
+        "type": "metal",
+        "state": "solid",
+    },
 
-	"material": {
-		"strength": 2,
+    "material": {
+        "strength": 2,
 
-		"shielding": 1.0,
-		"radiation": 0.0,
+        "shielding": 1.0,
+        "radiation": 0.0,
 
-		"magnetic": true,
-		"organic": false,
-		"conductive": true
-	}
+        "magnetic": true,
+        "organic": false,
+        "conductive": true
+    }
 }

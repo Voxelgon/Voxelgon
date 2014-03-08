@@ -9,13 +9,20 @@ using SimpleJSON;
 
 namespace Voxelgon{
 
-    static class Asset{
+    public class Asset{
+
+
+        //STATIC VARIABLES//
 
         static string resourcePath;
 
-        static string[] ignoredFiles= new string[] {
+
+       //STATIC FUNCTIONS//
+
+        private static string[] ignoredFiles= new string[] {
             ".[Dd][Ss]_[Ss]tore$",
-            ".[Mm]eta$"
+            ".[Mm]eta$",
+            ".[Ss]wp$"
         };
 
         //returns TRUE if the given path is ignored
@@ -69,7 +76,6 @@ namespace Voxelgon{
             return files;
         }
 
-
         //imports assets (all testing code right now)
         static public void Import() {
             resourcePath = Parent(Application.dataPath) + "/Resources";
@@ -77,6 +83,52 @@ namespace Voxelgon{
             foreach (string path in FilesUnderDirectory(resourcePath)) {
                 Debug.Log(path);
             }
+        }
+    }
+
+    public class Material : Asset {
+
+        public readonly float strength = 2.0;
+
+        public readonly float sheilding = 1.0;
+        public readonly float radiation = 0.0;
+
+        public readonly bool isMagnetic = false;
+        public readonly bool isOrganic = false;
+        public readonly bool isConductive = false;
+
+        public Dictionary<Element, float> makeup;
+    }
+
+    public class Item : Asset {
+        //item in inventory or elsewhere
+        public readonly float density;
+    }
+
+    public class Ingot : Item {
+        //special item that represents a material
+        public readonly Material material;
+    }
+
+    public class Element : Asset {
+
+        public readonly int number;
+        public readonly float mass;
+        public readonly string symbol;
+
+        public readonly types type;
+        public readonly states state;
+
+        public enum types {
+            metal,
+            nonmetal,
+            semimetal
+        }
+
+        public enum states {
+            solid,
+            liquid,
+            gas
         }
     }
 }
