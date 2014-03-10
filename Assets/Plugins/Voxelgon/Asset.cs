@@ -92,11 +92,6 @@ namespace Voxelgon{
 
         public readonly bool ingot = true;
 
-        public Dictionary<Element, float> makeup;
-    }
-
-    public class BuildMaterial : Material {
-
         public readonly float strength = 2.0f;
 
         public readonly float sheilding = 1.0f;
@@ -105,6 +100,12 @@ namespace Voxelgon{
         public readonly bool isMagnetic = false;
         public readonly bool isOrganic = false;
         public readonly bool isConductive = false;
+
+        public Dictionary<Element, float> makeup;
+    }
+
+    public class BuildMaterial : Material {
+
     }
 
     public class Item : Asset {
