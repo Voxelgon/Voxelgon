@@ -88,16 +88,23 @@ namespace Voxelgon{
 
     public class Material : Asset {
 
-        public readonly float strength = 2.0;
+        public readonly float density = 7.5f;
 
-        public readonly float sheilding = 1.0;
-        public readonly float radiation = 0.0;
+        public readonly bool ingot = true;
+
+        public Dictionary<Element, float> makeup;
+    }
+
+    public class BuildMaterial : Material {
+
+        public readonly float strength = 2.0f;
+
+        public readonly float sheilding = 1.0f;
+        public readonly float radiation = 0.0f;
 
         public readonly bool isMagnetic = false;
         public readonly bool isOrganic = false;
         public readonly bool isConductive = false;
-
-        public Dictionary<Element, float> makeup;
     }
 
     public class Item : Asset {

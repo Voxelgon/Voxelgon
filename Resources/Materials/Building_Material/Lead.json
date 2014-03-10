@@ -1,10 +1,6 @@
 {
     "name": "Lead",
 
-    "item":{
-        "density": 11.34,
-    },
-
     "element": {
         "number": 82,
         "mass": 207.2,
@@ -16,12 +12,20 @@
 
     "material": {
         "strength": 2,
+        "density": 11.34,
 
         "shielding": 1.0,
         "radiation": 0.0,
 
         "magnetic": true,
         "organic": false,
-        "conductive": true
+        "conductive": true,
+
+        "makeup": [
+            {
+                "element": "Lead"
+                "percentage": "100"
+            }
+        ]
     }
 }

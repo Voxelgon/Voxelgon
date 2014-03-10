@@ -1,10 +1,6 @@
 {
 	"name": "Iron",
 
-	"item": {
-		"density": 7.874,
-	},
-
 	"element": {
 		"number": 26,
 		"mass": 55.845,
@@ -13,4 +9,18 @@
 		"type": "metal",
 		"state": "solid",
 	}
+
+    "material": {
+        "density": 7.874,
+
+        "ingot": true,
+        "build material": false,
+
+        "makeup":[
+            {
+                "element": "iron",
+                "percentage": 100,
+            }
+        ]
+    }
 }
