@@ -1,0 +1,10 @@
+{
+    "name": "Iron",
+
+    "number": 26,
+    "mass": 55.845,
+
+    "symbol": "Fe",
+    "type": 0,
+    "state": 0
+}

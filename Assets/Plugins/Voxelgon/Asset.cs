@@ -5,17 +5,20 @@ using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.IO;
 
-using SimpleJSON;
+using LitJson;
 
 namespace Voxelgon{
 
     public class Asset{
-
+        public string name;
 
         //STATIC VARIABLES//
 
         static string resourcePath;
 
+        static List<Element> elements;
+        static List<Material> materials;
+        static List<Item> items;
 
        //STATIC FUNCTIONS//
 
@@ -47,7 +50,7 @@ namespace Voxelgon{
             List<string> filesRaw = new List<string>(Directory.GetFiles(path));
             List<string> files = new List<string>();
 
-            foreach(string file in filesRaw){
+            foreach(string file in filesRaw) {
                 if(!Ignored(file)){
                     files.Add(file);
                 }
@@ -80,26 +83,46 @@ namespace Voxelgon{
         static public void Import() {
             resourcePath = Parent(Application.dataPath) + "/Resources";
             Debug.Log(resourcePath);
+
+            elements = new List<Element> ();
+            materials = new List<Material> ();
+            items = new List<Item> ();
+
             foreach (string path in FilesUnderDirectory(resourcePath)) {
-                Debug.Log(path);
+                ImportAsset(path);
+            }
+        }
+
+        //inports an asset
+        static public void ImportAsset(string path) {
+
+            StreamReader reader = new StreamReader (path);
+            string text = reader.ReadToEnd();
+
+            string extension = Path.GetExtension(path);
+
+            if (extension == ".element") {
+                Element element = JsonMapper.ToObject<Element>(text);
+                Debug.Log(element.symbol);
+                elements.Add(element);
             }
         }
     }
 
     public class Material : Asset {
 
-        public readonly float density = 7.5f;
+        public float density = 7.5f;
 
-        public readonly bool ingot = true;
+        public bool ingot = true;
 
-        public readonly float strength = 2.0f;
+        public float strength = 2.0f;
 
-        public readonly float sheilding = 1.0f;
-        public readonly float radiation = 0.0f;
+        public float sheilding = 1.0f;
+        public float radiation = 0.0f;
 
-        public readonly bool isMagnetic = false;
-        public readonly bool isOrganic = false;
-        public readonly bool isConductive = false;
+        public bool isMagnetic = false;
+        public bool isOrganic = false;
+        public bool isConductive = false;
 
         public Dictionary<Element, float> makeup;
     }
@@ -110,22 +133,22 @@ namespace Voxelgon{
 
     public class Item : Asset {
         //item in inventory or elsewhere
-        public readonly float density;
+        public float density;
     }
 
     public class Ingot : Item {
         //special item that represents a material
-        public readonly Material material;
+        public Material material;
     }
 
     public class Element : Asset {
 
-        public readonly int number;
-        public readonly float mass;
-        public readonly string symbol;
+        public int number;
+        public float mass;
+        public string symbol;
 
-        public readonly types type;
-        public readonly states state;
+        public types type;
+        public states state;
 
         public enum types {
             metal,
