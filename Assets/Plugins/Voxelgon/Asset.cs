@@ -31,7 +31,7 @@ namespace Voxelgon{
             return Path.GetFileName(path);
         }
 
-      //##returns TRUE if the given path is ignored
+        //returns TRUE if the given path is ignored//
         static public bool Ignored(string path){
             foreach (string r in ignoredFiles) {
                 if (Regex.Match(path, r).Success) {
@@ -42,7 +42,7 @@ namespace Voxelgon{
             return false;
         }
 
-      //##returns TRUE if the given path matches the given extension
+        //returns TRUE if the given path matches the given extension//
         static public bool ExtensionMatch(string path, string extension){
             string regex = extension + "$";
             if (Regex.Match(path, regex).Success) {
@@ -58,7 +58,7 @@ namespace Voxelgon{
             return parent;
         }
 
-      //##returns a list of files under the given path directory
+        //returns a list of files under the given path directory//
         static public List<string> GetFiles(string path) {
             List<string> filesRaw = new List<string>(Directory.GetFiles(path));
             List<string> files = new List<string>();
@@ -72,7 +72,7 @@ namespace Voxelgon{
             return files;
         }
 
-        //returns a list of files with the given extension under the given path directory
+        //returns a list of files with the given extension under the given path directory//
         static public List<string> GetFiles(string path, string extension) {
             List<string> filesRaw = new List<string>(Directory.GetFiles(path));
             List<string> files = new List<string>();
@@ -86,14 +86,14 @@ namespace Voxelgon{
             return files;
         }
 
-      //##returns a list of directories under the given directory
+        //returns a list of directories under the given directory//
         static public List<string> GetDirectories(string path) {
             List<string> dirs = new List<string>(Directory.GetDirectories(path));
 
             return dirs;
         }
 
-        //returns a list of all files under the given directory in the file tree
+        //returns a list of all files under the given directory in the file tree//
         static public List<string> FilesUnderDirectory(string path) {
             List<string> directories = GetDirectories(path);
 
@@ -107,7 +107,7 @@ namespace Voxelgon{
         }
 
 
-      //##imports assets (all testing code right now)
+        //imports assets (all testing code right now)//
         static public void Import() {
             resourcePath = Parent(Application.dataPath) + "/Resources";
             innerResourcePath = Application.dataPath + "/Resources";
@@ -117,7 +117,7 @@ namespace Voxelgon{
 
         }
 
-        //inports an asset
+        //imports an asset
         static public void ImportAsset(string path) {
 
         }
