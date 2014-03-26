@@ -36,6 +36,7 @@ namespace Voxelgon {
         }
 
 
+        //runs the given query and returns the first column as an array of strings//
         public static string[] QueryArray(string query) {
             IDataReader reader = Query(query);
             List<string> list = new List<string>();
@@ -54,7 +55,7 @@ namespace Voxelgon {
         }
 
 
-        //returns the number of rows in the given column
+        //returns the number of rows in the given column//
         public static int Count(string table, string column) {
 
             string sql = string.Format("SELECT COUNT(`{0}`) c FROM {1}", column, table);
@@ -95,6 +96,7 @@ namespace Voxelgon {
         }
 
 
+        //Runs the file at `path` with special treatment with parameters to fill in @path//
         public static void RunAsset(string path) {
             StreamReader sr = new StreamReader(path);
             string contents;
@@ -120,7 +122,6 @@ namespace Voxelgon {
                 dbcmd.Parameters.Add(new SqliteParameter("@path", path));
 
                 dbcmd.ExecuteReader();
- 
             } catch {
                 LogError(string.Format("Error running SQL query in {0} \n full path: {1}", Asset.Filename(path), path));
                 return;
