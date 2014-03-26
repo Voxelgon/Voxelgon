@@ -114,7 +114,7 @@ namespace Voxelgon{
             innerResourcePath = Application.dataPath + "/Resources";
 
             Sql.RunFile(innerResourcePath + "/Schema.sql");
-            Sql.RunFile(innerResourcePath + "/Voxelgon.sql");
+            Sql.RunAsset(innerResourcePath + "/Voxelgon.sql");
 
             elementCount = Sql.Count("elements", "atomic_number");
             materialCount = Sql.Count("materials", "material_id");
@@ -128,6 +128,8 @@ namespace Voxelgon{
                     makeupCount
                 )
             );
+
+            Log(Sql.QueryArray("SELECT `path` FROM `elements`")[0]);
 
         }
     }

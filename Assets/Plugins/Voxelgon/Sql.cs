@@ -1,4 +1,6 @@
 using UnityEngine;
+using System.Collections;
+using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Text.RegularExpressions;
@@ -33,6 +35,17 @@ namespace Voxelgon {
             return dbcmd.ExecuteReader();
         }
 
+
+        public static string[] QueryArray(string query) {
+            IDataReader reader = Query(query);
+            List<string> list = new List<string>();
+
+            for(int i = 0; i < reader.FieldCount; i++) {
+                reader.Read();
+                list.Add(reader.GetString(0));
+            }
+            return list.ToArray();
+        }
 
         //cleans up after running a SQL query//
         public static void Cleanup(){
@@ -75,9 +88,45 @@ namespace Voxelgon {
                 Query(contents);
             } catch {
                 LogError(string.Format("Error running SQL query in {0} \n full path: {1}", Asset.Filename(path), path));
-            } finally {
-                Log(string.Format("Success! \n loaded '{0}' at path '{1}'", Asset.Filename(path), path));
+                return;
             }
+
+            Log(string.Format("Success! \n loaded '{0}' at path '{1}'", Asset.Filename(path), path));
+        }
+
+
+        public static void RunAsset(string path) {
+            StreamReader sr = new StreamReader(path);
+            string contents;
+
+            //Read file ***Move this to another function later, I do this a LOT***
+            try {
+                contents = sr.ReadToEnd();
+            } catch {
+                LogError(string.Format("Could not load file at path: {0}", path));
+                return;
+            } finally {
+                sr.Close();
+            }
+
+            Log(string.Format("Loading SQL query {0} \n full path: {1}", Asset.Filename(path), path));
+
+            try {
+                dbcon.Open();
+                dbcmd = dbcon.CreateCommand();
+                dbcmd.CommandText = contents;
+                dbcmd.CommandType = CommandType.Text;
+
+                dbcmd.Parameters.Add(new SqliteParameter("@path", path));
+
+                dbcmd.ExecuteReader();
+ 
+            } catch {
+                LogError(string.Format("Error running SQL query in {0} \n full path: {1}", Asset.Filename(path), path));
+                return;
+            }
+
+            Log(string.Format("Success! \n loaded '{0}' at path '{1}'", Asset.Filename(path), path));
         }
     }
 }

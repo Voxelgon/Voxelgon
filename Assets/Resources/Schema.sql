@@ -11,6 +11,7 @@ CREATE TABLE `elements` (
   `density` float(8,3) DEFAULT NULL,
   `melting_point` float(8,3) DEFAULT NULL,
   `boiling_point` float(8,3) DEFAULT NULL,
+  `path` varchar(100) DEFAULT '@path',
   PRIMARY KEY (`atomic_number`)
 );
 
@@ -35,6 +36,7 @@ CREATE TABLE `materials` (
   `strength` float(5,2) DEFAULT '2.00',
   `rad-shielding` float(5,3) DEFAULT '1.000',
   `radiation` float(5,1) DEFAULT '0.0',
+  `path` varchar(100) DEFAULT '@path',
   PRIMARY KEY (`material_id`,`namespace`)
 );
 
@@ -46,6 +48,7 @@ CREATE TABLE `materials_makeup` (
   `namespace` varchar(30) NOT NULL DEFAULT 'voxelgon',
   `atomic_number` int(11) DEFAULT '1',
   `element_percentage` float(4,1) DEFAULT '100.0',
+  `path` varchar(100) DEFAULT '@path',
   PRIMARY KEY (`makeup_id`,`material_id`,`namespace`)
 )
 
