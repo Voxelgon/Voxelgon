@@ -119,7 +119,7 @@ namespace Voxelgon {
                 dbcmd.CommandText = contents;
                 dbcmd.CommandType = CommandType.Text;
 
-                dbcmd.Parameters.Add(new SqliteParameter("@path", path));
+                dbcmd.Parameters.Add(new SqliteParameter("@path", Asset.Parent(path)));
 
                 dbcmd.ExecuteReader();
             } catch {
