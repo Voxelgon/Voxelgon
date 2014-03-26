@@ -13,10 +13,18 @@ namespace Voxelgon {
         public static IDbConnection dbcon = (IDbConnection) new SqliteConnection(connection);
         public static IDbCommand dbcmd;
 
-        public static Regex commentFix = new Regex ("#");
+
+        private static void Log(string text) {
+            Debug.Log("[SQL] " + text);
+        }
 
 
-        ///runs the given query and returns the reader///
+        private static void LogError(string text) {
+            Debug.LogError("[SQL] " + text);
+        }
+
+
+        //runs the given query and returns the reader//
         public static IDataReader Query(string query) {
             dbcon.Open();
             dbcmd = dbcon.CreateCommand();
@@ -25,12 +33,28 @@ namespace Voxelgon {
             return dbcmd.ExecuteReader();
         }
 
-        ///cleans up SQL command///
+
+        //cleans up after running a SQL query//
         public static void Cleanup(){
             dbcmd.Dispose();
             dbcmd = null;
         }
 
+
+        //returns the number of rows in the given column
+        public static int Count(string table, string column) {
+
+            string sql = string.Format("SELECT COUNT(`{0}`) c FROM {1}", column, table);
+            IDataReader reader = Query(sql);
+
+            reader.Read();
+            int count = reader.GetInt32(0);
+
+            return count;
+        }
+
+
+        //Runs the file at `path`//
         public static void RunFile(string path) {
             StreamReader sr = new StreamReader(path);
             string contents;
@@ -39,20 +63,20 @@ namespace Voxelgon {
             try {
                 contents = sr.ReadToEnd();
             } catch {
-                Debug.LogError(string.Format("[SQL] Could not load file at path: {0}", path));
+                LogError(string.Format("Could not load file at path: {0}", path));
                 return;
             } finally {
                 sr.Close();
             }
 
-            Debug.Log(string.Format("[SQL] Loading SQL query {0} \n full path: {1}", Asset.Filename(path), path));
+            Log(string.Format("Loading SQL query {0} \n full path: {1}", Asset.Filename(path), path));
 
             try {
                 Query(contents);
             } catch {
-                Debug.LogError(string.Format("[SQL] Error running SQL query in {0} \n full path: {1}", Asset.Filename(path), path));
+                LogError(string.Format("Error running SQL query in {0} \n full path: {1}", Asset.Filename(path), path));
             } finally {
-                Debug.Log(string.Format("[SQL] Success! \n loaded '{0}' at path '{1}'", Asset.Filename(path), path));
+                Log(string.Format("Success! \n loaded '{0}' at path '{1}'", Asset.Filename(path), path));
             }
         }
     }
