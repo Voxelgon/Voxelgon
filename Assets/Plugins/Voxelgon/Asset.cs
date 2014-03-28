@@ -113,13 +113,16 @@ namespace Voxelgon{
         }
 
 
-        //imports assets (all testing code right now)//
-        static public void Import() {
-
-            Log("Loading Assets...");
-
+        //Sets up database for assets//
+        static public void Setup() {
             resourcePath = Parent(Application.dataPath) + "/Resources";
             innerResourcePath = Application.dataPath + "/Resources";
+        }
+
+        //imports assets (all testing code right now)//
+        static public void Load() {
+
+            Log("Loading Assets...");
 
             Sql.RunFile(innerResourcePath + "/Schema.sql");
             Sql.RunAsset(innerResourcePath + "/Voxelgon.sql");
@@ -127,14 +130,7 @@ namespace Voxelgon{
             List<string> files = FilesUnderDirectory(resourcePath);
 
             foreach (string path in files) {
-                Sql.Query(string.Format
-                    (
-                        "INSERT INTO `resources` (`path`, `filename`, `extension`) VALUES ('{0}', '{1}', '{2}')",
-                        path,
-                        Filename(path),
-                        Extension(path)
-                    )
-                );
+                Sql.Query(string.Format("INSERT INTO `resources` (`path`, `filename`, `extension`) VALUES ('{0}', '{1}', '{2}')", path, Filename(path), Extension(path)));
             }
 
             elementCount = Sql.Count("elements", "atomic_number");
@@ -153,6 +149,10 @@ namespace Voxelgon{
             Log(Sql.QueryArray("SELECT `path` FROM `elements`")[0]);
             Log(Sql.QueryArray("SELECT `extension` FROM `resources`")[0]);
 
+        }
+
+
+        static public void Import() {
         }
     }
 }
