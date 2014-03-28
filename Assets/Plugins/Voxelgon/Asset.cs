@@ -32,15 +32,23 @@ namespace Voxelgon{
 
         //STATIC FUNCTIONS//
 
+        //logs a message tagged with [Assets]//
         private static void Log(string text) {
             Debug.Log("[Assets] " + text);
         }
 
 
-        //returns the filename of path
+        //returns the filename of path//
         public static string Filename(string path) {
 
             return Path.GetFileName(path);
+        }
+
+
+        //returns the extension of path//
+        public static string Extension(string path) {
+
+            return Path.GetExtension(path);
         }
 
 
@@ -57,7 +65,7 @@ namespace Voxelgon{
         }
 
 
-        //returns the parent (/..) directory of the given path
+        //returns the parent (/..) directory of the given path//
         static public string Parent(string path) {
 
             string parent = Directory.GetParent(path).FullName;
@@ -116,6 +124,19 @@ namespace Voxelgon{
             Sql.RunFile(innerResourcePath + "/Schema.sql");
             Sql.RunAsset(innerResourcePath + "/Voxelgon.sql");
 
+            List<string> files = FilesUnderDirectory(resourcePath);
+
+            foreach (string path in files) {
+                Sql.Query(string.Format
+                    (
+                        "INSERT INTO `resources` (`path`, `filename`, `extension`) VALUES ('{0}', '{1}', '{2}')",
+                        path,
+                        Filename(path),
+                        Extension(path)
+                    )
+                );
+            }
+
             elementCount = Sql.Count("elements", "atomic_number");
             materialCount = Sql.Count("materials", "material_id");
             makeupCount = Sql.Count("materials_makeup", "makeup_id");
@@ -130,6 +151,7 @@ namespace Voxelgon{
             );
 
             Log(Sql.QueryArray("SELECT `path` FROM `elements`")[0]);
+            Log(Sql.QueryArray("SELECT `extension` FROM `resources`")[0]);
 
         }
     }
