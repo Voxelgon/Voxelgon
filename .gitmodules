@@ -1,0 +1,3 @@
+[submodule "UnitySQL"]
+	path = UnitySQL
+	url = https://github.com/Voxelgon/UnitySQL
