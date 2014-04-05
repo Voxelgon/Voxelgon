@@ -8,7 +8,7 @@ using Voxelgon;
 
 public class ShipManager : MonoBehaviour {
 
-    public float portYawCutoff = 30;    //angle +/- before the port is no longer for rotation
+    public float portYawCutoff = 30;	//angle +/- before the port is no longer for rotation
 
     //input Variables
     public float linInput;
@@ -51,7 +51,6 @@ public class ShipManager : MonoBehaviour {
     public Dictionary<PortRotFunction, int> rotControls = new Dictionary<PortRotFunction, int> ();
     public Dictionary<PortTransFunction, int> transControls = new Dictionary<PortTransFunction, int> ();
 
-
     public void SetupPorts(){
 
         //Yaw port lists
@@ -66,7 +65,6 @@ public class ShipManager : MonoBehaviour {
         transPorts.Add(PortTransFunction.Left, new List<GameObject>());
         transPorts.Add(PortTransFunction.Right, new List<GameObject>());
 
-
         //Yaw control lists
         rotControls.Add(PortRotFunction.Left, new int ());
         rotControls.Add(PortRotFunction.Right, new int ());
@@ -80,7 +78,6 @@ public class ShipManager : MonoBehaviour {
         transControls.Add(PortTransFunction.Left, new int ());
         transControls.Add(PortTransFunction.Right, new int ());
 
-
         Vector3 origin = transform.rigidbody.centerOfMass;
         Component[] PortScripts = gameObject.GetComponentsInChildren(typeof(RCSport));
 
@@ -91,7 +88,6 @@ public class ShipManager : MonoBehaviour {
 
             RCSport portScript = port.GetComponent<RCSport>();
             portScript.ship = this;
-
 
             //Rotation
             if((angle > portYawCutoff) && (angle < 180 - portYawCutoff)){
@@ -113,7 +109,6 @@ public class ShipManager : MonoBehaviour {
                 //not suitable for rotation
                 portScript.rotFunction = PortRotFunction.None;
             }
-
 
             //Translation
             if((childAngle > 315) || (childAngle < 45)) {
@@ -212,7 +207,6 @@ public class ShipManager : MonoBehaviour {
         }
 
     }
-
 
     //Called every frame
     public void FixedUpdate() {

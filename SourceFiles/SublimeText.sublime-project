@@ -2,14 +2,23 @@
 	"folders":
 	[
 		{
-			"path": "../Assets/Plugins",
+			"file_exclude_patterns":
+			[
+				"*.meta"
+			],
 			"name": "C#",
-			"file_exclude_patterns": ["*.meta"]
+			"path": "/Users/drewcassidy/Projects/Git_Repositories/voxelgon/Assets/Plugins"
 		},
 		{
-			"path": "../Assets/PluginsJS",
+			"file_exclude_patterns":
+			[
+				"*.meta"
+			],
 			"name": "JavaScript",
-			"file_exclude_patterns": ["*.meta"]
+			"path": "/Users/drewcassidy/Projects/Git_Repositories/voxelgon/Assets/PluginsJS"
+		},
+		{
+			"path": "/Users/drewcassidy/Projects/Git_Repositories/voxelgon/Resources"
 		}
 	]
 }

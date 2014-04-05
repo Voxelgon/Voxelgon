@@ -2,9 +2,15 @@
 /Temp
 /obj
 /library
+*.swp
 
 Assembly-UnityScript-firstpass-vs.unityproj
 Assembly-UnityScript-firstpass.unityproj
 Assembly-UnityScript-vs.unityproj
 Assembly-UnityScript.unityproj
 Assembly-CSharp-firstpass.csproj
+
+*.db
+*.git
+
+Assets/Plugins/UnitySQL/*
