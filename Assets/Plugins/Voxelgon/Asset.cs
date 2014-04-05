@@ -4,8 +4,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.IO;
+using UnitySQL;
 
-using LitJson;
 
 namespace Voxelgon{
 
@@ -112,6 +112,12 @@ namespace Voxelgon{
             return files;
         }
 
+        static private void LoadAsset(string path) {
+            Dictionary<string, string> _params = new Dictionary<string, string>();
+            _params.Add("@path", path);
+            SQLite.RunFile(path, _params);
+        }
+
 
         //Sets up database for assets//
         static public void Setup() {
@@ -124,18 +130,18 @@ namespace Voxelgon{
 
             Log("Loading Assets...");
 
-            Sql.RunFile(innerResourcePath + "/Schema.sql");
-            Sql.RunAsset(innerResourcePath + "/Voxelgon.sql");
+            SQLite.RunFile(innerResourcePath + "/Schema.sql");
+            LoadAsset(innerResourcePath + "/Voxelgon.sql");
 
             List<string> files = FilesUnderDirectory(resourcePath);
 
             foreach (string path in files) {
-                Sql.Query(string.Format("INSERT INTO `resources` (`path`, `filename`, `extension`) VALUES ('{0}', '{1}', '{2}')", path, Filename(path), Extension(path)));
+                SQLite.Query(string.Format("INSERT INTO `resources` (`path`, `filename`, `extension`) VALUES ('{0}', '{1}', '{2}')", path, Filename(path), Extension(path)));
             }
 
-            elementCount = Sql.Count("elements", "atomic_number");
-            materialCount = Sql.Count("materials", "material_id");
-            makeupCount = Sql.Count("materials_makeup", "makeup_id");
+            elementCount = SQLite.Count("elements", "atomic_number");
+            materialCount = SQLite.Count("materials", "material_id");
+            makeupCount = SQLite.Count("materials_makeup", "makeup_id");
 
             Log(string.Format
                 (
@@ -145,10 +151,6 @@ namespace Voxelgon{
                     makeupCount
                 )
             );
-
-            Log(Sql.QueryArray("SELECT `path` FROM `elements`")[0]);
-            Log(Sql.QueryArray("SELECT `extension` FROM `resources`")[0]);
-
         }
 
 
