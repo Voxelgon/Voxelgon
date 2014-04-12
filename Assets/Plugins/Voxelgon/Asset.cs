@@ -19,9 +19,12 @@ namespace Voxelgon{
 
         static string schemaPath;
 
-        static int elementCount;
-        static int materialCount;
-        static int makeupCount;
+        private static int _elementCount;
+        private static int _materialCount;
+        private static int _makeupCount;
+        private static int _totalCount;
+
+        private static string _indent = "        ";
 
         private static string[] ignoredFiles= new string[] {
             ".[Dd][Ss]_[Ss]tore$",
@@ -113,9 +116,9 @@ namespace Voxelgon{
         }
 
         static private void LoadAsset(string path) {
-            Dictionary<string, string> _params = new Dictionary<string, string>();
-            _params.Add("@path", path);
-            SQLite.RunFile(path, _params);
+            Dictionary<string, string> parameters = new Dictionary<string, string>();
+            parameters.Add("@path", path);
+            SQLite.RunFile(path, parameters);
         }
 
 
@@ -123,6 +126,9 @@ namespace Voxelgon{
         static public void Setup() {
             resourcePath = Parent(Application.dataPath) + "/Resources";
             innerResourcePath = Application.dataPath + "/Resources";
+
+            SQLite.SetDbName("Voxelgon");
+            SQLite.Setup();
         }
 
         //imports assets (all testing code right now)//
@@ -136,21 +142,24 @@ namespace Voxelgon{
             List<string> files = FilesUnderDirectory(resourcePath);
 
             foreach (string path in files) {
-                SQLite.Query(string.Format("INSERT INTO `resources` (`path`, `filename`, `extension`) VALUES ('{0}', '{1}', '{2}')", path, Filename(path), Extension(path)));
+                string sql = "INSERT INTO `resources` (`path`, `filename`, `extension`)\n"; 
+                sql = sql + string.Format("VALUES ('{0}', '{1}', '{2}')", path, Filename(path), Extension(path));
+
+                SQLite.Query(sql);
             }
 
-            elementCount = SQLite.Count("elements", "atomic_number");
-            materialCount = SQLite.Count("materials", "material_id");
-            makeupCount = SQLite.Count("materials_makeup", "makeup_id");
+            _elementCount = SQLite.Count("elements", "atomic_number");
+            _materialCount = SQLite.Count("materials", "material_id");
+            _makeupCount = SQLite.Count("materials_makeup", "makeup_id");
 
-            Log(string.Format
-                (
-                    "Loaded:\n    {0} element assets, {1} material assets, {2} material makeup assets",
-                    elementCount,
-                    materialCount,
-                    makeupCount
-                )
-            );
+            _totalCount = _elementCount + _materialCount + _makeupCount;
+
+            string counts = "Loaded:\n";;
+            counts += _indent + _totalCount + " Total assets,\n";
+            counts += _indent + _elementCount + " Elements,\n";
+            counts += _indent + _materialCount + " Materials,\n";
+            counts += _indent + _makeupCount + " Material Makeup Objects,\n";
+            Log(counts);
         }
 
 
