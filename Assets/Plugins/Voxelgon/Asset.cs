@@ -154,7 +154,7 @@ namespace Voxelgon{
 
             _totalCount = _elementCount + _materialCount + _makeupCount;
 
-            string counts = "Loaded:\n";;
+            string counts = "Loaded:\n";
             counts += _indent + _totalCount + " Total assets,\n";
             counts += _indent + _elementCount + " Elements,\n";
             counts += _indent + _materialCount + " Materials,\n";
