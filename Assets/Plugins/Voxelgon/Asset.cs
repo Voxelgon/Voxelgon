@@ -31,6 +31,19 @@ namespace Voxelgon{
             ".[Ss]wp$"
         };
 
+        private enum Filetype {
+            Sql,
+            Mesh,
+            Texture,
+            Code
+        }
+
+        private static Dictionary<string, Filetype> extensions = new Dictionary<string, Filetype> {
+            {".sql", Filetype.Sql},
+            {".fbx", Filetype.Mesh},
+            {".blend", Filetype.Mesh},
+            {".png", Filetype.Texture}
+        }
 
         //STATIC FUNCTIONS//
 
