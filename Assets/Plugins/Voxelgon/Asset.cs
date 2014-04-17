@@ -6,7 +6,6 @@ using System.Text.RegularExpressions;
 using System.IO;
 using UnitySQL;
 
-
 namespace Voxelgon{
 
     public class Asset{
