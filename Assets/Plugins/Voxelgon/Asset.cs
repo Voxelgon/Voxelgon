@@ -154,10 +154,14 @@ namespace Voxelgon{
             List<string> files = FilesUnderDirectory(resourcePath);
 
             foreach (string path in files) {
-                string sql = "INSERT INTO `resources` (`path`, `filename`, `extension`)\n"; 
-                sql = sql + string.Format("VALUES ('{0}', '{1}', '{2}')", path, Filename(path), Extension(path));
 
-                SQLite.Query(sql);
+                Dictionary<string, object> resourceDictionary = new Dictionary<string, object> {
+                    {"path", path},
+                    {"filename", Filename(path)},
+                    {"extension", Extension(path)}
+                };
+
+                SQLite.Insert("resources", resourceDictionary);
             }
 
             _elementCount = SQLite.Count("elements", "atomic_number");
