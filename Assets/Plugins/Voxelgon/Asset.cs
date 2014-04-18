@@ -43,7 +43,7 @@ namespace Voxelgon{
             {".fbx", Filetype.Mesh},
             {".blend", Filetype.Mesh},
             {".png", Filetype.Texture}
-        }
+        };
 
         //STATIC FUNCTIONS//
 
