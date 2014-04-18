@@ -2,7 +2,7 @@
 /Temp
 /obj
 /library
-*.swp
+*.sw[a-p]
 
 Assembly-UnityScript-firstpass-vs.unityproj
 Assembly-UnityScript-firstpass.unityproj
