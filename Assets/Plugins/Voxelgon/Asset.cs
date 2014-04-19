@@ -155,13 +155,16 @@ namespace Voxelgon{
 
             foreach (string path in files) {
 
-                Dictionary<string, object> resourceDictionary = new Dictionary<string, object> {
-                    {"path", path},
-                    {"filename", Filename(path)},
-                    {"extension", Extension(path)}
-                };
+                if(extensions.ContainsKey(Extension(path).ToLower())) {
 
-                SQLite.Insert("resources", resourceDictionary);
+                    Dictionary<string, object> resourceDictionary = new Dictionary<string, object> {
+                        {"path", path},
+                        {"filename", Filename(path)},
+                        {"extension", Extension(path).ToLower()}
+                    };
+
+                    SQLite.Insert("resources", resourceDictionary);
+                }
             }
 
             _elementCount = SQLite.Count("elements", "atomic_number");
