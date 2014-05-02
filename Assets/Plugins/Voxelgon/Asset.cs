@@ -32,10 +32,12 @@ namespace Voxelgon{
         };
 
         private enum Filetype {
+            Other,
             Sql,
             Mesh,
             Texture,
             Code
+
         }
 
         private static Dictionary<string, Filetype> extensions = new Dictionary<string, Filetype> {
@@ -127,11 +129,36 @@ namespace Voxelgon{
             return files;
         }
 
-        static private void LoadAsset(string path) {
+        static private void LoadSQL(string path) {
             Dictionary<string, string> parameters = new Dictionary<string, string>();
             parameters.Add("@path", path);
             SQLite.RunFile(path, parameters);
         }
+
+
+
+        static private void LoadAsset(Dictionary<string, string> properties) {
+
+            string ext = properties["extension"].ToLower();
+            string path = properties["path"];
+
+
+            Filetype filetype;
+
+            if (extensions.ContainsKey(ext)) {
+                filetype = extensions[ext];
+            } else {
+                filetype = Filetype.Other;
+            }
+
+            switch (filetype)
+            {
+                case Filetype.Sql:
+                    LoadSQL(path);
+                    break;
+            }
+        }
+
 
 
         //Sets up database for assets//
@@ -143,13 +170,15 @@ namespace Voxelgon{
             SQLite.Setup();
         }
 
+
+
         //imports assets (all testing code right now)//
         static public void Load() {
 
             Log("Loading Assets...");
 
             SQLite.RunFile(innerResourcePath + "/Schema.sql");
-            LoadAsset(innerResourcePath + "/Voxelgon.sql");
+            LoadSQL(innerResourcePath + "/Voxelgon.sql");
 
             List<string> files = FilesUnderDirectory(resourcePath);
 
@@ -182,7 +211,13 @@ namespace Voxelgon{
         }
 
 
+
         static public void Import() {
+            List<Dictionary<string, string>> assets = SQLite.QueryAsList("Select * FROM `resources`");
+
+            foreach(Dictionary<string, string> item in assets) {
+                LoadAsset(item);
+            }
         }
     }
 }
