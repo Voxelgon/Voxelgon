@@ -1,9 +1,9 @@
 using UnityEngine;
 using System.IO;
 namespace Voxelgon {
-    static class MeshSerializer {
+    public static class MeshSerializer {
 //TODO fix all useage of var, fix all bracketing
-        static Mesh ReadMesh( byte[] bytes ) {
+        public static Mesh ReadMesh( byte[] bytes ) {
             if(bytes.Length < 5 ) {
                 Debug.Log( "Invalid mesh file!" );
                 return null;
@@ -70,7 +70,7 @@ namespace Voxelgon {
             return mesh;
         }
 
-        static void ReadVector3Array16bit (Vector3[] arr, BinaryReader buf) {
+        public static void ReadVector3Array16bit (Vector3[] arr, BinaryReader buf) {
             int n = arr.Length;
             if (n == 0)
                 return;
@@ -98,7 +98,7 @@ namespace Voxelgon {
             }
         }
 
-        static void WriteVector3Array16bit (Vector3[] arr, BinaryWriter buf) {
+        public static void WriteVector3Array16bit (Vector3[] arr, BinaryWriter buf) {
             if (arr.Length == 0)
                 return;
 
@@ -132,7 +132,7 @@ namespace Voxelgon {
         }
 
 
-        static void ReadVector2Array16bit (Vector2[] arr, BinaryReader buf) {
+        public static void ReadVector2Array16bit (Vector2[] arr, BinaryReader buf) {
             int n = arr.Length;
             if (n == 0)
                 return;
@@ -155,7 +155,7 @@ namespace Voxelgon {
             }
         }
 
-        static void WriteVector2Array16bit (Vector2[] arr, BinaryWriter buf) {
+        public static void WriteVector2Array16bit (Vector2[] arr, BinaryWriter buf) {
             if (arr.Length == 0)
                 return;
 
@@ -186,7 +186,7 @@ namespace Voxelgon {
             }
         }
 
-        static void ReadVector3ArrayBytes (Vector3[] arr, BinaryReader buf) {
+        public static void ReadVector3ArrayBytes (Vector3[] arr, BinaryReader buf) {
            // Decode vectors as 8 bit integers components in -1.0 .. 1.0 range
             int n = arr.Length;
             for (var i = 0; i < n; ++i)  {
@@ -200,7 +200,7 @@ namespace Voxelgon {
             }
         }
 
-        static void WriteVector3ArrayBytes (Vector3[] arr, BinaryWriter buf) {
+        public static void WriteVector3ArrayBytes (Vector3[] arr, BinaryWriter buf) {
             // Encode vectors as 8 bit integers components in -1.0 .. 1.0 range
             foreach (Vector3 v in arr)  {
                 byte ix = (byte) Mathf.Clamp ((float)(v.x * 127.0 + 128.0), 0.0f, 255.0f);
@@ -212,7 +212,7 @@ namespace Voxelgon {
             }
         }
 
-        static void ReadVector4ArrayBytes (Vector4[] arr, BinaryReader buf) {
+        public static void ReadVector4ArrayBytes (Vector4[] arr, BinaryReader buf) {
             // Decode vectors as 8 bit integers components in -1.0 .. 1.0 range
             var n = arr.Length;
             for (int i = 0; i < n; ++i)  {
@@ -228,7 +228,7 @@ namespace Voxelgon {
             }
         }
 
-        static void WriteVector4ArrayBytes (Vector4[] arr, BinaryWriter buf) {
+        public static void WriteVector4ArrayBytes (Vector4[] arr, BinaryWriter buf) {
             // Encode vectors as 8 bit integers components in -1.0 .. 1.0 range
             foreach (Vector4 v in arr)  {
                 byte ix = (byte) Mathf.Clamp ((float) (v.x * 127.0 + 128.0), 0.0f, 255.0f);
@@ -243,7 +243,7 @@ namespace Voxelgon {
         }
 
         // Writes mesh to an array of bytes.
-        static byte[] WriteMesh(Mesh mesh, bool saveTangents) {
+        public static byte[] WriteMesh(Mesh mesh, bool saveTangents) {
             if( !mesh ) {
                 Debug.Log( "No mesh given!" );
                 return null;
@@ -291,7 +291,7 @@ namespace Voxelgon {
 
 
         // Writes mesh to a local file, for loading with WWW interface later.
-        static void WriteMeshToFileForWeb(Mesh mesh, string name, bool saveTangents) {
+        public static void WriteMeshToFileForWeb(Mesh mesh, string name, bool saveTangents) {
             // Write mesh to regular bytes
             var bytes = WriteMesh( mesh, saveTangents );
 
@@ -303,7 +303,7 @@ namespace Voxelgon {
 
 
         // Reads mesh from the given WWW (that is finished downloading already)
-        static Mesh ReadMeshFromWWW(WWW download) {
+        public static Mesh ReadMeshFromWWW(WWW download) {
             if (download.error != null)  {
                 Debug.Log("Error downloading mesh: " + download.error);
                 return null;
