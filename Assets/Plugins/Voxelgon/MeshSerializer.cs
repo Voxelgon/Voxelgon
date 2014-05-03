@@ -1,12 +1,10 @@
 using UnityEngine;
 using System.IO;
-namespace Voxelgon{
-    static class MeshSerializer{
+namespace Voxelgon {
+    static class MeshSerializer {
 //TODO fix all useage of var, fix all bracketing
-        static Mesh ReadMesh( byte[] bytes )
-        {
-            if(bytes.Length < 5 )
-            {
+        static Mesh ReadMesh( byte[] bytes ) {
+            if(bytes.Length < 5 ) {
                 Debug.Log( "Invalid mesh file!" );
                 return null;
             }
@@ -19,18 +17,15 @@ namespace Voxelgon{
             byte format = buf.ReadByte();
 
             // sanity check
-            if (vertCount < 0 || vertCount > 64000)
-            {
+            if (vertCount < 0 || vertCount > 64000) {
                 Debug.Log("Invalid vertex count in the mesh data!");
                 return null;
             }
-            if (triCount < 0 || triCount > 64000)
-            {
+            if (triCount < 0 || triCount > 64000) {
                 Debug.Log("Invalid triangle count in the mesh data!");
                 return null;
             }
-            if (format < 1 || (format&1) == 0 || format > 15)
-            {
+            if (format < 1 || (format&1) == 0 || format > 15) {
                 Debug.Log("Invalid vertex format in the mesh data!");
                 return null;
             }
@@ -43,22 +38,19 @@ namespace Voxelgon{
             ReadVector3Array16bit (verts, buf);
             mesh.vertices = verts;
 
-            if((format & 0x2) == 0x2) // have normals
-            {
+            if((format & 0x2) == 0x2) { // have normals
                 Vector3[] normals = new Vector3[vertCount];
                 ReadVector3ArrayBytes (normals, buf);
                 mesh.normals = normals;
             }
 
-            if((format & 0x4) == 0x4) // have tangents
-            {
+            if((format & 0x4) == 0x4) { // have tangents
                 Vector4[] tangents = new Vector4[vertCount];
                 ReadVector4ArrayBytes (tangents, buf);
                 mesh.tangents = tangents;
             }
 
-            if((format & 0x8) == 0x8) // have UVs
-            {
+            if((format & 0x8) == 0x8) { // have UVs
                 Vector2[] uvs = new Vector2[vertCount];
                 ReadVector2Array16bit (uvs, buf);
                 mesh.uv = uvs;
@@ -66,8 +58,7 @@ namespace Voxelgon{
 
             // triangle indices
             int[] tris = new int[triCount * 3];
-            for( i = 0; i < triCount; ++i )
-            {
+            for( i = 0; i < triCount; ++i ) {
                 tris[i*3+0] = buf.ReadUInt16();
                 tris[i*3+1] = buf.ReadUInt16();
                 tris[i*3+2] = buf.ReadUInt16();
@@ -79,8 +70,7 @@ namespace Voxelgon{
             return mesh;
         }
 
-        static void ReadVector3Array16bit (Vector3[] arr, BinaryReader buf)
-        {
+        static void ReadVector3Array16bit (Vector3[] arr, BinaryReader buf) {
             int n = arr.Length;
             if (n == 0)
                 return;
@@ -97,7 +87,7 @@ namespace Voxelgon{
             bmax.z = buf.ReadSingle();
 
             // Decode vectors as 16 bit integer components between the bounds
-            for (int i = 0; i < n; i++) {
+            for (int i = 0; i < n; i++)  {
                 System.UInt16 ix= buf.ReadUInt16 ();
                 System.UInt16 iy = buf.ReadUInt16 ();
                 System.UInt16 iz = buf.ReadUInt16 ();
@@ -108,8 +98,7 @@ namespace Voxelgon{
             }
         }
 
-        static void WriteVector3Array16bit (Vector3[] arr, BinaryWriter buf)
-        {
+        static void WriteVector3Array16bit (Vector3[] arr, BinaryWriter buf) {
             if (arr.Length == 0)
                 return;
 
@@ -129,7 +118,7 @@ namespace Voxelgon{
             buf.Write (bmax.z);
 
             // Encode vectors as 16 bit integer components between the bounds
-            foreach(Vector3 v in arr) {
+            foreach(Vector3 v in arr)  {
                 float xx = Mathf.Clamp ((float) ((v.x - bmin.x) / (bmax.x - bmin.x) * 65535.0), 0.0f, 65535.0f);
                 float yy = Mathf.Clamp ((float) ((v.y - bmin.y) / (bmax.y - bmin.y) * 65535.0), 0.0f, 65535.0f);
                 float zz = Mathf.Clamp ((float) ((v.z - bmin.z) / (bmax.z - bmin.z) * 65535.0), 0.0f, 65535.0f);
@@ -143,8 +132,7 @@ namespace Voxelgon{
         }
 
 
-        static void ReadVector2Array16bit (Vector2[] arr, BinaryReader buf)
-        {
+        static void ReadVector2Array16bit (Vector2[] arr, BinaryReader buf) {
             int n = arr.Length;
             if (n == 0)
                 return;
@@ -158,7 +146,7 @@ namespace Voxelgon{
             bmax.y = buf.ReadSingle ();
 
             // Decode vectors as 16 bit integer components between the bounds
-            for (int i = 0; i < n; i++) {
+            for (int i = 0; i < n; i++)  {
                 System.UInt16 ix = buf.ReadUInt16 ();
                 System.UInt16 iy = buf.ReadUInt16 ();
                 float xx = (float) (ix / 65535.0 * (bmax.x - bmin.x) + bmin.x);
@@ -167,15 +155,14 @@ namespace Voxelgon{
             }
         }
 
-        static void WriteVector2Array16bit (Vector2[] arr, BinaryWriter buf)
-        {
+        static void WriteVector2Array16bit (Vector2[] arr, BinaryWriter buf) {
             if (arr.Length == 0)
                 return;
 
             // Calculate bounding box of the array
             Vector2 bmin = arr[0] - new Vector2(0.001f,0.001f);
             Vector2 bmax = arr[0] + new Vector2(0.001f,0.001f);
-            foreach (var v in arr) {
+            foreach (var v in arr)  {
                 bmin.x = Mathf.Min (bmin.x, v.x);
                 bmin.y = Mathf.Min (bmin.y, v.y);
                 bmax.x = Mathf.Max (bmax.x, v.x);
@@ -189,7 +176,7 @@ namespace Voxelgon{
             buf.Write (bmax.y);
 
             // Encode vectors as 16 bit integer components between the bounds
-            foreach (Vector2 v in arr) {
+            foreach (Vector2 v in arr)  {
                 float xx = (float) ((v.x - bmin.x) / (bmax.x - bmin.x) * 65535.0);
                 float yy = (float) ((v.y - bmin.y) / (bmax.y - bmin.y) * 65535.0);
                 System.UInt16 ix = (System.UInt16) xx;
@@ -199,11 +186,10 @@ namespace Voxelgon{
             }
         }
 
-        static void ReadVector3ArrayBytes (Vector3[] arr, BinaryReader buf)
-        {
+        static void ReadVector3ArrayBytes (Vector3[] arr, BinaryReader buf) {
            // Decode vectors as 8 bit integers components in -1.0 .. 1.0 range
             int n = arr.Length;
-            for (var i = 0; i < n; ++i) {
+            for (var i = 0; i < n; ++i)  {
                 byte ix = buf.ReadByte ();
                 byte iy = buf.ReadByte ();
                 byte iz = buf.ReadByte ();
@@ -214,10 +200,9 @@ namespace Voxelgon{
             }
         }
 
-        static void WriteVector3ArrayBytes (Vector3[] arr, BinaryWriter buf)
-        {
+        static void WriteVector3ArrayBytes (Vector3[] arr, BinaryWriter buf) {
             // Encode vectors as 8 bit integers components in -1.0 .. 1.0 range
-            foreach (Vector3 v in arr) {
+            foreach (Vector3 v in arr)  {
                 byte ix = (byte) Mathf.Clamp ((float)(v.x * 127.0 + 128.0), 0.0f, 255.0f);
                 byte iy = (byte) Mathf.Clamp ((float)(v.y * 127.0 + 128.0), 0.0f, 255.0f);
                 byte iz = (byte) Mathf.Clamp ((float)(v.z * 127.0 + 128.0), 0.0f, 255.0f);
@@ -227,11 +212,10 @@ namespace Voxelgon{
             }
         }
 
-        static void ReadVector4ArrayBytes (Vector4[] arr, BinaryReader buf)
-        {
+        static void ReadVector4ArrayBytes (Vector4[] arr, BinaryReader buf) {
             // Decode vectors as 8 bit integers components in -1.0 .. 1.0 range
             var n = arr.Length;
-            for (int i = 0; i < n; ++i) {
+            for (int i = 0; i < n; ++i)  {
                 byte ix = buf.ReadByte ();
                 byte iy = buf.ReadByte ();
                 byte iz = buf.ReadByte ();
@@ -244,10 +228,9 @@ namespace Voxelgon{
             }
         }
 
-        static void WriteVector4ArrayBytes (Vector4[] arr, BinaryWriter buf)
-        {
+        static void WriteVector4ArrayBytes (Vector4[] arr, BinaryWriter buf) {
             // Encode vectors as 8 bit integers components in -1.0 .. 1.0 range
-            foreach (Vector4 v in arr) {
+            foreach (Vector4 v in arr)  {
                 byte ix = (byte) Mathf.Clamp ((float) (v.x * 127.0 + 128.0), 0.0f, 255.0f);
                 byte iy = (byte) Mathf.Clamp ((float) (v.y * 127.0 + 128.0), 0.0f, 255.0f);
                 byte iz = (byte) Mathf.Clamp ((float) (v.z * 127.0 + 128.0), 0.0f, 255.0f);
@@ -260,10 +243,8 @@ namespace Voxelgon{
         }
 
         // Writes mesh to an array of bytes.
-        static byte[] WriteMesh(Mesh mesh, bool saveTangents)
-        {
-            if( !mesh )
-            {
+        static byte[] WriteMesh(Mesh mesh, bool saveTangents) {
+            if( !mesh ) {
                 Debug.Log( "No mesh given!" );
                 return null;
             }
@@ -299,7 +280,7 @@ namespace Voxelgon{
                 WriteVector4ArrayBytes (tangents, buf);
             WriteVector2Array16bit (uvs, buf);
             // triangle indices
-            foreach(int idx in tris ) {
+            foreach(int idx in tris )  {
                 System.UInt16 idx16 = (System.UInt16) idx;
                 buf.Write( idx16 );
             }
@@ -310,8 +291,7 @@ namespace Voxelgon{
 
 
         // Writes mesh to a local file, for loading with WWW interface later.
-        static void WriteMeshToFileForWeb(Mesh mesh, string name, bool saveTangents)
-        {
+        static void WriteMeshToFileForWeb(Mesh mesh, string name, bool saveTangents) {
             // Write mesh to regular bytes
             var bytes = WriteMesh( mesh, saveTangents );
 
@@ -323,14 +303,13 @@ namespace Voxelgon{
 
 
         // Reads mesh from the given WWW (that is finished downloading already)
-        static Mesh ReadMeshFromWWW(WWW download)
-        {
-            if (download.error != null) {
+        static Mesh ReadMeshFromWWW(WWW download) {
+            if (download.error != null)  {
                 Debug.Log("Error downloading mesh: " + download.error);
                 return null;
             }
 
-            if (!download.isDone) {
+            if (!download.isDone)  {
                 Debug.Log("Download must be finished already");
                 return null;
             }
