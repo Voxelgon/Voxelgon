@@ -132,7 +132,7 @@ namespace Voxelgon{
         static private void LoadSQL(string path) {
             Dictionary<string, string> parameters = new Dictionary<string, string>();
             parameters.Add("@path", path);
-            SQLite.RunFile(path, parameters);
+            SQLite.RunFile(path, parameters, false);
         }
 
 
@@ -177,7 +177,7 @@ namespace Voxelgon{
 
             Log("Loading Assets...");
 
-            SQLite.RunFile(innerResourcePath + "/Schema.sql");
+            SQLite.RunFile(innerResourcePath + "/Schema.sql", null, false);
             LoadSQL(innerResourcePath + "/Voxelgon.sql");
 
             List<string> files = FilesUnderDirectory(resourcePath);
