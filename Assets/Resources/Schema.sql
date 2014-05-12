@@ -11,7 +11,7 @@ CREATE TABLE `elements` (
   `density`         REAL(8,3),
   `melting_point`   REAL(8,3),
   `boiling_point`   REAL(8,3),
-  `sql_path`        TEXT(100);
+  `sql_path`        TEXT(100),
 
   PRIMARY KEY (`atomic_number`)
 );
