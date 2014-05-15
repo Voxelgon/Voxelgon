@@ -131,7 +131,89 @@ namespace Voxelgon{
 
 
 
-        public static Mesh ImportMesh(string path) {
+        static private void LoadAsset(Dictionary<string, string> properties) {
+
+            string ext = properties["extension"].ToLower();
+            string path = properties["path"];
+
+
+            Filetype filetype;
+
+            if (extensions.ContainsKey(ext)) {
+                filetype = extensions[ext];
+            } else {
+                filetype = Filetype.Other;
+            }
+
+            switch (filetype)
+            {
+                case Filetype.Sql:
+                    LoadSQL(path);
+                    break;
+            }
+        }
+
+
+
+        //Sets up database for assets//
+        static public void Setup() {
+            resourcePath = Parent(Application.dataPath) + "/Resources";
+            innerResourcePath = Application.dataPath + "/Resources";
+
+            SQLite.SetDbName("Voxelgon");
+            SQLite.Setup();
+        }
+
+
+
+        //imports assets (all testing code right now)//
+        static public void Import() {
+
+            //announce Import is beginning in log
+            Log("Importing Assets...");
+
+            //import Schema and Voxelgon resources first
+            SQLite.RunFile(innerResourcePath + "/Schema.sql", null, false);
+            ImportSQL(innerResourcePath + "/Voxelgon.sql");
+
+            string fileListQuery;
+
+
+            //List the number of each kind of asset imported into the SQL database in log
+            elementCount = SQLite.Count("elements", "atomic_number");
+            materialCount = SQLite.Count("materials", "material_id");
+            makeupCount = SQLite.Count("materials_makeup", "makeup_id");
+
+            totalCount = _elementCount + _materialCount + _makeupCount;
+
+            string counts = "Imported:\n";
+            counts += _indent + totalCount + " Total assets,\n";
+            counts += _indent + elementCount + " Elements,\n";
+            counts += _indent + materialCount + " Materials,\n";
+            counts += _indent + makeupCount + " Material Makeup Objects,\n";
+            Log(counts);
+        }
+
+
+
+        static public void Load() {
+        }
+
+
+
+        //PRIVATE FUNCTIONS
+
+        //runs a .sql file with the appropriate parameters for later loading
+        static private void ImportSQL(string path) {
+            Dictionary<string, string> parameters = new Dictionary<string, string>();
+            parameters.Add("@path", path);
+            SQLite.RunFile(path, parameters, false);
+        }
+
+
+
+        //reads a .obj file and returns a Mesh object
+        static private Mesh ImportMesh(string path) {
             Mesh mesh = new Mesh();
 
             List<int> triangles = new List<int>();
@@ -181,8 +263,8 @@ namespace Voxelgon{
                         case "vn":
                             Vector3 normalVector = new Vector3();
                             normalVector.x = System.Convert.ToSingle(brokenString[1]);
-                            normalVector.x = System.Convert.ToSingle(brokenString[1]);
-                            normalVector.x = System.Convert.ToSingle(brokenString[1]);
+                            normalVector.y = System.Convert.ToSingle(brokenString[2]);
+                            normalVector.z = System.Convert.ToSingle(brokenString[3]);
 
                             normals.Add(normalVector);
                             break;
@@ -213,10 +295,6 @@ namespace Voxelgon{
                                 triangles.Add(face[0]-1);
                                 triangles.Add(face[k - 1]-1);
                                 triangles.Add(face[k]-1);
-                                Debug.Log(face[0]);
-                                Debug.Log(face[k-1]);
-                                Debug.Log(face[k]);
-                                Debug.Log("k: " + k);
                             }
 
                             break;
@@ -253,99 +331,6 @@ namespace Voxelgon{
             mesh.Optimize();
 
             return mesh;
-        }
-
-
-
-        static private void LoadSQL(string path) {
-            Dictionary<string, string> parameters = new Dictionary<string, string>();
-            parameters.Add("@path", path);
-            SQLite.RunFile(path, parameters, false);
-        }
-
-
-
-        static private void LoadAsset(Dictionary<string, string> properties) {
-
-            string ext = properties["extension"].ToLower();
-            string path = properties["path"];
-
-
-            Filetype filetype;
-
-            if (extensions.ContainsKey(ext)) {
-                filetype = extensions[ext];
-            } else {
-                filetype = Filetype.Other;
-            }
-
-            switch (filetype)
-            {
-                case Filetype.Sql:
-                    LoadSQL(path);
-                    break;
-            }
-        }
-
-
-
-        //Sets up database for assets//
-        static public void Setup() {
-            resourcePath = Parent(Application.dataPath) + "/Resources";
-            innerResourcePath = Application.dataPath + "/Resources";
-
-            SQLite.SetDbName("Voxelgon");
-            SQLite.Setup();
-        }
-
-
-
-        //imports assets (all testing code right now)//
-        static public void Load() {
-
-            Log("Loading Assets...");
-
-            SQLite.RunFile(innerResourcePath + "/Schema.sql", null, false);
-            LoadSQL(innerResourcePath + "/Voxelgon.sql");
-
-            List<string> files = FilesUnderDirectory(resourcePath);
-
-            foreach (string path in files) {
-
-                if(extensions.ContainsKey(Extension(path).ToLower())) {
-
-                    Dictionary<string, object> resourceDictionary = new Dictionary<string, object> {
-                        {"path", path},
-                        {"filename", Filename(path)},
-                        {"extension", Extension(path).ToLower()}
-                    };
-
-                    SQLite.Insert("resources", resourceDictionary);
-                }
-            }
-
-            _elementCount = SQLite.Count("elements", "atomic_number");
-            _materialCount = SQLite.Count("materials", "material_id");
-            _makeupCount = SQLite.Count("materials_makeup", "makeup_id");
-
-            _totalCount = _elementCount + _materialCount + _makeupCount;
-
-            string counts = "Loaded:\n";
-            counts += _indent + _totalCount + " Total assets,\n";
-            counts += _indent + _elementCount + " Elements,\n";
-            counts += _indent + _materialCount + " Materials,\n";
-            counts += _indent + _makeupCount + " Material Makeup Objects,\n";
-            Log(counts);
-        }
-
-
-
-        static public void Import() {
-            List<Dictionary<string, string>> assets = SQLite.QueryAsList("Select * FROM `resources`");
-
-            foreach(Dictionary<string, string> item in assets) {
-                LoadAsset(item);
-            }
         }
     }
 }
