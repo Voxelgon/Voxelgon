@@ -32,26 +32,85 @@ namespace Voxelgon {
 
             Mesh mesh = new Mesh();
 
-            // positions
+            //create Vertices
             Vector3[] verts = new Vector3[vertCount];
-            ReadVector3Array16bit(verts, buf);
+
+            // VERTICES
+            Vector3 vbmin;
+            Vector3 vbmax;
+
+            vbmin.x = buf.ReadSingle();
+            vbmax.x = buf.ReadSingle();
+            vbmin.y = buf.ReadSingle();
+            vbmax.y = buf.ReadSingle();
+            vbmin.z = buf.ReadSingle();
+            vbmax.z = buf.ReadSingle();
+
+            for (int i = 0; i < verts.Length; ++i)  {
+                System.UInt16 ix = buf.ReadUInt16();
+                System.UInt16 iy = buf.ReadUInt16();
+                System.UInt16 iz = buf.ReadUInt16();
+                float xx = (float) (ix / 65535.0 * (vbmax.x - vbmin.x)) + vbmin.x;
+                float yy = (float) (iy / 65535.0 * (vbmax.y - vbmin.y)) + vbmin.y;
+                float zz = (float) (iz / 65535.0 * (vbmax.z - vbmin.z)) + vbmin.z;
+                verts[i] = new Vector3(xx, yy, zz);
+            }
+
             mesh.vertices = verts;
 
+            // CHECK FOR OTHER MESH VALUES
             if((format & 0x2) == 0x2) { // have normals
                 Vector3[] normals = new Vector3[vertCount];
-                ReadVector3ArrayBytes (normals, buf);
+
+                for (var i = 0; i < normals.Length; ++i)  {
+                    byte ix = buf.ReadByte();
+                    byte iy = buf.ReadByte();
+                    byte iz = buf.ReadByte();
+                    float xx = (float) ((ix - 128.0) / 127.0);
+                    float yy = (float) ((iy - 128.0) / 127.0);
+                    float zz = (float) ((iz - 128.0) / 127.0);
+                    normals[i] = new Vector3(xx,yy,zz);
+                }
+
                 mesh.normals = normals;
             }
 
             if((format & 0x4) == 0x4) { // have tangents
                 Vector4[] tangents = new Vector4[vertCount];
-                ReadVector4ArrayBytes (tangents, buf);
+
+                for (int i = 0; i < tangents.Length; ++i)  {
+                    byte ix = buf.ReadByte();
+                    byte iy = buf.ReadByte();
+                    byte iz = buf.ReadByte();
+                    byte iw = buf.ReadByte();
+                    float xx = (float) ((ix - 128.0) / 127.0);
+                    float yy = (float) ((iy - 128.0) / 127.0);
+                    float zz = (float) ((iz - 128.0) / 127.0);
+                    float ww = (float) ((iw - 128.0) / 127.0);
+                    tangents[i] = new Vector4(xx,yy,zz,ww);
+                }
+
                 mesh.tangents = tangents;
             }
 
             if((format & 0x8) == 0x8) { // have UVs
                 Vector2[] uvs = new Vector2[vertCount];
-                ReadVector2Array16bit (uvs, buf);
+
+                Vector2 uvbmin;
+                Vector2 uvbmax;
+                uvbmin.x = buf.ReadSingle();
+                uvbmax.x = buf.ReadSingle();
+                uvbmin.y = buf.ReadSingle();
+                uvbmax.y = buf.ReadSingle();
+
+                // Decode vectors as 16 bit integer components between the bounds
+                for (int i = 0; i < uvs.Length; ++i)  {
+                    System.UInt16 ix = buf.ReadUInt16();
+                    System.UInt16 iy = buf.ReadUInt16();
+                    float xx = (float) (ix / 65535.0 * (uvbmax.x - uvbmin.x) + uvbmin.x);
+                    float yy = (float) (iy / 65535.0 * (uvbmax.y - uvbmin.y) + uvbmin.y);
+                    uvs[i] = new Vector2(xx,yy);
+                }
                 mesh.uv = uvs;
             }
 
@@ -67,178 +126,6 @@ namespace Voxelgon {
             buf.Close();
 
             return mesh;
-        }
-
-        public static void ReadVector3Array16bit(Vector3[] arr, BinaryReader buf) {
-            int n = arr.Length;
-            if (n == 0)
-                return;
-
-            // Read bounding box
-            Vector3 bmin;
-            Vector3 bmax;
-
-            bmin.x = buf.ReadSingle();
-            bmax.x = buf.ReadSingle();
-            bmin.y = buf.ReadSingle();
-            bmax.y = buf.ReadSingle();
-            bmin.z = buf.ReadSingle();
-            bmax.z = buf.ReadSingle();
-
-            // Decode vectors as 16 bit integer components between the bounds
-            for (int i = 0; i < n; ++i)  {
-                System.UInt16 ix = buf.ReadUInt16();
-                System.UInt16 iy = buf.ReadUInt16();
-                System.UInt16 iz = buf.ReadUInt16();
-                float xx = (float) (ix / 65535.0 * (bmax.x - bmin.x)) + bmin.x;
-                float yy = (float) (iy / 65535.0 * (bmax.y - bmin.y)) + bmin.y;
-                float zz = (float) (iz / 65535.0 * (bmax.z - bmin.z)) + bmin.z;
-                arr[i] = new Vector3(xx, yy, zz);
-            }
-        }
-
-        public static void WriteVector3Array16bit(Vector3[] arr, BinaryWriter buf) {
-            if (arr.Length == 0)
-                return;
-
-            // Calculate bounding box of the array
-            Bounds bounds = new Bounds(arr[0], new Vector3(0.001f, 0.001f, 0.001f));
-            foreach (Vector3 v in arr)
-                bounds.Encapsulate(v);
-
-            // Write bounds to stream
-            Vector3 bmin = bounds.min;
-            Vector3 bmax = bounds.max;
-            buf.Write(bmin.x);
-            buf.Write(bmax.x);
-            buf.Write(bmin.y);
-            buf.Write(bmax.y);
-            buf.Write(bmin.z);
-            buf.Write(bmax.z);
-
-            // Encode vectors as 16 bit integer components between the bounds
-            foreach(Vector3 v in arr)  {
-                float xx = Mathf.Clamp((float) ((v.x - bmin.x) / (bmax.x - bmin.x) * 65535.0), 0.0f, 65535.0f);
-                float yy = Mathf.Clamp((float) ((v.y - bmin.y) / (bmax.y - bmin.y) * 65535.0), 0.0f, 65535.0f);
-                float zz = Mathf.Clamp((float) ((v.z - bmin.z) / (bmax.z - bmin.z) * 65535.0), 0.0f, 65535.0f);
-                System.UInt16 ix = (System.UInt16) xx;
-                System.UInt16 iy = (System.UInt16) yy;
-                System.UInt16 iz = (System.UInt16) zz;
-                buf.Write(ix);
-                buf.Write(iy);
-                buf.Write(iz);
-            }
-        }
-
-
-        public static void ReadVector2Array16bit(Vector2[] arr, BinaryReader buf) {
-            int n = arr.Length;
-            if (n == 0)
-                return;
-
-            // Read bounding box
-            Vector2 bmin;
-            Vector2 bmax;
-            bmin.x = buf.ReadSingle();
-            bmax.x = buf.ReadSingle();
-            bmin.y = buf.ReadSingle();
-            bmax.y = buf.ReadSingle();
-
-            // Decode vectors as 16 bit integer components between the bounds
-            for (int i = 0; i < n; ++i)  {
-                System.UInt16 ix = buf.ReadUInt16();
-                System.UInt16 iy = buf.ReadUInt16();
-                float xx = (float) (ix / 65535.0 * (bmax.x - bmin.x) + bmin.x);
-                float yy = (float) (iy / 65535.0 * (bmax.y - bmin.y) + bmin.y);
-                arr[i] = new Vector2(xx,yy);
-            }
-        }
-
-        public static void WriteVector2Array16bit(Vector2[] arr, BinaryWriter buf) {
-            if (arr.Length == 0)
-                return;
-
-            // Calculate bounding box of the array
-            Vector2 bmin = arr[0] - new Vector2(0.001f,0.001f);
-            Vector2 bmax = arr[0] + new Vector2(0.001f,0.001f);
-            foreach (var v in arr)  {
-                bmin.x = Mathf.Min(bmin.x, v.x);
-                bmin.y = Mathf.Min(bmin.y, v.y);
-                bmax.x = Mathf.Max(bmax.x, v.x);
-                bmax.y = Mathf.Max(bmax.y, v.y);
-            }
-
-            // Write bounds to stream
-            buf.Write(bmin.x);
-            buf.Write(bmax.x);
-            buf.Write(bmin.y);
-            buf.Write(bmax.y);
-
-            // Encode vectors as 16 bit integer components between the bounds
-            foreach (Vector2 v in arr)  {
-                float xx = (float) ((v.x - bmin.x) / (bmax.x - bmin.x) * 65535.0);
-                float yy = (float) ((v.y - bmin.y) / (bmax.y - bmin.y) * 65535.0);
-                System.UInt16 ix = (System.UInt16) xx;
-                System.UInt16 iy = (System.UInt16) yy;
-                buf.Write(ix);
-                buf.Write(iy);
-            }
-        }
-
-        public static void ReadVector3ArrayBytes(Vector3[] arr, BinaryReader buf) {
-           // Decode vectors as 8 bit integers components in -1.0 .. 1.0 range
-            int n = arr.Length;
-            for (var i = 0; i < n; ++i)  {
-                byte ix = buf.ReadByte();
-                byte iy = buf.ReadByte();
-                byte iz = buf.ReadByte();
-                float xx = (float) ((ix - 128.0) / 127.0);
-                float yy = (float) ((iy - 128.0) / 127.0);
-                float zz = (float) ((iz - 128.0) / 127.0);
-                arr[i] = new Vector3(xx,yy,zz);
-            }
-        }
-
-        public static void WriteVector3ArrayBytes(Vector3[] arr, BinaryWriter buf) {
-            // Encode vectors as 8 bit integers components in -1.0 .. 1.0 range
-            foreach (Vector3 v in arr)  {
-                byte ix = (byte) Mathf.Clamp((float)(v.x * 127.0 + 128.0), 0.0f, 255.0f);
-                byte iy = (byte) Mathf.Clamp((float)(v.y * 127.0 + 128.0), 0.0f, 255.0f);
-                byte iz = (byte) Mathf.Clamp((float)(v.z * 127.0 + 128.0), 0.0f, 255.0f);
-                buf.Write(ix);
-                buf.Write(iy);
-                buf.Write(iz);
-            }
-        }
-
-        public static void ReadVector4ArrayBytes(Vector4[] arr, BinaryReader buf) {
-            // Decode vectors as 8 bit integers components in -1.0 .. 1.0 range
-            var n = arr.Length;
-            for (int i = 0; i < n; ++i)  {
-                byte ix = buf.ReadByte();
-                byte iy = buf.ReadByte();
-                byte iz = buf.ReadByte();
-                byte iw = buf.ReadByte();
-                float xx = (float) ((ix - 128.0) / 127.0);
-                float yy = (float) ((iy - 128.0) / 127.0);
-                float zz = (float) ((iz - 128.0) / 127.0);
-                float ww = (float) ((iw - 128.0) / 127.0);
-                arr[i] = new Vector4(xx,yy,zz,ww);
-            }
-        }
-
-        public static void WriteVector4ArrayBytes(Vector4[] arr, BinaryWriter buf) {
-            // Encode vectors as 8 bit integers components in -1.0 .. 1.0 range
-            foreach (Vector4 v in arr)  {
-                byte ix = (byte) Mathf.Clamp((float) (v.x * 127.0 + 128.0), 0.0f, 255.0f);
-                byte iy = (byte) Mathf.Clamp((float) (v.y * 127.0 + 128.0), 0.0f, 255.0f);
-                byte iz = (byte) Mathf.Clamp((float) (v.z * 127.0 + 128.0), 0.0f, 255.0f);
-                byte iw = (byte) Mathf.Clamp((float) (v.w * 127.0 + 128.0), 0.0f, 255.0f);
-                buf.Write(ix);
-                buf.Write(iy);
-                buf.Write(iz);
-                buf.Write(iw);
-            }
         }
 
         // Writes mesh to an array of bytes.
@@ -272,13 +159,82 @@ namespace Voxelgon {
             buf.Write(vertCount);
             buf.Write(triCount);
             buf.Write(format);
-            // vertex components
-            WriteVector3Array16bit(verts, buf);
-            WriteVector3ArrayBytes(normals, buf);
-            if (saveTangents)
-                WriteVector4ArrayBytes(tangents, buf);
-            WriteVector2Array16bit(uvs, buf);
-            // triangle indices
+
+
+            // VERTICES
+            Bounds bounds = new Bounds(verts[0], new Vector3(0.001f, 0.001f, 0.001f));
+            foreach (Vector3 v in verts){bounds.Encapsulate(v);}
+
+            Vector3 vbmin = bounds.min;
+            Vector3 vbmax = bounds.max;
+            buf.Write(vbmin.x);
+            buf.Write(vbmax.x);
+            buf.Write(vbmin.y);
+            buf.Write(vbmax.y);
+            buf.Write(vbmin.z);
+            buf.Write(vbmax.z);
+
+            foreach(Vector3 v in verts)  {
+                float xx = Mathf.Clamp((float) ((v.x - vbmin.x) / (vbmax.x - vbmin.x) * 65535.0), 0.0f, 65535.0f);
+                float yy = Mathf.Clamp((float) ((v.y - vbmin.y) / (vbmax.y - vbmin.y) * 65535.0), 0.0f, 65535.0f);
+                float zz = Mathf.Clamp((float) ((v.z - vbmin.z) / (vbmax.z - vbmin.z) * 65535.0), 0.0f, 65535.0f);
+                System.UInt16 ix = (System.UInt16) xx;
+                System.UInt16 iy = (System.UInt16) yy;
+                System.UInt16 iz = (System.UInt16) zz;
+                buf.Write(ix);
+                buf.Write(iy);
+                buf.Write(iz);
+            }
+
+            // NORMALS
+            foreach (Vector3 v in normals)  {
+                byte ix = (byte) Mathf.Clamp((float)(v.x * 127.0 + 128.0), 0.0f, 255.0f);
+                byte iy = (byte) Mathf.Clamp((float)(v.y * 127.0 + 128.0), 0.0f, 255.0f);
+                byte iz = (byte) Mathf.Clamp((float)(v.z * 127.0 + 128.0), 0.0f, 255.0f);
+                buf.Write(ix);
+                buf.Write(iy);
+                buf.Write(iz);
+            }
+
+            // TANGENTS
+            if (saveTangents) {
+                foreach (Vector4 v in tangents)  {
+                    byte ix = (byte) Mathf.Clamp((float) (v.x * 127.0 + 128.0), 0.0f, 255.0f);
+                    byte iy = (byte) Mathf.Clamp((float) (v.y * 127.0 + 128.0), 0.0f, 255.0f);
+                    byte iz = (byte) Mathf.Clamp((float) (v.z * 127.0 + 128.0), 0.0f, 255.0f);
+                    byte iw = (byte) Mathf.Clamp((float) (v.w * 127.0 + 128.0), 0.0f, 255.0f);
+                    buf.Write(ix);
+                    buf.Write(iy);
+                    buf.Write(iz);
+                    buf.Write(iw);
+                }
+            }
+
+            // UVS
+            Vector2 uvbmin = uvs[0] - new Vector2(0.001f,0.001f);
+            Vector2 uvbmax = uvs[0] + new Vector2(0.001f,0.001f);
+            foreach (var v in uvs)  {
+                uvbmin.x = Mathf.Min(uvbmin.x, v.x);
+                uvbmin.y = Mathf.Min(uvbmin.y, v.y);
+                uvbmax.x = Mathf.Max(uvbmax.x, v.x);
+                uvbmax.y = Mathf.Max(uvbmax.y, v.y);
+            }
+
+            buf.Write(uvbmin.x);
+            buf.Write(uvbmax.x);
+            buf.Write(uvbmin.y);
+            buf.Write(uvbmax.y);
+
+            foreach (Vector2 v in uvs)  {
+                float xx = (float) ((v.x - uvbmin.x) / (uvbmax.x - uvbmin.x) * 65535.0);
+                float yy = (float) ((v.y - uvbmin.y) / (uvbmax.y - uvbmin.y) * 65535.0);
+                System.UInt16 ix = (System.UInt16) xx;
+                System.UInt16 iy = (System.UInt16) yy;
+                buf.Write(ix);
+                buf.Write(iy);
+            }
+
+            // TRIANGLE INDICES
             foreach(int idx in tris)  {
                 System.UInt16 idx16 = (System.UInt16) idx;
                 buf.Write(idx16);
@@ -286,37 +242,6 @@ namespace Voxelgon {
             buf.Close();
 
             return stream.ToArray();
-        }
-
-
-        // Writes mesh to a local file, for loading with WWW interface later.
-        public static void WriteMeshToFileForWeb(Mesh mesh, string name, bool saveTangents) {
-            // Write mesh to regular bytes
-            var bytes = WriteMesh(mesh, saveTangents);
-
-            // Write to file
-            var fs = new FileStream(name, FileMode.Create);
-            fs.Write( bytes, 0, bytes.Length );
-            fs.Close();
-        }
-
-
-        // Reads mesh from the given WWW (that is finished downloading already)
-        public static Mesh ReadMeshFromWWW(WWW download) {
-            if (download.error != null)  {
-                Debug.Log("Error downloading mesh: " + download.error);
-                return null;
-            }
-
-            if (!download.isDone)  {
-                Debug.Log("Download must be finished already");
-                return null;
-            }
-
-            var bytes = download.bytes;
-
-            // Read and return the mesh from regular bytes.
-            return ReadMesh(bytes);
         }
     }
 }

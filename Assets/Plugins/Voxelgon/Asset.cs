@@ -31,7 +31,7 @@ namespace Voxelgon{
             ".[Ss]wp$"
         };
 
-        private enum Filetype {
+        public enum Filetype {
             Other,
             Sql,
             Mesh,
@@ -40,7 +40,7 @@ namespace Voxelgon{
 
         }
 
-        private static Dictionary<string, Filetype> extensions = new Dictionary<string, Filetype> {
+        public static Dictionary<string, Filetype> extensions = new Dictionary<string, Filetype> {
             {".sql", Filetype.Sql},
             {".fbx", Filetype.Mesh},
             {".blend", Filetype.Mesh},
@@ -91,14 +91,38 @@ namespace Voxelgon{
 
 
         //returns a list of files under the given path directory//
-        static public List<string> GetFiles(string path) {
+        static public List<string> GetFiles(string path, string extension = null) {
 
             List<string> filesRaw = new List<string>(Directory.GetFiles(path));
             List<string> files = new List<string>();
 
             foreach(string file in filesRaw) {
                 if(!Ignored(file)){
-                    files.Add(file);
+                    if(extension != null) {
+                        if(Extension(file) == extension) {
+                            files.Add(file);
+                        }
+                    } else {
+                        files.Add(file);
+                    }
+                }
+            }
+
+            return files;
+        }
+
+
+        //returns a list of files under the given path directory//
+        static public List<string> GetFiles(string path, Filetype filetype) {
+
+            List<string> filesRaw = new List<string>(Directory.GetFiles(path));
+            List<string> files = new List<string>();
+
+            foreach(string file in filesRaw) {
+                if(!Ignored(file)){
+                    if((extensions.ContainsKey(Extension(file))) && (extensions[Extension(file)] == filetype)) {
+                        files.Add(file);
+                    }
                 }
             }
 
@@ -116,14 +140,28 @@ namespace Voxelgon{
 
 
         //returns a list of all files under the given directory in the file tree//
-        static public List<string> FilesUnderDirectory(string path) {
+        static public List<string> FilesUnderDirectory(string path, string extension = null) {
 
             List<string> directories = GetDirectories(path);
 
-            List<string> files = GetFiles(path);
+            List<string> files = GetFiles(path, extension);
 
             foreach (string dir in directories){
                 files.AddRange(FilesUnderDirectory(dir));
+            }
+
+            return files;
+        }
+
+         //returns a list of all files under the given directory in the file tree//
+        static public List<string> FilesUnderDirectory(string path, Filetype filetype) {
+
+            List<string> directories = GetDirectories(path);
+
+            List<string> files = GetFiles(path, filetype);
+
+            foreach (string dir in directories){
+                files.AddRange(FilesUnderDirectory(dir, filetype));
             }
 
             return files;
@@ -144,13 +182,6 @@ namespace Voxelgon{
             } else {
                 filetype = Filetype.Other;
             }
-
-            switch (filetype)
-            {
-                case Filetype.Sql:
-                    LoadSQL(path);
-                    break;
-            }
         }
 
 
@@ -169,28 +200,34 @@ namespace Voxelgon{
         //imports assets (all testing code right now)//
         static public void Import() {
 
-            //announce Import is beginning in log
             Log("Importing Assets...");
 
-            //import Schema and Voxelgon resources first
             SQLite.RunFile(innerResourcePath + "/Schema.sql", null, false);
             ImportSQL(innerResourcePath + "/Voxelgon.sql");
 
-            string fileListQuery;
+            List<string> sqlPaths = FilesUnderDirectory(resourcePath, Filetype.Sql);
+            foreach (string sqlPath in sqlPaths) {
+                Log("Importing and running SQL file at " + sqlPath);
+                ImportSQL(sqlPath);
+            }
+
+            Log("Imported " + sqlPaths.Count + " SQL files");
 
 
-            //List the number of each kind of asset imported into the SQL database in log
-            elementCount = SQLite.Count("elements", "atomic_number");
-            materialCount = SQLite.Count("materials", "material_id");
-            makeupCount = SQLite.Count("materials_makeup", "makeup_id");
 
-            totalCount = _elementCount + _materialCount + _makeupCount;
+            //List the number of each kind of asset imported into the SQL database
+
+            _elementCount = SQLite.Count("elements", "atomic_number");
+            _materialCount = SQLite.Count("materials", "material_id");
+            _makeupCount = SQLite.Count("materials_makeup", "makeup_id");
+
+            _totalCount = _elementCount + _materialCount + _makeupCount;
 
             string counts = "Imported:\n";
-            counts += _indent + totalCount + " Total assets,\n";
-            counts += _indent + elementCount + " Elements,\n";
-            counts += _indent + materialCount + " Materials,\n";
-            counts += _indent + makeupCount + " Material Makeup Objects,\n";
+            counts += _indent + _totalCount + " Total assets,\n";
+            counts += _indent + _elementCount + " Elements,\n";
+            counts += _indent + _materialCount + " Materials,\n";
+            counts += _indent + _makeupCount + " Material Makeup Objects,\n";
             Log(counts);
         }
 
