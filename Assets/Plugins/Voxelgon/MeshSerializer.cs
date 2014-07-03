@@ -1,8 +1,8 @@
 using UnityEngine;
 using System.IO;
+
 namespace Voxelgon {
     public static class MeshSerializer {
-//TODO fix all useage of var, fix all bracketing
         public static Mesh ReadMesh( byte[] bytes ) {
             if(bytes.Length < 5 ) {
                 Debug.Log( "Invalid mesh file!" );
@@ -114,6 +114,19 @@ namespace Voxelgon {
                 mesh.uv = uvs;
             }
 
+            if((format & 0x10) == 0x10) { //have colors
+                Color32[] colors = new Color32[vertCount];
+
+                for (int i = 0; i < colors.Length; i++) {
+                    byte r = buf.ReadByte();
+                    byte g = buf.ReadByte();
+                    byte b = buf.ReadByte();
+                    byte a = buf.ReadByte();
+                    colors[i] = new Color32(r,g,b,a);
+                }
+                mesh.colors32 = colors;
+            }
+
             // triangle indices
             int[] tris = new int[triCount * 3];
             for(int i = 0; i < triCount; ++i ) {
@@ -139,6 +152,7 @@ namespace Voxelgon {
             Vector3[] normals = mesh.normals;
             Vector4[] tangents = mesh.tangents;
             Vector2[] uvs = mesh.uv;
+            Color32[] colors = mesh.colors32;
             int[] tris = mesh.triangles;
 
             // figure out vertex format
@@ -149,6 +163,8 @@ namespace Voxelgon {
                 format |= 0x4;
             if( uvs.Length > 0 )
                 format |= 0x8;
+            if( colors.Length > 0 )
+                format |= 0x10;
 
             var stream = new MemoryStream();
             var buf = new BinaryWriter(stream);
@@ -232,6 +248,14 @@ namespace Voxelgon {
                 System.UInt16 iy = (System.UInt16) yy;
                 buf.Write(ix);
                 buf.Write(iy);
+            }
+
+            //COLORS
+            foreach (Color32 c in colors) {
+                buf.Write(c.r);
+                buf.Write(c.g);
+                buf.Write(c.b);
+                buf.Write(c.a);
             }
 
             // TRIANGLE INDICES
