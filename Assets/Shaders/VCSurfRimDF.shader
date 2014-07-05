@@ -7,11 +7,11 @@
         _falloffDM ( "Distance Falloff Multiplyer", Float) = 5
     }
     SubShader {
-        Tags { "RenderType"="opaque" }
+        Tags { "RenderType"="opaque"}
         LOD 200
 
         CGPROGRAM
-        #pragma surface surf Lambert 
+        #pragma surface surf Lambert addshadow
 
         float4 _RimColor;
         float _RimPower;
@@ -36,5 +36,5 @@
 
         ENDCG
     }
-    FallBack "Diffuse"
+    FallBack "vertexLit"
 }

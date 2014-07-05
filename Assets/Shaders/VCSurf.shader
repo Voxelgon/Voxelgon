@@ -6,7 +6,7 @@
         LOD 200
 
         CGPROGRAM
-        #pragma surface surf Lambert 
+        #pragma surface surf Lambert addshadow nodirlightmap nolightmap
 
         struct Input {
             float4 color: Color; // Vertex color
@@ -17,5 +17,5 @@
         }
         ENDCG
     }
-    FallBack "Diffuse"
+    FallBack "VertexLit"
 }

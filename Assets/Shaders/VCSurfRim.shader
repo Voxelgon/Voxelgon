@@ -8,7 +8,7 @@
         LOD 200
 
         CGPROGRAM
-        #pragma surface surf Lambert 
+        #pragma surface surf Lambert addshadow nodirlightmap nolightmap
 
         float4 _RimColor;
         float _RimPower;
@@ -26,5 +26,5 @@
         }
         ENDCG
     }
-    FallBack "Diffuse"
+    FallBack "VertexLit"
 }
