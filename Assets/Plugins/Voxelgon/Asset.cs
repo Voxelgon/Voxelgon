@@ -6,7 +6,6 @@ using System.Text.RegularExpressions;
 using System.IO;
 using UnitySQL;
 
-
 namespace Voxelgon{
 
     public class Asset{
@@ -19,9 +18,12 @@ namespace Voxelgon{
 
         static string schemaPath;
 
-        static int elementCount;
-        static int materialCount;
-        static int makeupCount;
+        private static int _elementCount;
+        private static int _materialCount;
+        private static int _makeupCount;
+        private static int _totalCount;
+
+        private static string _indent = "        ";
 
         private static string[] ignoredFiles= new string[] {
             ".[Dd][Ss]_[Ss]tore$",
@@ -29,6 +31,21 @@ namespace Voxelgon{
             ".[Ss]wp$"
         };
 
+        public enum Filetype {
+            Other,
+            Sql,
+            Mesh,
+            Texture,
+            Code
+
+        }
+
+        public static Dictionary<string, Filetype> extensions = new Dictionary<string, Filetype> {
+            {".sql", Filetype.Sql},
+            {".fbx", Filetype.Mesh},
+            {".blend", Filetype.Mesh},
+            {".png", Filetype.Texture}
+        };
 
         //STATIC FUNCTIONS//
 
@@ -74,14 +91,38 @@ namespace Voxelgon{
 
 
         //returns a list of files under the given path directory//
-        static public List<string> GetFiles(string path) {
+        static public List<string> GetFiles(string path, string extension = null) {
 
             List<string> filesRaw = new List<string>(Directory.GetFiles(path));
             List<string> files = new List<string>();
 
             foreach(string file in filesRaw) {
                 if(!Ignored(file)){
-                    files.Add(file);
+                    if(extension != null) {
+                        if(Extension(file) == extension) {
+                            files.Add(file);
+                        }
+                    } else {
+                        files.Add(file);
+                    }
+                }
+            }
+
+            return files;
+        }
+
+
+        //returns a list of files under the given path directory//
+        static public List<string> GetFiles(string path, Filetype filetype) {
+
+            List<string> filesRaw = new List<string>(Directory.GetFiles(path));
+            List<string> files = new List<string>();
+
+            foreach(string file in filesRaw) {
+                if(!Ignored(file)){
+                    if((extensions.ContainsKey(Extension(file))) && (extensions[Extension(file)] == filetype)) {
+                        files.Add(file);
+                    }
                 }
             }
 
@@ -99,11 +140,11 @@ namespace Voxelgon{
 
 
         //returns a list of all files under the given directory in the file tree//
-        static public List<string> FilesUnderDirectory(string path) {
+        static public List<string> FilesUnderDirectory(string path, string extension = null) {
 
             List<string> directories = GetDirectories(path);
 
-            List<string> files = GetFiles(path);
+            List<string> files = GetFiles(path, extension);
 
             foreach (string dir in directories){
                 files.AddRange(FilesUnderDirectory(dir));
@@ -112,49 +153,221 @@ namespace Voxelgon{
             return files;
         }
 
-        static private void LoadAsset(string path) {
-            Dictionary<string, string> _params = new Dictionary<string, string>();
-            _params.Add("@path", path);
-            SQLite.RunFile(path, _params);
+         //returns a list of all files under the given directory in the file tree//
+        static public List<string> FilesUnderDirectory(string path, Filetype filetype) {
+
+            List<string> directories = GetDirectories(path);
+
+            List<string> files = GetFiles(path, filetype);
+
+            foreach (string dir in directories){
+                files.AddRange(FilesUnderDirectory(dir, filetype));
+            }
+
+            return files;
         }
+
+
+
+        static private void LoadAsset(Dictionary<string, string> properties) {
+
+            string ext = properties["extension"].ToLower();
+            string path = properties["path"];
+
+
+            Filetype filetype;
+
+            if (extensions.ContainsKey(ext)) {
+                filetype = extensions[ext];
+            } else {
+                filetype = Filetype.Other;
+            }
+        }
+
 
 
         //Sets up database for assets//
         static public void Setup() {
             resourcePath = Parent(Application.dataPath) + "/Resources";
             innerResourcePath = Application.dataPath + "/Resources";
+
+            SQLite.SetDbName("Voxelgon");
+            SQLite.Setup();
         }
+
+
 
         //imports assets (all testing code right now)//
-        static public void Load() {
+        static public void Import() {
 
-            Log("Loading Assets...");
+            Log("Importing Assets...");
 
-            SQLite.RunFile(innerResourcePath + "/Schema.sql");
-            LoadAsset(innerResourcePath + "/Voxelgon.sql");
+            SQLite.RunFile(innerResourcePath + "/Schema.sql", null, false);
+            ImportSQL(innerResourcePath + "/Voxelgon.sql");
 
-            List<string> files = FilesUnderDirectory(resourcePath);
-
-            foreach (string path in files) {
-                SQLite.Query(string.Format("INSERT INTO `resources` (`path`, `filename`, `extension`) VALUES ('{0}', '{1}', '{2}')", path, Filename(path), Extension(path)));
+            List<string> sqlPaths = FilesUnderDirectory(resourcePath, Filetype.Sql);
+            foreach (string sqlPath in sqlPaths) {
+                Log("Importing and running SQL file at " + sqlPath);
+                ImportSQL(sqlPath);
             }
 
-            elementCount = SQLite.Count("elements", "atomic_number");
-            materialCount = SQLite.Count("materials", "material_id");
-            makeupCount = SQLite.Count("materials_makeup", "makeup_id");
+            Log("Imported " + sqlPaths.Count + " SQL files");
 
-            Log(string.Format
-                (
-                    "Loaded:\n    {0} element assets, {1} material assets, {2} material makeup assets",
-                    elementCount,
-                    materialCount,
-                    makeupCount
-                )
-            );
+
+
+            //List the number of each kind of asset imported into the SQL database
+
+            _elementCount = SQLite.Count("elements", "atomic_number");
+            _materialCount = SQLite.Count("materials", "material_id");
+            _makeupCount = SQLite.Count("materials_makeup", "makeup_id");
+
+            _totalCount = _elementCount + _materialCount + _makeupCount;
+
+            string counts = "Imported:\n";
+            counts += _indent + _totalCount + " Total assets,\n";
+            counts += _indent + _elementCount + " Elements,\n";
+            counts += _indent + _materialCount + " Materials,\n";
+            counts += _indent + _makeupCount + " Material Makeup Objects,\n";
+            Log(counts);
         }
 
 
-        static public void Import() {
+
+        static public void Load() {
+        }
+
+
+
+        //PRIVATE FUNCTIONS
+
+        //runs a .sql file with the appropriate parameters for later loading
+        static private void ImportSQL(string path) {
+            Dictionary<string, string> parameters = new Dictionary<string, string>();
+            parameters.Add("@path", path);
+            SQLite.RunFile(path, parameters, false);
+        }
+
+
+
+        //reads a .obj file and returns a Mesh object
+        static private Mesh ImportMesh(string path) {
+            Mesh mesh = new Mesh();
+
+            List<int> triangles = new List<int>();
+            List<Vector3> vertices = new List<Vector3>();
+            List<Vector2> uv = new List<Vector2>();
+            List<Vector3> normals = new List<Vector3>();
+            List<int[]> facedata = new List<int[]>();
+
+            StreamReader sr = new StreamReader(path);
+            string objContents = sr.ReadToEnd();
+            sr.Close();
+
+            using (StringReader reader = new StringReader(objContents)){
+                string line = "";
+                char[] splitID = {' '};
+                char[] splitID2 = {'/'};
+                string[] brokenString;
+
+                line = reader.ReadLine();
+
+                while (line != null){
+                    line = line.Replace("  "," ");
+                    line = line.Trim();
+
+                    brokenString = line.Split(splitID, 50);
+
+                    switch (brokenString[0]) {
+                        case "v":
+                            Vector3 vertexVector = new Vector3();
+                            vertexVector.x = System.Convert.ToSingle(brokenString[1]);
+                            vertexVector.y = System.Convert.ToSingle(brokenString[2]);
+                            vertexVector.z = System.Convert.ToSingle(brokenString[3]);
+
+                            vertices.Add(vertexVector);
+                            break;
+
+                        case "vt":
+                        case "vt1":
+                        case "vt2":
+                            Vector2 uvVector = new Vector2();
+                            uvVector.x = System.Convert.ToSingle(brokenString[1]);
+                            uvVector.y = System.Convert.ToSingle(brokenString[2]);
+
+                            uv.Add(uvVector);
+                            break;
+
+                        case "vn":
+                            Vector3 normalVector = new Vector3();
+                            normalVector.x = System.Convert.ToSingle(brokenString[1]);
+                            normalVector.y = System.Convert.ToSingle(brokenString[2]);
+                            normalVector.z = System.Convert.ToSingle(brokenString[3]);
+
+                            normals.Add(normalVector);
+                            break;
+
+                        case "f":
+                            List<int> face = new List<int>();
+
+                            for (int j = 1; j < brokenString.Length && ("" + brokenString[j]).Length > 0; j++) {
+                                int[] faceDataObject = new int[3];
+                                string[] facePolyString;
+                                facePolyString = brokenString[j].Split(splitID2, 3);
+
+                                faceDataObject[0] = System.Convert.ToInt32(facePolyString[0]);
+
+                                if (facePolyString.Length > 1){
+                                    if (facePolyString[1] != "") {
+                                        faceDataObject[1] = System.Convert.ToInt32(facePolyString[1]);
+                                    }
+                                    if (facePolyString.Length > 2){
+                                        faceDataObject[2] = System.Convert.ToInt32(facePolyString[2]);
+                                    }
+                                }
+                                facedata.Add(faceDataObject);
+                                face.Add(faceDataObject[0]);
+                            }
+
+                            for(int k = 2; k < face.Count; k++) {
+                                triangles.Add(face[0]-1);
+                                triangles.Add(face[k - 1]-1);
+                                triangles.Add(face[k]-1);
+                            }
+
+                            break;
+                    }
+                    line = reader.ReadLine();
+
+                }
+            }
+
+            Vector3[] vertexArray = vertices.ToArray();
+            Vector2[] uvArray = new Vector2[vertexArray.Length];
+            Vector3[] normalArray = new Vector3[vertexArray.Length];
+
+            int i = 0;
+            foreach (int[] f in facedata) {
+                if( f[1] >= 1 ) {
+                    uvArray[f[0] - 1] = uv[f[1] - 1];
+                }
+                if( f[2] >= 1 ) {
+                    normalArray[f[0] - 1] = normals[f[2] - 1];
+                }
+                Debug.Log(f[0]-1);
+                Debug.Log(f[1]-1);
+                i++;
+            }
+
+            mesh.vertices = vertexArray;
+            mesh.uv = uvArray;
+            mesh.normals = normalArray;
+            mesh.triangles = triangles.ToArray();
+
+            mesh.RecalculateBounds();
+            mesh.RecalculateNormals();
+            mesh.Optimize();
+
+            return mesh;
         }
     }
 }

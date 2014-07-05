@@ -1,4 +1,4 @@
-INSERT INTO `elements` (`atomic_number`, `symbol`, `element_name`, `stable`, `phase`, `catagory`, `atomic_weight`, `density`, `melting_point`, `boiling_point`, `path`)
+INSERT INTO `elements` (`atomic_number`, `symbol`, `element_name`, `stable`, `phase`, `catagory`, `atomic_weight`, `density`, `melting_point`, `boiling_point`, `sql_path`)
 VALUES
 	(0,'Nt','Neutronium',1,'s','x',1.000,2.874,NULL,NULL, @path),
 	(1,'H','Hydrogen',1,'g','h',1.008,0.071,14.010,20.280, @path),
@@ -135,13 +135,13 @@ VALUES
 	('k','Post-transition metal'),
 	('x','Exotic Element');
 
-INSERT INTO `materials` (`material_id`, `namespace`, `material_name`, `material_desc`, `conductive`, `magnetic`, `organic`, `strength`, `rad-shielding`, `radiation`, `path`)
+INSERT INTO `materials` (`material_id`, `namespace`, `material_name`, `material_desc`, `conductive`, `magnetic`, `organic`, `strength`, `rad-shielding`, `radiation`, `sql_path`)
 VALUES
 	(0,'Voxelgon','Steel','A durable ferrous material, suitable for simple structures and light armor',1,1,0,2.00,1.000,0.0, @path),
 	(1,'Voxelgon','Titanium','A stronger, corrosion resistant material that is non-ferrous. Though expensive, it is favored my militaries for its abundance and simplicity.',1,0,0,4.00,0.950,0.0, @path),
 	(2,'Voxelgon','Lead','A very weak and heavy metal, lead is commonly used for its radiation-blocking properties. ',1,0,0,1.25,0.250,0.0, @path);
 
-INSERT INTO `materials_makeup` (`makeup_id`, `material_id`, `namespace`, `atomic_number`, `element_perc`, `path`)
+INSERT INTO `materials_makeup` (`makeup_id`, `material_id`, `namespace`, `atomic_number`, `element_perc`, `sql_path`)
 VALUES
 	(0,0,'voxelgon',26,95.0, @path),
 	(1,0,'voxelgon',6,4.0, @path),
