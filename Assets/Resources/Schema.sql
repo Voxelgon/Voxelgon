@@ -29,7 +29,7 @@ DROP TABLE IF EXISTS `materials`;
 
 CREATE TABLE `materials` (
   `material_id`             INTEGER(11) NOT NULL,
-  `namespace`               TEXT(30)    NOT NULL DEFAULT 'generic',
+  `material_namespace`      TEXT(30)    NOT NULL DEFAULT 'generic',
   `material_name`           TEXT(30)    DEFAULT 'Unknown Substance',
   `material_desc`           TEXT,
   `conductive`              INTEGER(1)  DEFAULT '1',
@@ -40,7 +40,7 @@ CREATE TABLE `materials` (
   `radiation`               REAL(5,1)   DEFAULT '0.0',
   `sql_path`                TEXT(100),
 
-  PRIMARY KEY (`material_id`,`namespace`)
+  PRIMARY KEY (`material_id`,`material_namespace`)
 );
 
 DROP TABLE IF EXISTS `materials_makeup`;
@@ -48,12 +48,12 @@ DROP TABLE IF EXISTS `materials_makeup`;
 CREATE TABLE `materials_makeup` (
   `makeup_id`               INTEGER(11) NOT NULL,
   `material_id`             INTEGER(11) NOT NULL DEFAULT '0',
-  `namespace`               TEXT(30)    NOT NULL DEFAULT 'generic',
+  `material_namespace`      TEXT(30)    NOT NULL DEFAULT 'generic',
   `atomic_number`           INTEGER(11) DEFAULT '1',
   `element_perc`            REAL(4,1)   DEFAULT '100.0',
   `sql_path`                TEXT(100),
 
-  PRIMARY KEY (`makeup_id`,`material_id`,`namespace`)
+  PRIMARY KEY (`makeup_id`,`material_id`,`material_namespace`)
 );
 
 DROP TABLE IF EXISTS `meshes`;
@@ -74,9 +74,20 @@ DROP TABLE IF EXISTS `meshgroups`;
 
 CREATE TABLE `meshgroups` (
   `meshgroup_id`            INTEGER(11) NOT NULL,
-  `meshgroup_namespace`     TEXT(30) NOT NULL,
+  `meshgroup_namespace`     TEXT(30)    NOT NULL,
   `mesh_id`                 INTEGER(11) NOT NULL,
   `mesh_namespace`          TEXT(30)    NOT NULL,
 
   PRIMARY KEY (`meshgroup_id`, `meshgroup_namespace`)
+);
+
+DROP TABLE IF EXISTS `textures`;
+
+CREATE TABLE `textures` (
+  `texture_id`              INTEGER(11) NOT NULL,
+  `texture_namespace`       TEXT(30)    NOT NULL,
+  `texture_path`            TEXT(100)   NOT NULL,
+  `texture_type`            TEXT(30)    DEFAULT `colormap`, --colormap or texture
+
+  PRIMARY KEY (`texture_id`, `texture_namespace`)
 );
