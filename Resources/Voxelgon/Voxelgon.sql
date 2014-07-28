@@ -148,5 +148,19 @@ VALUES
     (2,1,'voxelgon',22,99.9, @path),
     (3,2,'voxelgon',82,99.5, @path);
 
-INSERT INTO `meshes` (`mesh_id`, `mesh_namespace`, `meshgroup_id`, `meshgroup_namespace`, `texture_id`, `texture_namespace`, `mesh_path`, `pos_x`, `pos_y`, `pos_z`, `sql_path`)
+INSERT INTO `meshgroups` (`meshgroup_id`, `meshgroup_namespace`, `meshgroup_name`)
 VALUES
+    (0,'voxelgon', 'RCS_Engine_01'),
+    (1,'voxelgon', 'Crate_01_Red'),
+    (2,'voxelgon', 'Crate_01_Orange'),
+    (3,'voxelgon', 'Crate_01_Yellow'),
+    (4,'voxelgon', 'Crate_01_Green'),
+    (5,'voxelgon', 'Crate_01_Cyan'),
+    (6,'voxelgon', 'Crate_01_Blue'),
+    (7,'voxelgon', 'Crate_01_Purple'),
+    (8,'voxelgon', 'Crate_01_Magenta');
+
+INSERT INTO `meshes` (`mesh_id`, `meshgroup_id`, `meshgroup_namespace`, `texture_id`, `texture_namespace`, `mesh_path`, `shader`, `pos_x`, `pos_y`, `pos_z`, `sql_path`)
+VALUES
+    (0,0,'voxelgon',0,'voxelgon','Engines/RCS/RCS_Body.obj','VERTEX',0,0,0,@path),
+    (1,0,'voxelgon',0,'voxelgon','Engines/RCS/RCS_Nozzle.obj','UNLIT',0,0,0,@path); 

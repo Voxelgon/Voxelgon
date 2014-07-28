@@ -189,7 +189,6 @@ namespace Voxelgon{
         //Sets up database for assets//
         static public void Setup() {
             resourcePath = Parent(Application.dataPath) + "/Resources";
-            innerResourcePath = Application.dataPath + "/Resources";
 
             SQLite.SetDbName("Voxelgon");
             SQLite.Setup();
@@ -202,13 +201,13 @@ namespace Voxelgon{
 
             Log("Importing Assets...");
 
-            SQLite.RunFile(innerResourcePath + "/Schema.sql", null, false);
-            ImportSQL(innerResourcePath + "/Voxelgon.sql");
+            SQLite.RunFile(resourcePath + "/Schema.sql", null, false);
 
             List<string> sqlPaths = FilesUnderDirectory(resourcePath, Filetype.Sql);
             foreach (string sqlPath in sqlPaths) {
                 Log("Importing and running SQL file at " + sqlPath);
                 ImportSQL(sqlPath);
+                Log("Success");
             }
 
             Log("Imported " + sqlPaths.Count + " SQL files");

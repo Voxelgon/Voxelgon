@@ -66,12 +66,13 @@ CREATE TABLE `meshes` (
     `texture_namespace`       TEXT(30),
     `mesh_path`               TEXT(100),
     `mesh_cache_name`         TEXT(100),
+    `shader`                  TEXT(10),
     `pos_x`                   REAL        DEFAULT 0,
     `pos_y`                   REAL        DEFAULT 0,
     `pos_z`                   REAL        DEFAULT 0,
     `sql_path`                TEXT(100),
 
-    PRIMARY KEY (`mesh_id`, `mesh_namespace`, `meshgroup_id`, `meshgroup_namespace`)
+    PRIMARY KEY (`mesh_id`, `meshgroup_id`, `meshgroup_namespace`)
 );
 
 DROP TABLE IF EXISTS `meshgroups`;
