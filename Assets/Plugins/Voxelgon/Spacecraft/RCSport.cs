@@ -4,55 +4,44 @@ using Voxelgon;
 
 public class RCSport : MonoBehaviour {
 
-    public GameObject particleSys;
-    public Animation animator;
+    public float thrust;
+    public float maxThrust = 2;
 
-    public int engaged;
+    private int _linMultiplyer = 0; //1 through -1 (for inverting axes)
+    private int _latMultiplyer = 0;
+    private int _yawMultiplyer = 0;
 
-    public ShipManager.PortRotFunction rotFunction;
-    public ShipManager.PortTransFunction transFunction;
+    private GameObject _ship;
+    private ShipManager _shipManager;
+    private Rigidbody _shipRigidbody;
 
-    public ShipManager ship;
-    public Rigidbody rbdy;
-    public Vector3 forceVector = new Vector3();
+    private Vector3 _centerOfMass;
+    private Vector3 _relativePos;
+
+    /*
+     *            ^ forward Vector
+     *            |
+     *            |       \
+     *            |    \   \ -Engine
+     *            |     \   \
+     *            |     /\ \
+     *            |    /    \
+     *            |a1 /  a2  \ -engine thrust vector
+     *            |  /
+     *           -|-/
+     *          (##) - Ship Center Of Mass
+     *           --
+     *    a1 = relativeAngle
+     *    a2 = thustAngle
+     */
 
     public void Start() {
-        particleSys = gameObject.GetComponentInChildren<ParticleSystem>().gameObject;
-        animator = particleSys.GetComponent<Animation>();
+        _ship = transform.parent.gameObject;
+        _shipManager = _ship.GetComponent<ShipManager>();
+        _shipRigidbody = _ship.GetComponent<Rigidbody>();
 
-        rbdy = transform.parent.rigidbody;
+        _centerOfMass = _shipRigidbody.centerOfMass;
+        _relativePos = transform.localPosition - _centerOfMass;
 
-        forceVector = Voxelgon.Math.QuatToVector(transform.rotation);
-    }
-
-    public void enable() {
-        animator.Play("ThrusterEnable");
-        animator.CrossFadeQueued("ThrusterEffects");
-    }
-
-    public void disable() {
-        animator.Stop("ThrusterEffects");
-        animator.Play("ThrusterDisable");
-    }
-
-    public void CheckInput() {
-        if(((ship.rotControls[rotFunction] + 2 * ship.transControls[transFunction]) > 0) && (engaged == 0)) {
-            engaged = 1;
-
-            enable();
-
-        } else if(((ship.rotControls[rotFunction] + 2 * ship.transControls[transFunction]) < 1) && (engaged == 1)) {
-            engaged = 0;
-
-            disable();
-        }
-    }
-
-    public void FixedUpdate() {
-        CheckInput();
-        if (engaged == 1) {
-            forceVector = transform.TransformDirection(new Vector3(1,0,0));
-            rbdy.AddForceAtPosition(forceVector * 1, transform.position);
-        }
     }
 }
