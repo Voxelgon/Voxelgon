@@ -12,5 +12,6 @@ Assembly-CSharp-firstpass.csproj
 
 *.db
 *.git
+*.app
 
 Assets/Plugins/UnitySQL/*
