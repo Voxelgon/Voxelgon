@@ -7,16 +7,16 @@ public class RCSport : MonoBehaviour {
     public float thrust;
     public float maxThrust = 2;
 
-    private int _linMultiplyer = 0; //1 through -1 (for inverting axes)
-    private int _latMultiplyer = 0;
-    private int _yawMultiplyer = 0;
+    private int linMultiplyer = 0; //1 through -1 (for inverting axes)
+    private int latMultiplyer = 0;
+    private int yawMultiplyer = 0;
 
-    private GameObject _ship;
-    private ShipManager _shipManager;
-    private Rigidbody _shipRigidbody;
+    private GameObject ship;
+    private ShipManager shipManager;
+    private Rigidbody shipRigidbody;
 
-    private Vector3 _centerOfMass;
-    private Vector3 _relativePos;
+    private Vector3 centerOfMass;
+    private Vector3 relativePos;
 
     /*
      *            ^ forward Vector
@@ -36,12 +36,12 @@ public class RCSport : MonoBehaviour {
      */
 
     public void Start() {
-        _ship = transform.parent.gameObject;
-        _shipManager = _ship.GetComponent<ShipManager>();
-        _shipRigidbody = _ship.GetComponent<Rigidbody>();
+        ship = transform.parent.gameObject;
+        shipManager = ship.GetComponent<ShipManager>();
+        shipRigidbody = ship.GetComponent<Rigidbody>();
 
-        _centerOfMass = _shipRigidbody.centerOfMass;
-        _relativePos = transform.localPosition - _centerOfMass;
+        centerOfMass = shipRigidbody.centerOfMass;
+        relativePos = transform.localPosition - centerOfMass;
 
     }
 }
