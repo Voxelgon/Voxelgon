@@ -15,3 +15,7 @@ Assembly-CSharp-firstpass.csproj
 *.app
 
 Assets/Plugins/UnitySQL/*
+
+voxelgon.sublime-project
+
+voxelgon.sublime-workspace
