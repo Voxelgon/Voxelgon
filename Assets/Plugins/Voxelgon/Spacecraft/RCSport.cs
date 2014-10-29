@@ -21,23 +21,6 @@ public class RCSport : MonoBehaviour {
 
     private Vector3 torqueVector;
 
-    /*
-     *            ^ forward Vector
-     *            |
-     *            |       \
-     *            |    \   \ -Engine
-     *            |     \   \
-     *            |     /\ \
-     *            |    /    \
-     *            |a1 /  a2  \ -engine thrust vector
-     *            |  /
-     *           -|-/
-     *          (##) - Ship Center Of Mass
-     *           --
-     *    a1 = relativeAngle
-     *    a2 = thustAngle
-     */
-
     public void Start() {
         ship = transform.parent.gameObject;
         shipManager = ship.GetComponent<ShipManager>();
