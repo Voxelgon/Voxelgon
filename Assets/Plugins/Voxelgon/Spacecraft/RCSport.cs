@@ -16,7 +16,10 @@ public class RCSport : MonoBehaviour {
     private Rigidbody shipRigidbody;
 
     private Vector3 centerOfMass;
-    private Vector3 relativePos;
+    private Vector3 offsetVector;
+    private Vector3 forceVector;
+
+    private Vector3 torqueVector;
 
     /*
      *            ^ forward Vector
@@ -40,8 +43,7 @@ public class RCSport : MonoBehaviour {
         shipManager = ship.GetComponent<ShipManager>();
         shipRigidbody = ship.GetComponent<Rigidbody>();
 
-        centerOfMass = shipRigidbody.centerOfMass;
-        relativePos = transform.localPosition - centerOfMass;
+        torqueVector = Vector3.Cross((transform.position - shipRigidbody.worldCenterOfMass), transform.forward);
 
     }
 }
