@@ -2,7 +2,7 @@
 using System.Collections;
 using Voxelgon;
 
-public class RCSport : MonoBehaviour {
+public class Engine : MonoBehaviour {
 
     public float thrust;
     public float maxThrust = 2;
@@ -26,7 +26,7 @@ public class RCSport : MonoBehaviour {
         shipManager = ship.GetComponent<ShipManager>();
         shipRigidbody = ship.GetComponent<Rigidbody>();
 
-        torqueVector = Vector3.Cross((transform.position - shipRigidbody.worldCenterOfMass), transform.forward);
+        torqueVector = Vector3.Cross((transform.position - shipRigidbody.worldCenterOfMass), transform.forward * -1);
 
     }
 }
