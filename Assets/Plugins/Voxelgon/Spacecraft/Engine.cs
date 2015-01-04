@@ -16,6 +16,7 @@ public class Engine : MonoBehaviour {
     private Rigidbody shipRigidbody;
 
     public Vector3 torqueVector;
+    public Vector3 torqueNormalized;
     public float torqueScalar;
 
     public void CalculateTorque() {
@@ -23,9 +24,9 @@ public class Engine : MonoBehaviour {
         shipManager = ship.GetComponent<ShipManager>();
         shipRigidbody = ship.GetComponent<Rigidbody>();
 
-        torqueVector = Vector3.Cross((transform.position - shipRigidbody.worldCenterOfMass), transform.forward * -1);
+        torqueVector = Vector3.Cross((transform.position - shipRigidbody.worldCenterOfMass), transform.back * maxThrust);
+        torqueNormalized = torqueVector.normalized;
         torqueScalar = torqueVector.magnitude;
-
     }
 
     public void UpdateEngine() {
