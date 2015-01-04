@@ -16,6 +16,7 @@ public class Engine : MonoBehaviour {
     private Rigidbody shipRigidbody;
 
     public Vector3 torqueVector;
+    public float torqueScalar;
 
     public void CalculateTorque() {
         ship = transform.parent.gameObject;
@@ -23,6 +24,7 @@ public class Engine : MonoBehaviour {
         shipRigidbody = ship.GetComponent<Rigidbody>();
 
         torqueVector = Vector3.Cross((transform.position - shipRigidbody.worldCenterOfMass), transform.forward * -1);
+        torqueScalar = torqueVector.magnitude;
 
     }
 
