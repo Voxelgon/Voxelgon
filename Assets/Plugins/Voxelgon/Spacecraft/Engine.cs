@@ -7,7 +7,7 @@ public class Engine : MonoBehaviour {
     public float thrust;
     public float maxThrust = 2;
 
-    private int linMultiplyer = 0; //1 through -1 (for inverting axes)
+    private int linMultiplyer = 0; 
     private int latMultiplyer = 0;
     private int yawMultiplyer = 0;
 
