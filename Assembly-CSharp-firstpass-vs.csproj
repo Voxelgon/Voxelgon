@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+	<Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+	<Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+	<ProductVersion>10.0.20506</ProductVersion>
+	<SchemaVersion>2.0</SchemaVersion>
+	<ProjectGuid>{81B335F3-4D4D-176C-10B5-CB2ABB30072E}</ProjectGuid>
+	<OutputType>Library</OutputType>
+	<AppDesignerFolder>Properties</AppDesignerFolder>
+	<RootNamespace></RootNamespace>
+	<AssemblyName>Assembly-CSharp-firstpass</AssemblyName>
+	<TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+	<FileAlignment>512</FileAlignment>
+	<BaseDirectory>Assets</BaseDirectory>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+	<DebugSymbols>true</DebugSymbols>
+	<DebugType>full</DebugType>
+	<Optimize>false</Optimize>
+	<OutputPath>Temp\bin\Debug\</OutputPath>
+	<DefineConstants>DEBUG;TRACE;UNITY_4_6_1;UNITY_4_6;UNITY_64;UNITY_STANDALONE_OSX;ENABLE_MICROPHONE;ENABLE_TEXTUREID_MAP;ENABLE_UNITYEVENTS;ENABLE_NEW_HIERARCHY ;ENABLE_AUDIO_FMOD;UNITY_STANDALONE;ENABLE_MONO;ENABLE_TERRAIN;ENABLE_SUBSTANCE;ENABLE_GENERICS;INCLUDE_WP8SUPPORT;ENABLE_MOVIES;ENABLE_WWW;ENABLE_IMAGEEFFECTS;ENABLE_4_6_FEATURES;INCLUDE_WP_BLUE_SUPPORT;ENABLE_WEBCAM;INCLUDE_METROSUPPORT;RENDER_SOFTWARE_CURSOR;ENABLE_NETWORK;ENABLE_PHYSICS;ENABLE_CACHING;ENABLE_CLOTH;ENABLE_2D_PHYSICS;ENABLE_GAMECENTER;ENABLE_SHADOWS;ENABLE_AUDIO;ENABLE_NAVMESH_CARVING;ENABLE_DUCK_TYPING;ENABLE_SINGLE_INSTANCE_BUILD_SETTING;DEVELOPMENT_BUILD;ENABLE_PROFILER;UNITY_EDITOR;UNITY_EDITOR_OSX</DefineConstants>
+	<ErrorReport>prompt</ErrorReport>
+	<WarningLevel>4</WarningLevel>
+	<NoWarn>0169</NoWarn>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+	<DebugType>pdbonly</DebugType>
+	<Optimize>true</Optimize>
+	<OutputPath>Temp\bin\Release\</OutputPath>
+	<DefineConstants>TRACE</DefineConstants>
+	<ErrorReport>prompt</ErrorReport>
+	<WarningLevel>4</WarningLevel>
+	<NoWarn>0169</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+	<Reference Include="System" />
+    <Reference Include="System.XML" />
+	<Reference Include="System.Core" />
+	<Reference Include="System.Xml.Linq" />
+	<Reference Include="UnityEngine">
+	  <HintPath>/Applications/Unity/Unity.app/Contents/Frameworks/Managed/UnityEngine.dll</HintPath>
+	</Reference>
+	<Reference Include="UnityEditor">
+	  <HintPath>/Applications/Unity/Unity.app/Contents/Frameworks/Managed/UnityEditor.dll</HintPath>
+	</Reference>
+  </ItemGroup>
+  <ItemGroup>
+     <Compile Include="Assets\Plugins\LitJson-2\IJsonWrapper.cs" />
+     <Compile Include="Assets\Plugins\LitJson-2\JsonData.cs" />
+     <Compile Include="Assets\Plugins\LitJson-2\JsonException.cs" />
+     <Compile Include="Assets\Plugins\LitJson-2\JsonMapper.cs" />
+     <Compile Include="Assets\Plugins\LitJson-2\JsonReader.cs" />
+     <Compile Include="Assets\Plugins\LitJson-2\JsonWriter.cs" />
+     <Compile Include="Assets\Plugins\LitJson-2\Lexer.cs" />
+     <Compile Include="Assets\Plugins\LitJson-2\ParserToken.cs" />
+     <Compile Include="Assets\Plugins\SimpleJSON\SimpleJSON.cs" />
+     <Compile Include="Assets\Plugins\UnitySQL\UnitySQL.cs" />
+     <Compile Include="Assets\Plugins\Voxelgon\Asset.cs" />
+     <Compile Include="Assets\Plugins\Voxelgon\Colormaps.cs" />
+     <Compile Include="Assets\Plugins\Voxelgon\Manager.cs" />
+     <Compile Include="Assets\Plugins\Voxelgon\Math\Math.cs" />
+     <Compile Include="Assets\Plugins\Voxelgon\MeshColorsTest.cs" />
+     <Compile Include="Assets\Plugins\Voxelgon\MeshSerializer.cs" />
+     <Compile Include="Assets\Plugins\Voxelgon\Physics\Physics.cs" />
+     <Compile Include="Assets\Plugins\Voxelgon\Physics\Softbody.cs" />
+     <Compile Include="Assets\Plugins\Voxelgon\Spacecraft\Engine.cs" />
+     <Compile Include="Assets\Plugins\Voxelgon\Spacecraft\ShipManager.cs" />
+     <Compile Include="Assets\Plugins\Voxelgon\Spacecraft\Spacecraft.cs" />
+     <Compile Include="Assets\Plugins\Voxelgon\UI\FPScounter.cs" />
+     <None Include="Assets\Shaders\VCSurfRimDF.shader" />
+     <None Include="Assets\Shaders\VCSurfRim.shader" />
+     <None Include="Assets\Shaders\VCSurf.shader" />
+ <Reference Include="UnityEngine.UI">
+ <HintPath>/Applications/Unity/Unity.app/Contents/UnityExtensions/Unity/GUISystem/4.6.1/UnityEngine.UI.dll</HintPath>
+ </Reference>
+ <Reference Include="System.Data">
+ <HintPath>/Users/drewcassidy/Documents/Github/voxelgon/Assets/Plugins/UnitySQL/SQLite/System.Data.dll</HintPath>
+ </Reference>
+ <Reference Include="Mono.Data.SqliteClient">
+ <HintPath>/Users/drewcassidy/Documents/Github/voxelgon/Assets/Plugins/UnitySQL/SQLite/Mono.Data.SqliteClient.dll</HintPath>
+ </Reference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+	   Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+  
+</Project>
