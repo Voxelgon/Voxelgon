@@ -1,4 +1,4 @@
-voxelgon [![Build Status](https://travis-ci.org/Voxelgon/Voxelgon.svg?branch=Develop)](https://travis-ci.org/Voxelgon/Voxelgon)
+Voxelgon [![Build Status](https://travis-ci.org/Voxelgon/Voxelgon.svg?branch=Develop)](https://travis-ci.org/Voxelgon/Voxelgon)
 ========
 Work in progress unity game. In space.
 
