@@ -15,9 +15,9 @@ public class Engine : MonoBehaviour {
     private ShipManager shipManager;
     private Rigidbody shipRigidbody;
 
-    private Vector3 torqueVector;
+    public Vector3 torqueVector;
 
-    public void Start() {
+    public void CalculateTorque() {
         ship = transform.parent.gameObject;
         shipManager = ship.GetComponent<ShipManager>();
         shipRigidbody = ship.GetComponent<Rigidbody>();
