@@ -15,10 +15,6 @@ public class Engine : MonoBehaviour {
     private ShipManager shipManager;
     private Rigidbody shipRigidbody;
 
-    private Vector3 centerOfMass;
-    private Vector3 offsetVector;
-    private Vector3 forceVector;
-
     private Vector3 torqueVector;
 
     public void Start() {
@@ -27,6 +23,10 @@ public class Engine : MonoBehaviour {
         shipRigidbody = ship.GetComponent<Rigidbody>();
 
         torqueVector = Vector3.Cross((transform.position - shipRigidbody.worldCenterOfMass), transform.forward * -1);
+
+    }
+
+    public void UpdateEngine() {
 
     }
 }
