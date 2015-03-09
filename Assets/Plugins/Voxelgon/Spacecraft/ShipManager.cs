@@ -41,22 +41,22 @@ public class ShipManager : MonoBehaviour {
         }
 
         //TODO: PID controller for this
-        if((killRot) && (yawInput == 0) && (Mathf.Abs(rigidbody.angularVelocity.y) > 0.01)) {
-            brakingYaw = -rigidbody.angularVelocity.y;
+        if((killRot) && (yawInput == 0) && (Mathf.Abs(GetComponent<Rigidbody>().angularVelocity.y) > 0.01)) {
+            brakingYaw = -GetComponent<Rigidbody>().angularVelocity.y;
 
         } else {
             brakingYaw = 0;
         }
 
-        if((killTrans) && (linInput == 0) && (latInput == 0) && (Mathf.Abs(transform.InverseTransformDirection(rigidbody.velocity).x) > 0.1)) {
-            brakingLin = (int) -Mathf.Sign(transform.InverseTransformDirection(rigidbody.velocity).x);
+        if((killTrans) && (linInput == 0) && (latInput == 0) && (Mathf.Abs(transform.InverseTransformDirection(GetComponent<Rigidbody>().velocity).x) > 0.1)) {
+            brakingLin = (int) -Mathf.Sign(transform.InverseTransformDirection(GetComponent<Rigidbody>().velocity).x);
 
         } else {
             brakingLin = 0;
         }
 
-        if((killTrans) && (latInput == 0)&& (linInput == 0) && (Mathf.Abs(transform.InverseTransformDirection(rigidbody.velocity).z) > 0.1)) {
-            brakingLat = (int) Mathf.Sign(transform.InverseTransformDirection(rigidbody.velocity).z);
+        if((killTrans) && (latInput == 0)&& (linInput == 0) && (Mathf.Abs(transform.InverseTransformDirection(GetComponent<Rigidbody>().velocity).z) > 0.1)) {
+            brakingLat = (int) Mathf.Sign(transform.InverseTransformDirection(GetComponent<Rigidbody>().velocity).z);
 
         } else {
             brakingLat = 0;

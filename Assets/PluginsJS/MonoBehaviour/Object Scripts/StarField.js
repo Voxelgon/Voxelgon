@@ -9,7 +9,7 @@ function Start () {
     var starSystems : Component[];
     starSystems = GetComponentsInChildren(ParticleSystem);
     for (var i : Component in starSystems){
-        i.particleSystem.Pause();
+        i.GetComponent.<ParticleSystem>().Pause();
     }
 
 }
