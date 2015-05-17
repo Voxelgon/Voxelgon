@@ -32,7 +32,7 @@ public class CameraController : MonoBehaviour {
 		}
 		if (Input.GetAxis("Orbit") == 1) {
 			transform.parent.Rotate(Vector3.up * orbitSensitivity * Input.GetAxis("Mouse X"),Space.World);
-			transform.parent.Rotate(Vector3.right * (Mathf.Clamp(orbitSensitivity * Input.GetAxis("Mouse Y"), minAltitude - altitude, maxAltitude - altitude)),Space.Self);
+			transform.parent.Rotate(Vector3.right * (Mathf.Clamp(orbitSensitivity * Input.GetAxis("Mouse Y"), minAltitude - altitude, maxAltitude - altitude)));
 		}
 
 		zoom = -transform.localPosition.z ;
