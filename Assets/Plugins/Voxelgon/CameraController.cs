@@ -17,8 +17,6 @@ public class CameraController : MonoBehaviour {
 	private float zoom = 10;
 	private float altitude = 45;
 
-	private Quaternion altitudeQuat = new Quaternion();
-
 	private Matrix4x4 orthoSpace = new Matrix4x4();
 
 	// Update is called once per frame
