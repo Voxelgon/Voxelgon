@@ -30,12 +30,12 @@ public class CameraController : MonoBehaviour {
 		orthoSpace = Matrix4x4.TRS(Vector3.one, Quaternion.Euler(-altitude,0,0), Vector3.one);
 
 		//pan camera (default to RMB)
-		if (Input.GetAxis("Pan") == 1) {
+		if (Input.GetButton("Pan")) {
 			transform.parent.Translate(orthoSpace.MultiplyVector(panSensitivity * new Vector3(Input.GetAxis("Mouse X"), 0, Input.GetAxis("Mouse Y"))));
 		}
 
 		//orbit camera (default to MMB)
-		if (Input.GetAxis("Orbit") == 1) {
+		if (Input.GetButton("Orbit")) {
 			transform.parent.Rotate(Vector3.up * orbitSensitivity * Input.GetAxis("Mouse X"),Space.World);
 			transform.parent.Rotate(Vector3.right * (Mathf.Clamp(orbitSensitivity * Input.GetAxis("Mouse Y"), minAltitude - altitude, maxAltitude - altitude)));
 		}
