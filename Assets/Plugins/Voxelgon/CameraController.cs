@@ -24,6 +24,8 @@ public class CameraController : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 
+		////Camera movement////
+
 		//set values of temporary variables
 		altitude = transform.parent.eulerAngles.x ;
 		zoom = -transform.localPosition.z ;
@@ -42,5 +44,7 @@ public class CameraController : MonoBehaviour {
 
 		//zoom camera (default to Scroll Wheel)
 		transform.Translate( Vector3.back * Mathf.Clamp(Input.GetAxis("zoom") * zoomSensativity * Mathf.Pow(zoom, zoomExpo), minZoom - zoom, maxZoom - zoom));
+
+		////Click Handling////
 	}
 }
