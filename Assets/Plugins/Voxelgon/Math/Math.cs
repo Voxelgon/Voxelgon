@@ -38,10 +38,5 @@ namespace Voxelgon {
 
             return 180 - (((childAngle - baseAngle)+360)%360);
         }
-
-        public static Vector3 QuatToVector(Quaternion quat) {
-            Vector3 vector = new Vector3(quat.x, quat.y, quat.z);
-            return vector;
-        }
     }
 }
