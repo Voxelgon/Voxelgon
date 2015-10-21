@@ -3,7 +3,7 @@ using System.Collections;
 using Voxelgon;
 
 namespace Voxelgon {
-    public class Manager : MonoBehaviour {
+    public class ImportManager : MonoBehaviour {
 
         public void Start() {
             Voxelgon.Asset.Setup();

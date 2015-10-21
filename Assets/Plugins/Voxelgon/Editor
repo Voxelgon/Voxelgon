@@ -1,0 +1,8 @@
+using UnityEngine;
+using System.Collections;
+
+namespace Voxelgon {
+	public class Editor : GameMode {
+		
+	}
+}
