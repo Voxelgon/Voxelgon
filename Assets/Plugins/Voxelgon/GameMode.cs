@@ -2,12 +2,11 @@
 using System.Collections;
 
 namespace Voxelgon {
-	public class GameMode {
-		public enum GameMode {
-			menu,
+	public static class GameMode {
+		public enum Mode {
 			edit,
 			flight
 		}
-		public GameMode currrent;
+		public static Mode current;
 	}
 }

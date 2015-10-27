@@ -1,7 +1,8 @@
 ﻿using UnityEngine;
 using System.Collections;
+using Voxelgon.EventSystems;
 
-public class EditorController : MonoBehaviour {
+public class EditorController : MonoBehaviour, IModeChangeHandler {
 
 	// Use this for initialization
 	void Start () {
@@ -9,7 +10,8 @@ public class EditorController : MonoBehaviour {
 	}
 	
 	// Update is called once per frame
-	void Update () {
+	public void OnModeChange (ModeChangeEventData eventData) {
+		Debug.Log ("wello, yorld!");
 	
 	}
 }

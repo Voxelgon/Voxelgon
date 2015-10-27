@@ -3,7 +3,7 @@ using System.Collections;
 
 namespace Voxelgon {
 	public static class Editor {
-		public Vector3 GetEditCursorPos(float y) {
+		public static Vector3 GetEditCursorPos(float y) {
 			Ray cursorRay = Camera.main.ScreenPointToRay(Input.mousePosition);
 
 			float xySlope = cursorRay.direction.y / cursorRay.direction.x;
@@ -19,7 +19,7 @@ namespace Voxelgon {
 			return interceptPoint;
 		}
 
-		public Vector3 GetEditCursorPos() {
+		public static Vector3 GetEditCursorPos() {
 			return GetEditCursorPos(0);
 		}
 		

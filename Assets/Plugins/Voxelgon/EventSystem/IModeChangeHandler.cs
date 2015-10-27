@@ -6,16 +6,6 @@ using Voxelgon;
 namespace Voxelgon.EventSystems{
 
 	public interface IModeChangeHandler : IEventSystemHandler {
-		void onModeChange(modeChangeData data);
+		void OnModeChange(ModeChangeEventData data);
 	} 
-
-	public class modeChangeData : BaseEventData {
-
-		public Gamemode.GameMode newMode;
-		public Gamemode.GameMode oldMode;
-		public bool fromPlayer;
-
-		public modeChangeData(EventSystem eSystem) : base(eSystem) {}
-
-	}
 }
