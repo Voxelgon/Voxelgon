@@ -1,8 +1,8 @@
 using UnityEngine;
 using System.Collections;
 
-namespace Voxelgon {
-	public static class Editor {
+namespace Voxelgon.ShipEditor {
+	public static class ShipEditor {
 		public static Vector3 GetEditCursorPos(float y) {
 			Ray cursorRay = Camera.main.ScreenPointToRay(Input.mousePosition);
 
