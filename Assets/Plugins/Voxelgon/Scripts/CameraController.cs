@@ -25,8 +25,6 @@ public class CameraController : MonoBehaviour {
 
 	public enum Mode {edit, flight}
 
-	public GameObject editorCursor;
-
 	void Start () {
 	}
 
@@ -54,20 +52,5 @@ public class CameraController : MonoBehaviour {
 		//zoom camera (default to Scroll Wheel)
 		transform.Translate( Vector3.back * Mathf.Clamp(Input.GetAxis("zoom") * zoomSensativity * Mathf.Pow(zoom, zoomExpo), minZoom - zoom, maxZoom - zoom));
 
-
-		////Cursor Handling////
-		if(currentMode == Mode.edit) {
-			Ray cursorRay = Camera.main.ScreenPointToRay(Input.mousePosition);
-
-			float xySlope = cursorRay.direction.y / cursorRay.direction.x;
-			float zySlope = cursorRay.direction.y / cursorRay.direction.z;
-
-			float xIntercept = cursorRay.origin.x + cursorRay.origin.y / -xySlope;
-			float zIntercept = cursorRay.origin.z + cursorRay.origin.y / -zySlope;
-
-			Vector3 InteceptPoint = new Vector3(xIntercept, 0, zIntercept);
-			Debug.DrawLine(cursorRay.origin, InteceptPoint, Color.yellow);
-			editorCursor.transform.position = InteceptPoint;
-		}
 	}
 }
