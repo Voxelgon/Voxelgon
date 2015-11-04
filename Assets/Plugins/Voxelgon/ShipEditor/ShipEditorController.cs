@@ -15,5 +15,7 @@ public class ShipEditorController : MonoBehaviour, IModeChangeHandler {
 				transform.Translate(Vector3.up * 2 * (int) Input.GetAxis("ChangeFloor"));
 			}
 		}
+
+		public static void Foo() {}
 	}
 }

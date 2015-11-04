@@ -16,8 +16,6 @@ namespace Voxelgon.ShipEditor {
 
 		public void OnPointerEnter(PointerEventData eventData){
 			gameObject.GetComponent<Renderer>().material.color = ColorPallette.gridSelectedHover;
-			Debug.Log("hello");
-
 		}
 
 		public void OnPointerExit(PointerEventData eventData){
