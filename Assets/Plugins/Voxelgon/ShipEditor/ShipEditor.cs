@@ -29,7 +29,7 @@ public class ShipEditor : MonoBehaviour, IModeChangeHandler {
 
 
 		public bool AddNode(Vector3 node) {
-			if (ValidNode(node) && !ContainsNode(node)) {
+			if (ValidNode(node)) {
 				nodes.Add(node);
 				return true;
 			}
@@ -46,7 +46,7 @@ public class ShipEditor : MonoBehaviour, IModeChangeHandler {
 		}
 
 		public bool ValidNode(Vector3 node) {
-			return tempWall.ValidVertex(node);
+			return (tempWall.ValidVertex(node) && !ContainsNode(node));
 		}
 
 		public bool ContainsNode(Vector3 node) {
