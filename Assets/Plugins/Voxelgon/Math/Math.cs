@@ -2,7 +2,7 @@
 using System.Collections;
 
 namespace Voxelgon {
-    public class Math {
+    public static class Math {
 
         //returns the angle in degrees from the x axis to a line between origin and child
         //2d (x,z) only right now
@@ -39,8 +39,17 @@ namespace Voxelgon {
             return 180 - (((childAngle - baseAngle)+360)%360);
         }
 
-        public static Vector3 QuatToVector(Quaternion quat) {
-            Vector3 vector = new Vector3(quat.x, quat.y, quat.z);
+        public static Vector3 Modulus(this Vector3 vector, float mod) {
+            vector.x %= mod;
+            vector.y %= mod;
+            vector.z %= mod;
+            return vector;
+        }
+
+        public static Vector3 Round(this Vector3 vector) {
+            vector.x = Mathf.RoundToInt(vector.x);
+            vector.y = Mathf.RoundToInt(vector.y);
+            vector.z = Mathf.RoundToInt(vector.z);
             return vector;
         }
     }
