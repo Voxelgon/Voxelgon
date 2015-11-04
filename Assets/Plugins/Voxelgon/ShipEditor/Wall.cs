@@ -45,6 +45,26 @@ namespace Voxelgon.ShipEditor {
 			return true;
 		}
 
+		public bool ContainsVertex(Vector3 vertex) {
+			return vertices.Contains(vertex);
+		}
+
+		public bool ValidVertex(Vector3 vertex) {
+			if (ContainsVertex(vertex)) {
+				return false;
+			} else if (!IsPolygon()) {
+				return true;
+			} else {
+				return Mathf.Approximately(0, wallPlane.GetDistanceToPoint(vertex));
+			}
+		}
+
+
+
+		public bool IsPolygon() {
+			return vertices.Count < 3;
+		}
+
 		public void UpdateMesh() {
 			if (vertices.Count < 3) {
 				wallMesh.Clear(); 

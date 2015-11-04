@@ -8,11 +8,12 @@ using Voxelgon.EventSystems;
 namespace Voxelgon.ShipEditor {
 	public class ShipEditorGridHover: MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler{
 
-		public BoxCollider collider;
+		private BoxCollider collider;
+		private ShipEditor editor;
 
 
 		public void Start() {
-			ShipEditor.hoverNode = gameObject;
+			editor = GameObject.Find("ShipEditor").GetComponent<ShipEditor>();
 			collider = gameObject.GetComponent<BoxCollider>();
 		}
 
@@ -35,7 +36,7 @@ namespace Voxelgon.ShipEditor {
 		public void OnPointerClick(PointerEventData eventData) {
 			Vector3 pos = transform.parent.parent.InverseTransformPoint(transform.position);
 
-			if (ShipEditor.previewWall.AddVertex(pos)) {
+			if (editor.AddNode(pos)) {
 				GameObject selectedNode = GameObject.CreatePrimitive(PrimitiveType.Cube);
 				selectedNode.name = "selectedNode";
 

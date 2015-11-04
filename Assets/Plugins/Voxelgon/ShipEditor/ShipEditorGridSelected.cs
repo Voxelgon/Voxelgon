@@ -8,7 +8,10 @@ using Voxelgon.EventSystems;
 namespace Voxelgon.ShipEditor {
 	public class ShipEditorGridSelected: MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler{
 
+		private ShipEditor editor;
+
 		public void Start() {
+			editor = GameObject.Find("ShipEditor").GetComponent<ShipEditor>();
 		}
 
 		public void Update() {
@@ -25,7 +28,7 @@ namespace Voxelgon.ShipEditor {
 
 		public void OnPointerClick(PointerEventData eventData) {
 			if (eventData.button == PointerEventData.InputButton.Right) {
-				ShipEditor.previewWall.RemoveVertex(transform.localPosition);
+				editor.RemoveNode(transform.localPosition);
 				GameObject.Destroy(gameObject,0.0f);
 			}
 		}
