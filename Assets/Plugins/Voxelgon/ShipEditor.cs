@@ -1,8 +1,15 @@
 using UnityEngine;
 using System.Collections;
+using Voxelgon;
+using Voxelgon.ShipEditor;
 
 namespace Voxelgon.ShipEditor {
 	public static class ShipEditor {
+
+		public static GameObject hoverNode;
+
+		public static Wall previewWall = new Wall();
+
 		public static Vector3 GetEditCursorPos(float y) {
 			Ray cursorRay = Camera.main.ScreenPointToRay(Input.mousePosition);
 
@@ -16,7 +23,7 @@ namespace Voxelgon.ShipEditor {
 
 			Vector3 interceptPoint = new Vector3(xIntercept, y, zIntercept);
 
-			return interceptPoint;
+			return interceptPoint; 
 		}
 
 		public static Vector3 GetEditCursorPos() {

@@ -49,6 +49,9 @@ public class CameraController : MonoBehaviour {
 			transform.parent.Rotate(Vector3.right * (Mathf.Clamp(orbitSensitivity * Input.GetAxis("Mouse Y"), minAltitude - altitude, maxAltitude - altitude)));
 		}
 
+		transform.parent.Rotate(Vector3.up * orbitSensitivity * Input.GetAxis("Horizontal"),Space.World);
+		transform.parent.Rotate(Vector3.right * (Mathf.Clamp(orbitSensitivity * Input.GetAxis("Vertical"), minAltitude - altitude, maxAltitude - altitude)));		
+
 		//zoom camera (default to Scroll Wheel)
 		transform.Translate( Vector3.back * Mathf.Clamp(Input.GetAxis("zoom") * zoomSensativity * Mathf.Pow(zoom, zoomExpo), minZoom - zoom, maxZoom - zoom));
 
