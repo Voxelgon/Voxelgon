@@ -1,6 +1,5 @@
-Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2008
-
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
 Project("{C5A7EDEB-8AC3-3492-414F-9EA328A992CD}") = "voxelgon", "Assembly-CSharp-firstpass-vs.csproj", "{81B335F3-4D4D-176C-10B5-CB2ABB30072E}"
 EndProject
 Global
@@ -13,9 +12,6 @@ Global
 		{81B335F3-4D4D-176C-10B5-CB2ABB30072E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{81B335F3-4D4D-176C-10B5-CB2ABB30072E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{81B335F3-4D4D-176C-10B5-CB2ABB30072E}.Release|Any CPU.Build.0 = Release|Any CPU
-	EndGlobalSection
-	GlobalSection(SolutionProperties) = preSolution
-		HideSolutionNode = FALSE
 	EndGlobalSection
 <<<<<<< HEAD
 																						GlobalSection(MonoDevelopProperties) = preSolution
@@ -42,5 +38,4 @@ Global
 		$3.inheritsScope = text/plain
 		$3.scope = text/plain
 	EndGlobalSection
-
 EndGlobal
