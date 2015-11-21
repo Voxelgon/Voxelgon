@@ -30,6 +30,7 @@ namespace Voxelgon.ShipEditor {
 			if (eventData.button == PointerEventData.InputButton.Right) {
 				editor.RemoveNode(transform.localPosition);
 				GameObject.Destroy(gameObject,0.0f);
+			} else if (eventData.button == PointerEventData.InputButton.Left && eventData.clickCount > 1) {
 			}
 		}
 	}

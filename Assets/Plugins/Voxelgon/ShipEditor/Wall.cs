@@ -1,6 +1,7 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using Voxelgon;
 using Voxelgon.ShipEditor;
 
@@ -9,108 +10,113 @@ namespace Voxelgon.ShipEditor {
 
 		//Fields
 
-		private ArrayList vertices = new ArrayList();
+		public readonly ShipEditor Editor;
 
-		private bool verticesChanged = false;
+		private List<Vector3> vertices = new List<Vector3>();
 
-		private Mesh wallMesh = new Mesh();
 		private Plane wallPlane;
 
-		//Methods
+		//Constructors
 
-		public bool VerticesChanged() {
-			if (!verticesChanged) return false;
-
-			return true;
+		public Wall() {
+			wallPlane = new Plane();
+			Editor = GameObject.Find("ShipEditor").GetComponent<ShipEditor>();
 		}
 
-		public bool AddVertex(Vector3 vertex) {
-			if (vertices.Contains(vertex)) return false;
+		public Wall(ShipEditor editor){
+			wallPlane = new Plane();
+			Editor = editor;
+		}
 
-			if (vertices.Count >= 3) {
-				wallPlane = new Plane((Vector3) vertices[0], (Vector3) vertices[1], (Vector3) vertices[2]);
-				if (!Mathf.Approximately(0, wallPlane.GetDistanceToPoint(vertex))) return false;
+		//Properties
+
+		public int VertexCount {
+			get { return vertices.Count; }
+		}
+
+		public bool IsPolygon {
+			get { return vertices.Count > 2; }
+		}
+
+		public List<Vector3> Vertices {
+			get { return vertices; }
+		}
+
+		public Mesh SimpleMesh {
+			get {
+				Mesh simpleMesh = new Mesh();
+				if (IsPolygon) {
+					int triCount = 3 * (VertexCount - 2);
+					int vertCount = VertexCount;
+
+					Vector3[] meshVerts = new Vector3[vertCount];
+					int[] meshTris = new int[triCount];
+					Vector3[] meshNorms = new Vector3[vertCount];
+					Color[] meshColors = new Color[vertCount];
+
+					for (int i = 0; 3 * i < triCount; i ++) {
+						meshTris[3 * i] = 0;
+						meshTris[3 * i + 1] = i + 1;
+						meshTris[3 * i + 2] = i + 2;
+					}
+
+					for (int i = 0; i < vertCount; i++) {
+						meshColors[i] = Color.red;
+						meshNorms[i] = wallPlane.normal;
+					}
+
+					simpleMesh.vertices = (Vector3[]) vertices.ToArray();
+					simpleMesh.triangles = meshTris;
+					simpleMesh.normals = meshNorms;
+					simpleMesh.colors = meshColors;
+					simpleMesh.Optimize();
+				}
+				return simpleMesh;
 			}
-
-			vertices.Add(vertex);
-			verticesChanged = true;
-			return true;
 		}
 
-		public bool RemoveVertex(Vector3 vertex) {
-			if (!vertices.Contains(vertex)) return false;
-
-			vertices.Remove(vertex);
-			verticesChanged = true;
-			return true;
-		}
-
-		public bool ContainsVertex(Vector3 vertex) {
-			return vertices.Contains(vertex);
-		}
+		//Methods
 
 		public bool ValidVertex(Vector3 vertex) {
 			if (ContainsVertex(vertex)) {
 				return false;
-			} else if (!IsPolygon()) {
+			} else if (!IsPolygon) {
 				return true;
 			} else {
 				return Mathf.Approximately(0, wallPlane.GetDistanceToPoint(vertex));
 			}
 		}
 
-
-
-		public bool IsPolygon() {
-			return vertices.Count < 3;
+		private bool ContainsVertex(Vector3 vertex) {
+			return vertices.Contains(vertex);
 		}
 
-		public void UpdateMesh() {
-			if (vertices.Count < 3) {
-				wallMesh.Clear(); 
-			} else if (VerticesChanged()) {
-				verticesChanged = false;
-				Vector3[] verts;
-				verts = (Vector3[]) vertices.ToArray(typeof(Vector3));
-
-				int triCount = (verts.Length - 2);
-				int vertCount = (triCount * 3);
-
-				Vector3[] meshVerts = new Vector3[vertCount];
-				int[] meshTris = new int[vertCount];
-				Vector3[] meshNorms = new Vector3[vertCount];
-				Color[] meshColors = new Color[vertCount];
-
-				for (int i = 0; i < triCount; i++) {
-					meshVerts[(3 * i)] = verts[0];
-					meshVerts[(3 * i) + 1] = verts[i + 1];
-					meshVerts[(3 * i) + 2] = verts[i + 2];
-
-					meshTris[(3 * i)] = (3 * i);
-					meshTris[(3 * i) + 1] = (3 * i) + 1;
-					meshTris[(3 * i) + 2] = (3 * i) + 2;
-
-					meshNorms[(3 * i)] = wallPlane.normal;
-					meshNorms[(3 * i) + 1] = wallPlane.normal;
-					meshNorms[(3 * i) + 2] = wallPlane.normal;
-
-					meshColors[(3 * i)] = Color.red;
-					meshColors[(3 * i) + 1] = Color.red;
-					meshColors[(3 * i) + 2] = Color.red;
+		public bool UpdateVertices(List<Vector3> nodes, ShipEditor.BuildMode mode) {
+			if (mode == ShipEditor.BuildMode.polygon) {
+				vertices.Clear();
+				foreach(Vector3 node in nodes) {
+					if (!AddVertex(node)) {
+						return false;
+					}
 				}
-
-				wallMesh.vertices = meshVerts;
-				wallMesh.triangles = meshTris;
-				wallMesh.normals = meshNorms;
-				wallMesh.colors = meshColors;
-				wallMesh.Optimize();
-
+				return true;
 			}
+			return false;
+
 		}
 
-		public Mesh GetMesh() {
-			UpdateMesh();
-			return wallMesh;
+		//Private Methods
+
+		private bool AddVertex(Vector3 vertex) {
+			if (!ValidVertex(vertex)) return false;
+
+			vertices.Add(vertex);
+
+			if (IsPolygon) {
+				wallPlane = new Plane(vertices[0], vertices[1], vertices[2]);
+			}
+			
+			return true;
 		}
 	}
 }

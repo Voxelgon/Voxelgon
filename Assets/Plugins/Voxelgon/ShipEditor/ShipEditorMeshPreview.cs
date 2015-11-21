@@ -17,7 +17,8 @@ public class ShipEditorMeshPreview : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		filter.mesh = editor.GetMesh();
+		editor.UpdateTempWall();
+		filter.mesh = editor.TempWall.SimpleMesh;
 
 	}
 	
