@@ -36,24 +36,7 @@ namespace Voxelgon.ShipEditor {
 		public void OnPointerClick(PointerEventData eventData) {
 			Vector3 pos = transform.parent.parent.InverseTransformPoint(transform.position);
 
-			if (editor.AddNode(pos)) {
-				GameObject selectedNode = GameObject.CreatePrimitive(PrimitiveType.Cube);
-				selectedNode.name = "selectedNode";
-
-				MeshRenderer nodeRenderer = selectedNode.GetComponent<MeshRenderer>();
-				nodeRenderer.material.shader = Shader.Find("Unlit/Color");
-				nodeRenderer.material.color = ColorPallette.gridSelected;
-
-				selectedNode.transform.parent = transform.parent.parent.parent;
-				selectedNode.transform.localPosition = pos;
-				selectedNode.transform.localScale = Vector3.one * 0.15f;
-
-				selectedNode.GetComponent<BoxCollider>().size = Vector3.one * 1.5f;
-
-
-				selectedNode.AddComponent<ShipEditorGridSelected>();
-			}
-
+			editor.AddNode(pos);
 		}
 	}
 }

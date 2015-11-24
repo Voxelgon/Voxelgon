@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using Voxelgon;
+using Voxelgon.UI;
 using Voxelgon.EventSystems;
 using Voxelgon.ShipEditor;
 
@@ -17,6 +18,7 @@ public class ShipEditor : MonoBehaviour, IModeChangeHandler {
 		private Dictionary<Position, List<Wall>> wallVertices;
 
 		private List<Vector3> nodes = new List<Vector3>();
+		private List<GameObject> nodeObjects = new List<GameObject>();
 		private bool nodesChanged = false;
 
 		private BuildMode mode = BuildMode.polygon;
@@ -82,16 +84,32 @@ public class ShipEditor : MonoBehaviour, IModeChangeHandler {
 
 		public bool AddNode(Vector3 node) {
 			if (ValidNode(node)) {
+				GameObject selectedNode = GameObject.CreatePrimitive(PrimitiveType.Cube);
+				selectedNode.name = "selectedNode";
+
+				MeshRenderer nodeRenderer = selectedNode.GetComponent<MeshRenderer>();
+				nodeRenderer.material.shader = Shader.Find("Unlit/Color");
+				nodeRenderer.material.color = ColorPallette.gridSelected;
+
+				selectedNode.transform.parent = transform.parent;
+				selectedNode.transform.localPosition = node;
+				selectedNode.transform.localScale = Vector3.one * 0.15f;
+
+				selectedNode.GetComponent<BoxCollider>().size = Vector3.one * 1.5f;
+				selectedNode.AddComponent<ShipEditorGridSelected>();
+
 				nodes.Add(node);
+				nodeObjects.Add(selectedNode);
 				nodesChanged = true;
 				return true;
 			}
 			return false;
 		}
 
-		public bool RemoveNode(Vector3 node) {
+		public bool RemoveNode(Vector3 node, GameObject obj) {
 			if (nodes.Contains(node)) {
 				nodes.Remove(node);
+				nodeObjects.Remove(obj);
 				nodesChanged = true;
 				return true;
 			}
@@ -121,6 +139,19 @@ public class ShipEditor : MonoBehaviour, IModeChangeHandler {
 				}
 			}
 			walls.Remove(wall);
+		}
+
+		public void FinalizeTempWall() {
+			walls.Add(tempWall);
+			tempWall = new Wall(this);
+
+			foreach (GameObject g in nodeObjects) {
+				Destroy(g);
+			}
+			nodeObjects.Clear();
+			nodes.Clear();
+
+			nodesChanged = true;
 		}
 
 		public List<Wall> GetWallNeighbors(Wall wall) {
