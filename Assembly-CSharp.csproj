@@ -48,7 +48,46 @@
 	</Reference>
   </ItemGroup>
   <ItemGroup>
+     <Compile Include="Assets\LitJson-2\IJsonWrapper.cs" />
+     <Compile Include="Assets\LitJson-2\JsonData.cs" />
+     <Compile Include="Assets\LitJson-2\JsonException.cs" />
+     <Compile Include="Assets\LitJson-2\JsonMapper.cs" />
+     <Compile Include="Assets\LitJson-2\JsonReader.cs" />
+     <Compile Include="Assets\LitJson-2\JsonWriter.cs" />
+     <Compile Include="Assets\LitJson-2\Lexer.cs" />
+     <Compile Include="Assets\LitJson-2\ParserToken.cs" />
+     <Compile Include="Assets\SimpleJSON\SimpleJSON.cs" />
      <Compile Include="Assets\ToggleText.cs" />
+     <Compile Include="Assets\UnitySQL\UnitySQL.cs" />
+     <Compile Include="Assets\Voxelgon\Asset.cs" />
+     <Compile Include="Assets\Voxelgon\Color.cs" />
+     <Compile Include="Assets\Voxelgon\Colormaps.cs" />
+     <Compile Include="Assets\Voxelgon\EventSystem\Interfaces\IModeChangeHandler.cs" />
+     <Compile Include="Assets\Voxelgon\EventSystem\ModeChangeEventData.cs" />
+     <Compile Include="Assets\Voxelgon\EventSystem\ModeChangeEventSource.cs" />
+     <Compile Include="Assets\Voxelgon\EventSystem\StandardInputModule.cs" />
+     <Compile Include="Assets\Voxelgon\GameMode.cs" />
+     <Compile Include="Assets\Voxelgon\Math\Math.cs" />
+     <Compile Include="Assets\Voxelgon\Math\Position.cs" />
+     <Compile Include="Assets\Voxelgon\MeshColorsTest.cs" />
+     <Compile Include="Assets\Voxelgon\MeshSerializer.cs" />
+     <Compile Include="Assets\Voxelgon\Physics\Physics.cs" />
+     <Compile Include="Assets\Voxelgon\Physics\Softbody.cs" />
+     <Compile Include="Assets\Voxelgon\Scripts\CameraController.cs" />
+     <Compile Include="Assets\Voxelgon\Scripts\ImportManager.cs" />
+     <Compile Include="Assets\Voxelgon\Scripts\InputManager.cs" />
+     <Compile Include="Assets\Voxelgon\Scripts\StarController.cs" />
+     <Compile Include="Assets\Voxelgon\ShipEditor\ShipEditor.cs" />
+     <Compile Include="Assets\Voxelgon\ShipEditor\ShipEditorGrid.cs" />
+     <Compile Include="Assets\Voxelgon\ShipEditor\ShipEditorGridHover.cs" />
+     <Compile Include="Assets\Voxelgon\ShipEditor\ShipEditorGridSelected.cs" />
+     <Compile Include="Assets\Voxelgon\ShipEditor\ShipEditorMeshPreview.cs" />
+     <Compile Include="Assets\Voxelgon\ShipEditor\Wall.cs" />
+     <Compile Include="Assets\Voxelgon\Spacecraft\RCSport.cs" />
+     <Compile Include="Assets\Voxelgon\Spacecraft\ShipManager.cs" />
+     <Compile Include="Assets\Voxelgon\Spacecraft\Spacecraft.cs" />
+     <Compile Include="Assets\Voxelgon\UI\EditCursor.cs" />
+     <Compile Include="Assets\Voxelgon\UI\FPScounter.cs" />
      <None Include="Assets\Shaders\VCSurfRimNoCull.shader" />
      <None Include="Assets\Shaders\VCSurfRimDF.shader" />
      <None Include="Assets\Shaders\VCSurfRim.shader" />
@@ -63,18 +102,14 @@
  <HintPath>/Users/drewcassidy/Documents/Github/voxelgon/Assets/System.Data.dll</HintPath>
  </Reference>
  <Reference Include="Mono.Data.SqliteClient">
- <HintPath>/Users/drewcassidy/Documents/Github/voxelgon/Assets/Plugins/UnitySQL/SQLite/Mono.Data.SqliteClient.dll</HintPath>
+ <HintPath>/Users/drewcassidy/Documents/Github/voxelgon/Assets/UnitySQL/SQLite/Mono.Data.SqliteClient.dll</HintPath>
  </Reference>
  <Reference Include="System.Data">
- <HintPath>/Users/drewcassidy/Documents/Github/voxelgon/Assets/Plugins/UnitySQL/SQLite/System.Data.dll</HintPath>
+ <HintPath>/Users/drewcassidy/Documents/Github/voxelgon/Assets/UnitySQL/SQLite/System.Data.dll</HintPath>
  </Reference>
  <Reference Include="UnityEditor.iOS.Extensions.Xcode">
  <HintPath>/Applications/Unity/Unity.app/Contents/PlaybackEngines/iOSSupport/UnityEditor.iOS.Extensions.Xcode.dll</HintPath>
  </Reference>
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="Assembly-CSharp-firstpass.csproj">
-      <Project>{81B335F3-4D4D-176C-10B5-CB2ABB30072E}</Project>      <Name>Assembly-CSharp-firstpass</Name>    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
