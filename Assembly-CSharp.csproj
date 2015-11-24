@@ -48,15 +48,6 @@
 	</Reference>
   </ItemGroup>
   <ItemGroup>
-     <Compile Include="Assets\LitJson-2\IJsonWrapper.cs" />
-     <Compile Include="Assets\LitJson-2\JsonData.cs" />
-     <Compile Include="Assets\LitJson-2\JsonException.cs" />
-     <Compile Include="Assets\LitJson-2\JsonMapper.cs" />
-     <Compile Include="Assets\LitJson-2\JsonReader.cs" />
-     <Compile Include="Assets\LitJson-2\JsonWriter.cs" />
-     <Compile Include="Assets\LitJson-2\Lexer.cs" />
-     <Compile Include="Assets\LitJson-2\ParserToken.cs" />
-     <Compile Include="Assets\SimpleJSON\SimpleJSON.cs" />
      <Compile Include="Assets\ToggleText.cs" />
      <Compile Include="Assets\UnitySQL\UnitySQL.cs" />
      <Compile Include="Assets\Voxelgon\Asset.cs" />
