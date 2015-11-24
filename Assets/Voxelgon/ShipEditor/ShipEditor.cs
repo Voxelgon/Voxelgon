@@ -38,6 +38,10 @@ public class ShipEditor : MonoBehaviour, IModeChangeHandler {
 			set { mode = value; }
 		}
 
+		public bool NodesChanged {
+			get { return nodesChanged; }
+		}
+
 		//Enums
 
 		public enum BuildMode {
@@ -60,12 +64,6 @@ public class ShipEditor : MonoBehaviour, IModeChangeHandler {
 			if (Input.GetButtonDown("ChangeFloor")) {
 				transform.Translate(Vector3.up * 2 * (int) Input.GetAxis("ChangeFloor"));
 			}
-		}
-
-
-		private bool NodesChanged() {
-			if (!nodesChanged) return false;
-			return true;
 		}
 
 		private void UpdateSimpleMesh() {
@@ -116,6 +114,14 @@ public class ShipEditor : MonoBehaviour, IModeChangeHandler {
 			return false;
 		}
 
+		public bool ValidNode(Vector3 node) {
+			return (tempWall.ValidVertex(node) && !ContainsNode(node));
+		}
+
+		public bool ContainsNode(Vector3 node) {
+			return nodes.Contains(node);
+		}
+
 		public void AddWall(Wall wall) {
 			foreach (Vector3 v in wall.Vertices) {
 				Position p = (Position) v;
@@ -154,6 +160,15 @@ public class ShipEditor : MonoBehaviour, IModeChangeHandler {
 			nodesChanged = true;
 		}
 
+		public bool UpdateTempWall() {
+			if (nodesChanged && tempWall.UpdateVertices(nodes, mode)) {
+				nodesChanged = false;
+				return true;
+			}
+			return false;
+		}
+
+
 		public List<Wall> GetWallNeighbors(Wall wall) {
 			List<Wall> lastList = wallVertices[(Position) wall.Vertices[wall.VertexCount - 1]];
 			List<Wall> neighbors = new List<Wall>();
@@ -168,22 +183,6 @@ public class ShipEditor : MonoBehaviour, IModeChangeHandler {
 				}
 			}
 			return neighbors;
-		}
-
-		public bool UpdateTempWall() {
-			if (nodesChanged && tempWall.UpdateVertices(nodes, mode)) {
-				nodesChanged = false;
-				return true;
-			}
-			return false;
-		}
-
-		public bool ValidNode(Vector3 node) {
-			return (tempWall.ValidVertex(node) && !ContainsNode(node));
-		}
-
-		public bool ContainsNode(Vector3 node) {
-			return nodes.Contains(node);
 		}
 
 		public static Vector3 GetEditCursorPos(float y) {
