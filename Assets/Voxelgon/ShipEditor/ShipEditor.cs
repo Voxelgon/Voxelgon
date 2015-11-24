@@ -81,12 +81,11 @@ public class ShipEditor : MonoBehaviour, IModeChangeHandler {
 
 						if (vertCountLast != 0) {
 							for (int i = triIndex; i < triIndex + w.TriCountSimple; i++) {
-								tris[i] += vertCountLast;
+								tris[i] += vertIndex - w.VertCountSimple;
 							}
 						}
 
 						triIndex += w.TriCountSimple;
-						vertCountLast += w.VertCountSimple;
 					}
 
 					simpleHullMesh.vertices = verts;
