@@ -72,6 +72,7 @@
      <Compile Include="Assets\Voxelgon\ShipEditor\ShipEditorGrid.cs" />
      <Compile Include="Assets\Voxelgon\ShipEditor\ShipEditorGridHover.cs" />
      <Compile Include="Assets\Voxelgon\ShipEditor\ShipEditorGridSelected.cs" />
+     <Compile Include="Assets\Voxelgon\ShipEditor\ShipEditorMesh.cs" />
      <Compile Include="Assets\Voxelgon\ShipEditor\ShipEditorMeshPreview.cs" />
      <Compile Include="Assets\Voxelgon\ShipEditor\Wall.cs" />
      <Compile Include="Assets\Voxelgon\Spacecraft\RCSport.cs" />

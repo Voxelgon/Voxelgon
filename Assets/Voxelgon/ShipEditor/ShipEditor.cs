@@ -19,7 +19,10 @@ public class ShipEditor : MonoBehaviour, IModeChangeHandler {
 
 		private List<Vector3> nodes = new List<Vector3>();
 		private List<GameObject> nodeObjects = new List<GameObject>();
+
+		private Mesh simpleHullMesh;
 		private bool nodesChanged = false;
+		private bool wallsChanged = false;
 
 		private BuildMode mode = BuildMode.polygon;
 
@@ -42,6 +45,63 @@ public class ShipEditor : MonoBehaviour, IModeChangeHandler {
 			get { return nodesChanged; }
 		}
 
+		public bool WallsChanged {
+			get { return wallsChanged; }
+		}
+
+		public Mesh SimpleHullMesh {
+			get {
+				if (wallsChanged && walls.Count > 0) {
+					int vertCount = 0;
+					int vertCountLast = 0;
+					int triCount = 0;
+
+					int vertIndex = 0;
+					int triIndex = 0;
+
+					simpleHullMesh = new Mesh();
+
+					foreach (Wall w in Walls) {
+						vertCount += w.VertCountSimple;
+						triCount += w.TriCountSimple;
+					}
+
+					Vector3[] verts = new Vector3[vertCount];
+					Vector3[] norms = new Vector3[vertCount];
+					Color[] colors = new Color[vertCount];
+					int[] tris = new int[triCount];
+
+					foreach (Wall w in Walls) {
+						w.SimpleMesh.vertices.CopyTo(verts, vertIndex);
+						w.SimpleMesh.normals.CopyTo(norms, vertIndex);
+						w.SimpleMesh.colors.CopyTo(colors, vertIndex);
+						vertIndex += w.VertCountSimple;
+
+						w.SimpleMesh.triangles.CopyTo(tris, triIndex);
+
+						if (vertCountLast != 0) {
+							for (int i = triIndex; i < triIndex + w.TriCountSimple; i++) {
+								tris[i] += vertCountLast;
+								Debug.Log("correcting tri for " + i);
+							}
+						}
+
+						triIndex += w.TriCountSimple;
+						vertCountLast += w.VertCountSimple;
+					}
+
+					simpleHullMesh.vertices = verts;
+					simpleHullMesh.colors = colors;
+					simpleHullMesh.normals = norms;
+					simpleHullMesh.triangles = tris;
+					simpleHullMesh.Optimize();
+				}
+
+				wallsChanged = false;
+				return simpleHullMesh;
+			}
+		}
+
 		//Enums
 
 		public enum BuildMode {
@@ -56,28 +116,16 @@ public class ShipEditor : MonoBehaviour, IModeChangeHandler {
 
 		public void Start() {
 			tempWall = new Wall();
+			simpleHullMesh = new Mesh();
 			walls = new List<Wall>();
 			wallVertices = new Dictionary<Position, List<Wall>>();
+
 		}
 
 		public void Update() {
 			if (Input.GetButtonDown("ChangeFloor")) {
 				transform.Translate(Vector3.up * 2 * (int) Input.GetAxis("ChangeFloor"));
 			}
-		}
-
-		private void UpdateSimpleMesh() {
-			int vertCount = 0;
-			int triCount = 0;
-			foreach (Wall w in walls) {
-				vertCount += w.VertexCount;
-				triCount += w.VertexCount - 2;
-			}
-
-			Vector3[] meshVerts = new Vector3[vertCount];
-			int[] meshTris = new int[triCount];
-
-
 		}
 
 		public bool AddNode(Vector3 node) {
@@ -131,6 +179,7 @@ public class ShipEditor : MonoBehaviour, IModeChangeHandler {
 				wallVertices[p].Add(wall);
 			}
 			walls.Add(wall);
+			wallsChanged = true;
 		}
 
 		public void RemoveWall(Wall wall) {
@@ -145,10 +194,11 @@ public class ShipEditor : MonoBehaviour, IModeChangeHandler {
 				}
 			}
 			walls.Remove(wall);
+			wallsChanged = true;
 		}
 
 		public void FinalizeTempWall() {
-			walls.Add(tempWall);
+			AddWall(tempWall);
 			tempWall = new Wall(this);
 
 			foreach (GameObject g in nodeObjects) {

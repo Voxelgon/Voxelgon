@@ -15,6 +15,11 @@ namespace Voxelgon.ShipEditor {
 		private List<Vector3> vertices = new List<Vector3>();
 
 		private Plane wallPlane;
+		private Mesh simpleMesh = new Mesh();
+		private int vertCountSimple = 0;
+		private int triCountSimple = 0;
+
+		private bool verticesChanged;
 
 		//Constructors
 
@@ -42,25 +47,35 @@ namespace Voxelgon.ShipEditor {
 			get { return vertices; }
 		}
 
+
+		public int VertCountSimple {
+			get { return vertCountSimple; }
+		}
+
+		public int TriCountSimple {
+			get { return triCountSimple; }
+		}
+
 		public Mesh SimpleMesh {
 			get {
-				Mesh simpleMesh = new Mesh();
-				if (IsPolygon) {
-					int triCount = 3 * (VertexCount - 2);
-					int vertCount = VertexCount;
+				if (IsPolygon && verticesChanged) {
+					simpleMesh = new Mesh();
 
-					Vector3[] meshVerts = new Vector3[vertCount];
-					int[] meshTris = new int[triCount];
-					Vector3[] meshNorms = new Vector3[vertCount];
-					Color[] meshColors = new Color[vertCount];
+					triCountSimple = 3 * (VertexCount - 2);
+					vertCountSimple = VertexCount;
 
-					for (int i = 0; 3 * i < triCount; i ++) {
+					Vector3[] meshVerts = new Vector3[vertCountSimple];
+					int[] meshTris = new int[triCountSimple];
+					Vector3[] meshNorms = new Vector3[vertCountSimple];
+					Color[] meshColors = new Color[vertCountSimple];
+
+					for (int i = 0; 3 * i < triCountSimple; i ++) {
 						meshTris[3 * i] = 0;
 						meshTris[3 * i + 1] = i + 1;
 						meshTris[3 * i + 2] = i + 2;
 					}
 
-					for (int i = 0; i < vertCount; i++) {
+					for (int i = 0; i < vertCountSimple; i++) {
 						meshColors[i] = Color.red;
 						meshNorms[i] = wallPlane.normal;
 					}
@@ -70,9 +85,15 @@ namespace Voxelgon.ShipEditor {
 					simpleMesh.normals = meshNorms;
 					simpleMesh.colors = meshColors;
 					simpleMesh.Optimize();
+
+					verticesChanged = false;
 				}
 				return simpleMesh;
 			}
+		}
+
+		public bool VerticesChanged {
+			get { return verticesChanged; }
 		}
 
 		//Methods
@@ -111,6 +132,7 @@ namespace Voxelgon.ShipEditor {
 			if (!ValidVertex(vertex)) return false;
 
 			vertices.Add(vertex);
+			verticesChanged = true;
 
 			if (IsPolygon) {
 				wallPlane = new Plane(vertices[0], vertices[1], vertices[2]);
