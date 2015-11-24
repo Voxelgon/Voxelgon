@@ -82,7 +82,6 @@ public class ShipEditor : MonoBehaviour, IModeChangeHandler {
 						if (vertCountLast != 0) {
 							for (int i = triIndex; i < triIndex + w.TriCountSimple; i++) {
 								tris[i] += vertCountLast;
-								Debug.Log("correcting tri for " + i);
 							}
 						}
 
