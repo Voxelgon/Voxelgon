@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using Voxelgon;
-using Voxelgon.UI;
+using Voxelgon.Graphics;
 using Voxelgon.EventSystems;
 using Voxelgon.ShipEditor;
 
@@ -52,47 +52,12 @@ public class ShipEditor : MonoBehaviour, IModeChangeHandler {
 		public Mesh SimpleHullMesh {
 			get {
 				if (wallsChanged && walls.Count > 0) {
-					int vertCount = 0;
-					int vertCountLast = 0;
-					int triCount = 0;
-
-					int vertIndex = 0;
-					int triIndex = 0;
-
-					simpleHullMesh = new Mesh();
-
-					foreach (Wall w in Walls) {
-						vertCount += w.VertCountSimple;
-						triCount += w.TriCountSimple;
+					List<Mesh> wallMeshes = new List<Mesh>();
+					foreach (Wall w in walls) {
+						wallMeshes.Add(w.SimpleMesh);
 					}
-
-					Vector3[] verts = new Vector3[vertCount];
-					Vector3[] norms = new Vector3[vertCount];
-					Color[] colors = new Color[vertCount];
-					int[] tris = new int[triCount];
-
-					foreach (Wall w in Walls) {
-						w.SimpleMesh.vertices.CopyTo(verts, vertIndex);
-						w.SimpleMesh.normals.CopyTo(norms, vertIndex);
-						w.SimpleMesh.colors.CopyTo(colors, vertIndex);
-						vertIndex += w.VertCountSimple;
-
-						w.SimpleMesh.triangles.CopyTo(tris, triIndex);
-
-						if (vertCountLast != 0) {
-							for (int i = triIndex; i < triIndex + w.TriCountSimple; i++) {
-								tris[i] += vertIndex - w.VertCountSimple;
-							}
-						}
-
-						triIndex += w.TriCountSimple;
-					}
-
-					simpleHullMesh.vertices = verts;
-					simpleHullMesh.colors = colors;
-					simpleHullMesh.normals = norms;
-					simpleHullMesh.triangles = tris;
-					simpleHullMesh.Optimize();
+					simpleHullMesh.Clear();
+					simpleHullMesh = Geometry.MergeMeshes(wallMeshes);
 				}
 
 				wallsChanged = false;
@@ -228,6 +193,19 @@ public class ShipEditor : MonoBehaviour, IModeChangeHandler {
 						neighbors.Add(w);
 					}
 					lastList = wallVertices[p];
+				}
+			}
+			return neighbors;
+		}
+
+		public List<Wall> GetWallNeighbors(Wall wall, int edge) {
+			List<Wall> l1 = wallVertices[(Position) wall.Vertices[edge]];
+			List<Wall> l2 = wallVertices[(Position) wall.Vertices[(edge + 1) % wall.VertexCount]];
+			List<Wall> neighbors = new List<Wall>();
+
+			foreach (Wall w in l1) {
+				if (l2.Contains(w)) {
+					neighbors.Add(w);
 				}
 			}
 			return neighbors;

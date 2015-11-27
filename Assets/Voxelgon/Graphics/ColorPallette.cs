@@ -3,7 +3,7 @@ using System;
 using System.Collections;
 using Voxelgon;
 
-namespace Voxelgon.UI {
+namespace Voxelgon.Graphics {
 	public static class ColorPallette {
 
 		public static readonly Color grid = HexColor(0x7CFFFF);

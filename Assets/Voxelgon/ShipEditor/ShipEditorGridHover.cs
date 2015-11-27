@@ -2,7 +2,7 @@
 using UnityEngine.EventSystems;
 using System.Collections;
 using Voxelgon;
-using Voxelgon.UI;
+using Voxelgon.Graphics;
 using Voxelgon.EventSystems;
 
 namespace Voxelgon.ShipEditor {
@@ -34,7 +34,7 @@ namespace Voxelgon.ShipEditor {
 		}
 
 		public void OnPointerClick(PointerEventData eventData) {
-			Vector3 pos = transform.parent.parent.InverseTransformPoint(transform.position);
+			Vector3 pos = editor.transform.parent.InverseTransformPoint(transform.position);
 
 			editor.AddNode(pos);
 		}

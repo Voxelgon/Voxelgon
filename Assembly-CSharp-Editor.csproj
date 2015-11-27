@@ -53,6 +53,7 @@
      <None Include="Assets\Shaders\VCSurfRimDF.shader" />
      <None Include="Assets\Shaders\VCSurfRim.shader" />
      <None Include="Assets\Shaders\VCSurf.shader" />
+     <None Include="Assets\Shaders\VCSurfNoCull.shader" />
  <Reference Include="UnityEditor.Advertisements">
  <HintPath>/Applications/Unity/Unity.app/Contents/UnityExtensions/Unity/Advertisements/Editor/UnityEditor.Advertisements.dll</HintPath>
  </Reference>

@@ -2,7 +2,7 @@
 using UnityEngine.EventSystems;
 using System.Collections;
 using Voxelgon;
-using Voxelgon.UI;
+using Voxelgon.Graphics;
 using Voxelgon.EventSystems;
 
 namespace Voxelgon.ShipEditor {

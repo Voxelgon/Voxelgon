@@ -51,13 +51,15 @@
      <Compile Include="Assets\ToggleText.cs" />
      <Compile Include="Assets\UnitySQL\UnitySQL.cs" />
      <Compile Include="Assets\Voxelgon\Asset.cs" />
-     <Compile Include="Assets\Voxelgon\Color.cs" />
      <Compile Include="Assets\Voxelgon\Colormaps.cs" />
      <Compile Include="Assets\Voxelgon\EventSystem\Interfaces\IModeChangeHandler.cs" />
      <Compile Include="Assets\Voxelgon\EventSystem\ModeChangeEventData.cs" />
      <Compile Include="Assets\Voxelgon\EventSystem\ModeChangeEventSource.cs" />
      <Compile Include="Assets\Voxelgon\EventSystem\StandardInputModule.cs" />
      <Compile Include="Assets\Voxelgon\GameMode.cs" />
+     <Compile Include="Assets\Voxelgon\Graphics\ColorPallette.cs" />
+     <Compile Include="Assets\Voxelgon\Graphics\Geometry.cs" />
+     <Compile Include="Assets\Voxelgon\Graphics\MonoBehaviour\FPScounter.cs" />
      <Compile Include="Assets\Voxelgon\Math\Math.cs" />
      <Compile Include="Assets\Voxelgon\Math\Position.cs" />
      <Compile Include="Assets\Voxelgon\MeshColorsTest.cs" />
@@ -76,14 +78,13 @@
      <Compile Include="Assets\Voxelgon\ShipEditor\ShipEditorMeshPreview.cs" />
      <Compile Include="Assets\Voxelgon\ShipEditor\Wall.cs" />
      <Compile Include="Assets\Voxelgon\Spacecraft\RCSport.cs" />
+     <Compile Include="Assets\Voxelgon\Spacecraft\Ship.cs" />
      <Compile Include="Assets\Voxelgon\Spacecraft\ShipManager.cs" />
-     <Compile Include="Assets\Voxelgon\Spacecraft\Spacecraft.cs" />
-     <Compile Include="Assets\Voxelgon\UI\EditCursor.cs" />
-     <Compile Include="Assets\Voxelgon\UI\FPScounter.cs" />
      <None Include="Assets\Shaders\VCSurfRimNoCull.shader" />
      <None Include="Assets\Shaders\VCSurfRimDF.shader" />
      <None Include="Assets\Shaders\VCSurfRim.shader" />
      <None Include="Assets\Shaders\VCSurf.shader" />
+     <None Include="Assets\Shaders\VCSurfNoCull.shader" />
  <Reference Include="UnityEngine.UI">
  <HintPath>/Applications/Unity/Unity.app/Contents/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll</HintPath>
  </Reference>

@@ -7,7 +7,7 @@ Material:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_Name: colormap rimshader+falloff
-  m_Shader: {fileID: 4800000, guid: 71b7fa31f59cb47fea26cc87d1d8263d, type: 3}
+  m_Shader: {fileID: 4800000, guid: d5f4dafc814c04abe84d9714e8fc0818, type: 3}
   m_ShaderKeywords: 
   m_LightmapFlags: 5
   m_CustomRenderQueue: 2000
