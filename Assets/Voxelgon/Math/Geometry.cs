@@ -6,6 +6,19 @@ using Voxelgon;
 namespace Voxelgon.Math {
 	public static class Geometry {
 
+		//0: points are colinear
+		//1: points are wound clockwise
+		//2: points are wound counter-clockwise
+		public static int WindingOrder(Vector2 p1, Vector2 p2, Vector2 p3) {
+			float val = (p2.y - p1.y) * (p3.x - p2.x) - (p2.x - p1.x) * (p3.y - p2.y); //evil vector dot product hacking
+
+			if (Mathf.Approximately(val, 0.0f)) {
+				return 1;
+			}
+
+			return (val > 0) ? 1:2;
+		}
+
 		//merges a list of meshes into a single mesh (limited at 65534 vertices)
 		public static Mesh MergeMeshes(List<Mesh> meshes) {
 			Mesh compoundMesh = new Mesh();
