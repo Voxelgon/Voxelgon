@@ -47,8 +47,9 @@
   <ItemGroup>
      <Compile Include="Assets\ToggleText.cs" />
      <Compile Include="Assets\UnitySQL\UnitySQL.cs" />
-     <Compile Include="Assets\Voxelgon\Asset.cs" />
-     <Compile Include="Assets\Voxelgon\Colormaps.cs" />
+     <Compile Include="Assets\Voxelgon\Asset\Asset.cs" />
+     <Compile Include="Assets\Voxelgon\Asset\Colormaps.cs" />
+     <Compile Include="Assets\Voxelgon\Asset\MeshSerializer.cs" />
      <Compile Include="Assets\Voxelgon\EventSystem\Interfaces\IModeChangeHandler.cs" />
      <Compile Include="Assets\Voxelgon\EventSystem\ModeChangeEventData.cs" />
      <Compile Include="Assets\Voxelgon\EventSystem\ModeChangeEventSource.cs" />
@@ -56,17 +57,19 @@
      <Compile Include="Assets\Voxelgon\GameMode.cs" />
      <Compile Include="Assets\Voxelgon\Graphics\ColorPallette.cs" />
      <Compile Include="Assets\Voxelgon\Graphics\MonoBehaviour\FPScounter.cs" />
+     <Compile Include="Assets\Voxelgon\Graphics\MonoBehaviour\MeshColorsTest.cs" />
      <Compile Include="Assets\Voxelgon\Math\Geometry.cs" />
      <Compile Include="Assets\Voxelgon\Math\Math.cs" />
      <Compile Include="Assets\Voxelgon\Math\Position.cs" />
-     <Compile Include="Assets\Voxelgon\MeshColorsTest.cs" />
-     <Compile Include="Assets\Voxelgon\MeshSerializer.cs" />
      <Compile Include="Assets\Voxelgon\Physics\Physics.cs" />
      <Compile Include="Assets\Voxelgon\Physics\Softbody.cs" />
      <Compile Include="Assets\Voxelgon\Scripts\CameraController.cs" />
      <Compile Include="Assets\Voxelgon\Scripts\ImportManager.cs" />
      <Compile Include="Assets\Voxelgon\Scripts\InputManager.cs" />
      <Compile Include="Assets\Voxelgon\Scripts\StarController.cs" />
+     <Compile Include="Assets\Voxelgon\Ship\RCSport.cs" />
+     <Compile Include="Assets\Voxelgon\Ship\Ship.cs" />
+     <Compile Include="Assets\Voxelgon\Ship\ShipManager.cs" />
      <Compile Include="Assets\Voxelgon\ShipEditor\ShipEditor.cs" />
      <Compile Include="Assets\Voxelgon\ShipEditor\ShipEditorGrid.cs" />
      <Compile Include="Assets\Voxelgon\ShipEditor\ShipEditorGridHover.cs" />
@@ -74,9 +77,6 @@
      <Compile Include="Assets\Voxelgon\ShipEditor\ShipEditorMesh.cs" />
      <Compile Include="Assets\Voxelgon\ShipEditor\ShipEditorMeshPreview.cs" />
      <Compile Include="Assets\Voxelgon\ShipEditor\Wall.cs" />
-     <Compile Include="Assets\Voxelgon\Spacecraft\RCSport.cs" />
-     <Compile Include="Assets\Voxelgon\Spacecraft\Ship.cs" />
-     <Compile Include="Assets\Voxelgon\Spacecraft\ShipManager.cs" />
      <None Include="Assets\Shaders\VCSurfRimNoCull.shader" />
      <None Include="Assets\Shaders\VCSurfRimDF.shader" />
      <None Include="Assets\Shaders\VCSurfRim.shader" />
