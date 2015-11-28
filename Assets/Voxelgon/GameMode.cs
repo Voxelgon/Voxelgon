@@ -1,12 +1,17 @@
-﻿using UnityEngine;
-using System.Collections;
-
-namespace Voxelgon {
+﻿namespace Voxelgon {
 	public static class GameMode {
 		public enum Mode {
-			edit,
-			flight
+			Edit,
+			Flight
 		}
-		public static Mode current;
+
+		private static readonly Mode current = Mode.Flight;
+
+		public static Mode Current {
+			get {
+				return current;
+			}
+		}
+
 	}
 }

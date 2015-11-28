@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using System.Collections;
 using System.Collections.Generic;
 using Voxelgon;
 using Voxelgon.Math;
@@ -22,10 +21,10 @@ public class ShipEditor : MonoBehaviour, IModeChangeHandler {
 		private List<GameObject> nodeObjects = new List<GameObject>();
 
 		private Mesh simpleHullMesh;
-		private bool nodesChanged = false;
-		private bool wallsChanged = false;
+		private bool nodesChanged;
+		private bool wallsChanged;
 
-		private BuildMode mode = BuildMode.polygon;
+		private BuildMode mode = BuildMode.Polygon;
 
 		//Properties
 
@@ -53,7 +52,8 @@ public class ShipEditor : MonoBehaviour, IModeChangeHandler {
 		public Mesh SimpleHullMesh {
 			get {
 				if (wallsChanged && walls.Count > 0) {
-					List<Mesh> wallMeshes = new List<Mesh>();
+					List<Mesh> wallMeshes;
+					wallMeshes = new List<Mesh>();
 					foreach (Wall w in walls) {
 						wallMeshes.Add(w.SimpleMesh);
 					}
@@ -69,8 +69,8 @@ public class ShipEditor : MonoBehaviour, IModeChangeHandler {
 		//Enums
 
 		public enum BuildMode {
-			polygon,
-			rectangle
+			Polygon,
+			Rectangle
 		}
 
 		//Methods
@@ -136,7 +136,7 @@ public class ShipEditor : MonoBehaviour, IModeChangeHandler {
 
 		public void AddWall(Wall wall) {
 			foreach (Vector3 v in wall.Vertices) {
-				Position p = (Position) v;
+				var p = (Position) v;
 				if (!wallVertices.ContainsKey(p)) {
 					wallVertices.Add(p, new List<Wall>());
 				}
@@ -148,7 +148,7 @@ public class ShipEditor : MonoBehaviour, IModeChangeHandler {
 
 		public void RemoveWall(Wall wall) {
 			foreach (Vector3 v in wall.Vertices) {
-				Position p = (Position) v;
+				var p = (Position) v;
 				if (wallVertices.ContainsKey(p)) {
 					wallVertices[p].Remove(wall);
 
@@ -185,10 +185,11 @@ public class ShipEditor : MonoBehaviour, IModeChangeHandler {
 
 		public List<Wall> GetWallNeighbors(Wall wall) {
 			List<Wall> lastList = wallVertices[(Position) wall.Vertices[wall.VertexCount - 1]];
-			List<Wall> neighbors = new List<Wall>();
+			List<Wall> neighbors;
+			neighbors = new List<Wall>();
 
 			foreach (Vector3 v in wall.Vertices) {
-				Position p = (Position) v;
+				var p = (Position) v;
 				foreach(Wall w in wallVertices[p]) {
 					if (lastList.Contains(w)) {
 						neighbors.Add(w);
@@ -202,7 +203,8 @@ public class ShipEditor : MonoBehaviour, IModeChangeHandler {
 		public List<Wall> GetWallNeighbors(Wall wall, int edge) {
 			List<Wall> l1 = wallVertices[(Position) wall.Vertices[edge]];
 			List<Wall> l2 = wallVertices[(Position) wall.Vertices[(edge + 1) % wall.VertexCount]];
-			List<Wall> neighbors = new List<Wall>();
+			List<Wall> neighbors;
+			neighbors = new List<Wall>();
 
 			foreach (Wall w in l1) {
 				if (l2.Contains(w)) {
@@ -223,7 +225,7 @@ public class ShipEditor : MonoBehaviour, IModeChangeHandler {
 			float xIntercept = cursorRay.origin.x + deltaY / -xySlope;
 			float zIntercept = cursorRay.origin.z + deltaY / -zySlope;
 
-			Vector3 interceptPoint = new Vector3(xIntercept, y, zIntercept);
+			var interceptPoint = new Vector3(xIntercept, y, zIntercept);
 
 			return interceptPoint; 
 		}

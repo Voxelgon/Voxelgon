@@ -1,6 +1,4 @@
 using UnityEngine;
-using System.Collections;
-using Voxelgon;
 
 namespace Voxelgon {
     public class ImportManager : MonoBehaviour {

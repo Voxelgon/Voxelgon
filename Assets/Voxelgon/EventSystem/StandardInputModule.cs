@@ -18,15 +18,15 @@ namespace Voxelgon.EventSystems {
 
 		private void ToggleGameMode(ModeChangeEventSource source) {
 			GameMode.Mode newMode;
-			GameMode.Mode oldMode = GameMode.current;
+			GameMode.Mode oldMode = GameMode.Current;
 
 			switch (oldMode) {
-				case GameMode.Mode.flight:
-					newMode = GameMode.Mode.edit;
+				case GameMode.Mode.Flight:
+					newMode = GameMode.Mode.Edit;
 					break;
-				case GameMode.Mode.edit:
+				case GameMode.Mode.Edit:
 				default:
-					newMode = GameMode.Mode.flight;
+					newMode = GameMode.Mode.Flight;
 					break;
 			}
 

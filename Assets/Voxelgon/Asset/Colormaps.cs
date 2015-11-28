@@ -1,6 +1,4 @@
 using UnityEngine;
-using System.IO;
-using System.Collections.Generic;
 
 namespace Voxelgon {
     public static class Colormaps {
