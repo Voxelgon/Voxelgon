@@ -135,7 +135,7 @@ public class ShipEditor : MonoBehaviour, IModeChangeHandler {
 
 		public void AddWall(Wall wall) {
 			foreach (Vector3 v in wall.Vertices) {
-				Position p = (Position) v;
+				var p = (Position) v;
 				if (!wallVertices.ContainsKey(p)) {
 					wallVertices.Add(p, new List<Wall>());
 				}
@@ -147,7 +147,7 @@ public class ShipEditor : MonoBehaviour, IModeChangeHandler {
 
 		public void RemoveWall(Wall wall) {
 			foreach (Vector3 v in wall.Vertices) {
-				Position p = (Position) v;
+				var p = (Position) v;
 				if (wallVertices.ContainsKey(p)) {
 					wallVertices[p].Remove(wall);
 
@@ -187,7 +187,7 @@ public class ShipEditor : MonoBehaviour, IModeChangeHandler {
 			List<Wall> neighbors = new List<Wall>();
 
 			foreach (Vector3 v in wall.Vertices) {
-				Position p = (Position) v;
+				var p = (Position) v;
 				foreach(Wall w in wallVertices[p]) {
 					if (lastList.Contains(w)) {
 						neighbors.Add(w);

@@ -120,10 +120,10 @@ namespace Voxelgon.ShipEditor {
 				int triCountSimple = 3 * (VertexCount - 2);
 				int vertCountSimple = VertexCount;
 
-				Vector3[] meshVerts = new Vector3[vertCountSimple];
-				int[] meshTris = new int[triCountSimple];
-				Vector3[] meshNorms = new Vector3[vertCountSimple];
-				Color[] meshColors = new Color[vertCountSimple];
+				var meshVerts = new Vector3[vertCountSimple];
+				var meshTris = new int[triCountSimple];
+				var meshNorms = new Vector3[vertCountSimple];
+				var meshColors = new Color[vertCountSimple];
 
 				for (int i = 0; 3 * i < triCountSimple; i ++) {
 					meshTris[3 * i] = 0;
