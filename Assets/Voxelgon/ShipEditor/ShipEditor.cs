@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 using Voxelgon;
+using Voxelgon.Math;
 using Voxelgon.Graphics;
 using Voxelgon.EventSystems;
 using Voxelgon.ShipEditor;

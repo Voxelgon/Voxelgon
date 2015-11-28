@@ -1,5 +1,5 @@
 ﻿using UnityEngine;
-using Voxelgon;
+using Voxelgon.Math;
 
 namespace Voxelgon.ShipEditor {
 	public class ShipEditorGrid: MonoBehaviour {

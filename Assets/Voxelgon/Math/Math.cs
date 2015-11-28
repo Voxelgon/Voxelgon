@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace Voxelgon {
+namespace Voxelgon.Math {
     public static class Math {
 
         //returns the angle in degrees from the x axis to a line between origin and child

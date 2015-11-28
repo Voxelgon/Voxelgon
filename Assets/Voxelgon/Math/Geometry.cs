@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Voxelgon;
 
-namespace Voxelgon.Graphics {
+namespace Voxelgon.Math {
 	public static class Geometry {
 
 		//merges a list of meshes into a single mesh (limited at 65534 vertices)
