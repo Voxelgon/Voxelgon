@@ -7,14 +7,13 @@
     <ProjectGuid>{81B335F3-4D4D-176C-10B5-CB2ABB30072E}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>
-    </RootNamespace>
+    <RootNamespace></RootNamespace>
     <AssemblyName>Assembly-CSharp-firstpass</AssemblyName>
     <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <BaseDirectory>Assets</BaseDirectory>
-	<LangVersion>default</LangVersion>
-</PropertyGroup>
+    <LangVersion>default</LangVersion>
+  </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
@@ -24,8 +23,8 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <NoWarn>0169</NoWarn>
-	<LangVersion>default</LangVersion>
-</PropertyGroup>
+    <LangVersion>default</LangVersion>
+  </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
@@ -34,8 +33,8 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <NoWarn>0169</NoWarn>
-	<LangVersion>default</LangVersion>
-</PropertyGroup>
+    <LangVersion>default</LangVersion>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.XML" />
@@ -58,6 +57,21 @@
     <Compile Include="Assets\Plugins\Voxelgon\Spacecraft\Spacecraft.cs" />
     <None Include="Assets\Standard Assets\Particles\Sources\Shaders\Particle Alpha Blend (Queue +100).shader" />
     <Compile Include="Assets\Plugins\Voxelgon\ShipEditor.cs" />
+    <Compile Include="Assets\Voxelgon\ShipEditor\Wall.cs" />
+    <Compile Include="Assets\Voxelgon\ShipEditor\ShipEditor.cs" />
+    <Compile Include="Assets\Voxelgon\Graphics\ColorPallette.cs" />
+    <Compile Include="Assets\Voxelgon\Scripts\CameraController.cs" />
+    <Compile Include="Assets\Voxelgon\Scripts\ImportManager.cs" />
+    <Compile Include="Assets\Voxelgon\Scripts\InputManager.cs" />
+    <Compile Include="Assets\Voxelgon\Scripts\StarController.cs" />
+    <Compile Include="Assets\Voxelgon\Asset.cs" />
+    <Compile Include="Assets\Voxelgon\EventSystem\Interfaces\IModeChangeHandler.cs" />
+    <Compile Include="Assets\Voxelgon\EventSystem\ModeChangeEventData.cs" />
+    <Compile Include="Assets\Voxelgon\EventSystem\ModeChangeEventSource.cs" />
+    <Compile Include="Assets\Voxelgon\EventSystem\StandardInputModule.cs" />
+    <Compile Include="Assets\Voxelgon\Math\Position.cs" />
+    <Compile Include="Assets\Voxelgon\Graphics\Geometry.cs" />
+    <Compile Include="Assets\Voxelgon\MeshSerializer.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
