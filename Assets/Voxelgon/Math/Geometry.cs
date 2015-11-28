@@ -1,7 +1,5 @@
 using UnityEngine;
-using System.Collections;
 using System.Collections.Generic;
-using Voxelgon;
 
 namespace Voxelgon.Math {
 	public static class Geometry {
@@ -21,12 +19,12 @@ namespace Voxelgon.Math {
 
 		//merges a list of meshes into a single mesh (limited at 65534 vertices)
 		public static Mesh MergeMeshes(List<Mesh> meshes) {
-			Mesh compoundMesh = new Mesh();
+			var compoundMesh = new Mesh();
 
-			List<Vector3> compoundVertices = new List<Vector3>();
-			List<Vector3> compoundNormals = new List<Vector3>();
-			List<Color> compoundColors = new List<Color>();
-			List<int> compoundTriangles = new List<int>();
+			var compoundVertices = new List<Vector3>();
+			var compoundNormals = new List<Vector3>();
+			var compoundColors = new List<Color>();
+			var compoundTriangles = new List<int>();
 			
 			foreach (Mesh m in meshes) {
 				if (compoundVertices.Count + m.vertices.Length > 65534) {
