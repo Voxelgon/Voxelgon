@@ -62,7 +62,6 @@
      <Compile Include="Assets\Voxelgon\MeshColorsTest.cs" />
      <Compile Include="Assets\Voxelgon\MeshSerializer.cs" />
      <Compile Include="Assets\Voxelgon\Physics\Physics.cs" />
-     <Compile Include="Assets\Voxelgon\Physics\Softbody.cs" />
      <Compile Include="Assets\Voxelgon\Scripts\CameraController.cs" />
      <Compile Include="Assets\Voxelgon\Scripts\ImportManager.cs" />
      <Compile Include="Assets\Voxelgon\Scripts\InputManager.cs" />
