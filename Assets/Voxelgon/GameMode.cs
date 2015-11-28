@@ -4,6 +4,5 @@
 			Edit,
 			Flight
 		}
-		public static Mode current;
 	}
 }
