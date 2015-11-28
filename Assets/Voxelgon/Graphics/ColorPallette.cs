@@ -1,7 +1,5 @@
 using UnityEngine;
 using System;
-using System.Collections;
-using Voxelgon;
 
 namespace Voxelgon.Graphics {
 	public static class ColorPallette {

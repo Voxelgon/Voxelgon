@@ -1,8 +1,6 @@
 using UnityEngine;
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using Voxelgon;
 using Voxelgon.ShipEditor;
 
 namespace Voxelgon.ShipEditor {

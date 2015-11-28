@@ -1,7 +1,4 @@
-﻿using UnityEngine;
-using System.Collections;
-
-namespace Voxelgon {
+﻿namespace Voxelgon {
 	public static class GameMode {
 		public enum Mode {
 			edit,

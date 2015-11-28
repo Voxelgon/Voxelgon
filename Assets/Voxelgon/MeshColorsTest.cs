@@ -1,6 +1,5 @@
 ﻿using UnityEngine;
 using Voxelgon;
-using System.Collections;
 
 public class MeshColorsTest : MonoBehaviour {
 

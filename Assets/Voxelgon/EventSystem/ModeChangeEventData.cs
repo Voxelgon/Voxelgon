@@ -1,6 +1,4 @@
-﻿using UnityEngine;
-using UnityEngine.EventSystems;
-using System.Collections;
+﻿using UnityEngine.EventSystems;
 using Voxelgon;
 
 namespace Voxelgon.EventSystems{

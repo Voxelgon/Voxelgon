@@ -1,9 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.EventSystems;
-using System.Collections;
-using Voxelgon;
 using Voxelgon.Graphics;
-using Voxelgon.EventSystems;
 
 namespace Voxelgon.ShipEditor {
 	public class ShipEditorGridHover: MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler{

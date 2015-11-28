@@ -1,6 +1,4 @@
 ﻿using UnityEngine;
-using System.Collections;
-using Voxelgon;
 using Voxelgon.ShipEditor;
 
 public class ShipEditorMeshPreview : MonoBehaviour {
