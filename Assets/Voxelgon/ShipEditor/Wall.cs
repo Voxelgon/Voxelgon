@@ -51,37 +51,7 @@ namespace Voxelgon.ShipEditor {
 		public Mesh SimpleMesh {
 			get {
 				if (verticesChanged) {
-					simpleMesh.Clear();
-					
-					if (IsPolygon) {
-
-						int triCountSimple = 3 * (VertexCount - 2);
-						int vertCountSimple = VertexCount;
-	
-						Vector3[] meshVerts = new Vector3[vertCountSimple];
-						int[] meshTris = new int[triCountSimple];
-						Vector3[] meshNorms = new Vector3[vertCountSimple];
-						Color[] meshColors = new Color[vertCountSimple];
-	
-						for (int i = 0; 3 * i < triCountSimple; i ++) {
-							meshTris[3 * i] = 0;
-							meshTris[3 * i + 1] = i + 1;
-							meshTris[3 * i + 2] = i + 2;
-						}
-	
-						for (int i = 0; i < vertCountSimple; i++) {
-							meshColors[i] = Color.red;
-							meshNorms[i] = wallPlane.normal;
-						}
-	
-						simpleMesh.vertices = (Vector3[]) vertices.ToArray();
-						simpleMesh.triangles = meshTris;
-						simpleMesh.normals = meshNorms;
-						simpleMesh.colors = meshColors;
-						simpleMesh.Optimize();
-	
-						verticesChanged = false;
-					}
+					BuildSimpleMesh();
 				}
 				return simpleMesh;
 			}
@@ -140,6 +110,40 @@ namespace Voxelgon.ShipEditor {
 			}
 			
 			return true;
+		}
+
+		private void BuildSimpleMesh() {
+			simpleMesh.Clear();
+					
+			if (IsPolygon) {
+
+				int triCountSimple = 3 * (VertexCount - 2);
+				int vertCountSimple = VertexCount;
+
+				Vector3[] meshVerts = new Vector3[vertCountSimple];
+				int[] meshTris = new int[triCountSimple];
+				Vector3[] meshNorms = new Vector3[vertCountSimple];
+				Color[] meshColors = new Color[vertCountSimple];
+
+				for (int i = 0; 3 * i < triCountSimple; i ++) {
+					meshTris[3 * i] = 0;
+					meshTris[3 * i + 1] = i + 1;
+					meshTris[3 * i + 2] = i + 2;
+				}
+
+				for (int i = 0; i < vertCountSimple; i++) {
+					meshColors[i] = Color.red;
+					meshNorms[i] = wallPlane.normal;
+				}
+
+				simpleMesh.vertices = (Vector3[]) vertices.ToArray();
+				simpleMesh.triangles = meshTris;
+				simpleMesh.normals = meshNorms;
+				simpleMesh.colors = meshColors;
+				simpleMesh.Optimize();
+
+				verticesChanged = false;
+			}
 		}
 	}
 }
