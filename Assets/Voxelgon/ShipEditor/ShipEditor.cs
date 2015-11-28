@@ -20,8 +20,8 @@ public class ShipEditor : MonoBehaviour, IModeChangeHandler {
 		private List<GameObject> nodeObjects = new List<GameObject>();
 
 		private Mesh simpleHullMesh;
-		private bool nodesChanged = false;
-		private bool wallsChanged = false;
+		private bool nodesChanged;
+		private bool wallsChanged;
 
 		private BuildMode mode = BuildMode.Polygon;
 
@@ -51,7 +51,8 @@ public class ShipEditor : MonoBehaviour, IModeChangeHandler {
 		public Mesh SimpleHullMesh {
 			get {
 				if (wallsChanged && walls.Count > 0) {
-					List<Mesh> wallMeshes = new List<Mesh>();
+					List<Mesh> wallMeshes;
+					wallMeshes = new List<Mesh>();
 					foreach (Wall w in walls) {
 						wallMeshes.Add(w.SimpleMesh);
 					}
@@ -183,7 +184,8 @@ public class ShipEditor : MonoBehaviour, IModeChangeHandler {
 
 		public List<Wall> GetWallNeighbors(Wall wall) {
 			List<Wall> lastList = wallVertices[(Position) wall.Vertices[wall.VertexCount - 1]];
-			List<Wall> neighbors = new List<Wall>();
+			List<Wall> neighbors;
+			neighbors = new List<Wall>();
 
 			foreach (Vector3 v in wall.Vertices) {
 				var p = (Position) v;
@@ -200,7 +202,8 @@ public class ShipEditor : MonoBehaviour, IModeChangeHandler {
 		public List<Wall> GetWallNeighbors(Wall wall, int edge) {
 			List<Wall> l1 = wallVertices[(Position) wall.Vertices[edge]];
 			List<Wall> l2 = wallVertices[(Position) wall.Vertices[(edge + 1) % wall.VertexCount]];
-			List<Wall> neighbors = new List<Wall>();
+			List<Wall> neighbors;
+			neighbors = new List<Wall>();
 
 			foreach (Wall w in l1) {
 				if (l2.Contains(w)) {
@@ -221,7 +224,7 @@ public class ShipEditor : MonoBehaviour, IModeChangeHandler {
 			float xIntercept = cursorRay.origin.x + deltaY / -xySlope;
 			float zIntercept = cursorRay.origin.z + deltaY / -zySlope;
 
-			Vector3 interceptPoint = new Vector3(xIntercept, y, zIntercept);
+			var interceptPoint = new Vector3(xIntercept, y, zIntercept);
 
 			return interceptPoint; 
 		}

@@ -10,13 +10,12 @@ namespace Voxelgon.ShipEditor {
 
 		public readonly ShipEditor Editor;
 
-		private List<Vector3> vertices = new List<Vector3>();
+		private readonly List<Vector3> vertices = new List<Vector3>();
+
+		private readonly Mesh simpleMesh = new Mesh();
+		private readonly Mesh complexMesh = new Mesh();
 
 		private Plane wallPlane;
-		private Mesh simpleMesh = new Mesh();
-		private Mesh complexMesh = new Mesh();
-		private int vertCountSimple = 0;
-		private int triCountSimple = 0;
 
 		private bool verticesChanged;
 
@@ -67,15 +66,13 @@ namespace Voxelgon.ShipEditor {
 
 		//Methods
 
-		public bool ValidVertex(Vector3 vertex) {
-			if (ContainsVertex(vertex)) {
-				return false;
-			} else if (!IsPolygon) {
-				return true;
-			} else {
-				return Mathf.Approximately(0, wallPlane.GetDistanceToPoint(vertex));
-			}
-		}
+		public bool ValidVertex(Vector3 vertex)
+        {
+            if (ContainsVertex(vertex)) {
+                return false;
+            }
+            return (!IsPolygon || Mathf.Approximately(0, wallPlane.GetDistanceToPoint(vertex)));
+        }
 
 		private bool ContainsVertex(Vector3 vertex) {
 			return vertices.Contains(vertex);
@@ -134,7 +131,7 @@ namespace Voxelgon.ShipEditor {
 					meshNorms[i] = wallPlane.normal;
 				}
 
-				simpleMesh.vertices = (Vector3[]) vertices.ToArray();
+				simpleMesh.vertices = vertices.ToArray();
 				simpleMesh.triangles = meshTris;
 				simpleMesh.normals = meshNorms;
 				simpleMesh.colors = meshColors;
