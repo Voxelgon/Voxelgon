@@ -1,7 +1,5 @@
 using UnityEngine;
-using System.Collections;
 using System.Collections.Generic;
-using Voxelgon;
 
 namespace Voxelgon.Math {
 	public static class Geometry {
