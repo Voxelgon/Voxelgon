@@ -21,12 +21,12 @@ namespace Voxelgon.EventSystems {
 			GameMode.Mode oldMode = GameMode.current;
 
 			switch (oldMode) {
-				case GameMode.Mode.flight:
-					newMode = GameMode.Mode.edit;
+				case GameMode.Mode.Flight:
+					newMode = GameMode.Mode.Edit;
 					break;
-				case GameMode.Mode.edit:
+				case GameMode.Mode.Edit:
 				default:
-					newMode = GameMode.Mode.flight;
+					newMode = GameMode.Mode.Flight;
 					break;
 			}
 

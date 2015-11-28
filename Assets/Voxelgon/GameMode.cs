@@ -1,8 +1,8 @@
 ﻿namespace Voxelgon {
 	public static class GameMode {
 		public enum Mode {
-			edit,
-			flight
+			Edit,
+			Flight
 		}
 		public static Mode current;
 	}
