@@ -24,7 +24,7 @@ public class ShipEditor : MonoBehaviour, IModeChangeHandler {
 		private bool nodesChanged = false;
 		private bool wallsChanged = false;
 
-		private BuildMode mode = BuildMode.polygon;
+		private BuildMode mode = BuildMode.Polygon;
 
 		//Properties
 
@@ -68,8 +68,8 @@ public class ShipEditor : MonoBehaviour, IModeChangeHandler {
 		//Enums
 
 		public enum BuildMode {
-			polygon,
-			rectangle
+			Polygon,
+			Rectangle
 		}
 
 		//Methods

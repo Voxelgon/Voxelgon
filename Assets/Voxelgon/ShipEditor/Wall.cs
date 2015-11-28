@@ -84,7 +84,7 @@ namespace Voxelgon.ShipEditor {
 		}
 
 		public bool UpdateVertices(List<Vector3> nodes, ShipEditor.BuildMode mode) {
-			if (mode == ShipEditor.BuildMode.polygon) {
+			if (mode == ShipEditor.BuildMode.Polygon) {
 				vertices.Clear();
 				foreach(Vector3 node in nodes) {
 					if (!AddVertex(node)) {
