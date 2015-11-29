@@ -16,7 +16,6 @@ namespace Voxelgon.ShipEditor {
 		private readonly Mesh complexMesh = new Mesh();
 
 		private Plane wallPlane;
-		private Matrix4x4 worldToPlaneMatrix;
 
 		private bool verticesChanged;
 
@@ -24,13 +23,11 @@ namespace Voxelgon.ShipEditor {
 
 		public Wall() {
 			wallPlane = new Plane();
-			worldToPlaneMatrix = new Matrix4x4();
 			Editor = GameObject.Find("ShipEditor").GetComponent<ShipEditor>();
 		}
 
 		public Wall(ShipEditor editor){
 			wallPlane = new Plane();
-			worldToPlaneMatrix = new Matrix4x4();
 			Editor = editor;
 		}
 
@@ -63,6 +60,25 @@ namespace Voxelgon.ShipEditor {
 					BuildComplexMesh();
 				}
 				return complexMesh;
+			}
+		}
+
+		public Matrix4x4 WorldToPlaneMatrix {
+			get {
+				var worldToPlaneMatrix = new Matrix4x4();
+
+				var offset = -1 * vertices[0];
+				var rotation = Quaternion.FromToRotation(wallPlane.normal, Vector3.up);
+				var scale = Vector3.one;
+
+				worldToPlaneMatrix.SetTRS(offset, rotation, scale);
+				return worldToPlaneMatrix;
+			}
+		}
+
+		public Matrix4x4 PlaneToWorldMatrix {
+			get {
+				return WorldToPlaneMatrix.inverse;
 			}
 		}
 
@@ -100,18 +116,6 @@ namespace Voxelgon.ShipEditor {
 
 		//Private Methods
 
-		private void BuildMatrix() {
-			wallPlane = new Plane(vertices[0], vertices[1], vertices[2]);
-
-			worldToPlaneMatrix = new Matrix4x4();
-
-			var offset = -1 * vertices[0];
-			var rotation = Quaternion.FromToRotation(wallPlane.normal, Vector3.up);
-			var scale = Vector3.one;
-
-			worldToPlaneMatrix.SetTRS(offset, rotation, scale);
-		}
-
 		private bool AddVertex(Vector3 vertex) {
 			if (!ValidVertex(vertex)) return false;
 
@@ -119,7 +123,7 @@ namespace Voxelgon.ShipEditor {
 			verticesChanged = true;
 
 			if (vertices.Count == 3) {
-				BuildMatrix();
+				wallPlane = new Plane(vertices[0], vertices[1], vertices[2]);
 			}
 			
 			return true;
