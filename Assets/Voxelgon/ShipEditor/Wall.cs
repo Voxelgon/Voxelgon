@@ -94,9 +94,10 @@ namespace Voxelgon.ShipEditor {
             if (ContainsVertex(vertex)) {
                 return false;
             }
-
-            Debug.Log(wallPlane.GetDistanceToPoint(vertex));
-            return (!IsPolygon || Mathf.Approximately(0, wallPlane.GetDistanceToPoint(vertex)));
+            if (!IsPolygon) {
+            	return true;
+            }
+            return Mathf.Abs(wallPlane.GetDistanceToPoint(vertex)) < 0.001;
         }
 
 		private bool ContainsVertex(Vector3 vertex) {
