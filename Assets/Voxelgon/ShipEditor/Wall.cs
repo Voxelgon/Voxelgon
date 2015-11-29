@@ -56,10 +56,11 @@ namespace Voxelgon.ShipEditor {
 		
 		public Mesh ComplexMesh {
 			get {
+				BuildComplexMesh();
 				if (verticesChanged) {
-					BuildComplexMesh();
+					BuildSimpleMesh();
 				}
-				return complexMesh;
+				return simpleMesh; //return something, just for testing
 			}
 		}
 
@@ -93,6 +94,8 @@ namespace Voxelgon.ShipEditor {
             if (ContainsVertex(vertex)) {
                 return false;
             }
+
+            Debug.Log(wallPlane.GetDistanceToPoint(vertex));
             return (!IsPolygon || Mathf.Approximately(0, wallPlane.GetDistanceToPoint(vertex)));
         }
 
@@ -117,7 +120,10 @@ namespace Voxelgon.ShipEditor {
 		//Private Methods
 
 		private bool AddVertex(Vector3 vertex) {
-			if (!ValidVertex(vertex)) return false;
+			if (!ValidVertex(vertex)) {
+				Debug.Log("Invalid vertex!");
+				return false;
+			}
 
 			vertices.Add(vertex);
 			verticesChanged = true;
@@ -164,6 +170,21 @@ namespace Voxelgon.ShipEditor {
 		}
 
 		private void BuildComplexMesh() {
+			complexMesh.Clear();
+
+			if (IsPolygon) {
+				for (int i = 0; i < vertices.Count; i++) {
+					Vector3 normal = wallPlane.normal;
+					Vector3 tangent = vertices[(i + 1) % vertices.Count] - vertices[i]; 
+					tangent.Normalize();
+					Vector3 binormal = Vector3.Cross(tangent, normal);
+
+					Debug.DrawRay(vertices[i], normal, Color.blue);
+					Debug.DrawRay(vertices[i], tangent, Color.yellow);
+					Debug.DrawRay(vertices[i], binormal, Color.green);
+				}
+
+			}
 
 		}
 	}
