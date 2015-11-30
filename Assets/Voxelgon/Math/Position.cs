@@ -31,5 +31,13 @@ namespace Voxelgon {
 		public static explicit operator Vector3(Position pos) {
 			return new Vector3(pos.x, pos.y, pos.z);
 		}
+
+		public static bool operator ==(Position a, Position b) {
+			return (a.x == b.x && a.y == b.y && a.z == b.z);
+		}
+
+		public static bool operator !=(Position a, Position b) {
+			return (a.x != b.x || a.y != b.y || a.z != b.z);
+		}
 	}
 }
