@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Voxelgon {
+namespace Voxelgon.Math {
 	public struct Position {
 		short x;
 		short y;
