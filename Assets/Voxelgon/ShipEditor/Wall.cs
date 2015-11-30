@@ -89,8 +89,7 @@ namespace Voxelgon.ShipEditor {
 
 		//Methods
 
-		public bool ValidVertex(Vector3 vertex)
-        {
+		public bool ValidVertex(Vector3 vertex) {
             if (ContainsVertex(vertex)) {
                 return false;
             }
