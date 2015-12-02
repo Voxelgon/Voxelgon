@@ -325,15 +325,21 @@ namespace Voxelgon.ShipEditor {
 
 					float deltaAngle = Mathf.Atan2(localBinormal.x, localBinormal.z) - Mathf.Atan2(lastLocalBinormal.x, lastLocalBinormal.z);
 
-					float frontA = frontEdgeOffsets[i];
-					float frontB = frontEdgeOffsets[(i - 1 + VertexCount) % VertexCount];
-					float frontC = (Mathf.Cos(deltaAngle) * frontA - frontB) / Mathf.Sin(deltaAngle);
-					frontVertices[i] = vertices[i] + (thickness / 2 * Normal) + (frontA * binormal) + (frontC * tangent);
+					if (Mathf.Approximately(deltaAngle, 0)){
+						frontVertices[i] = vertices[i] + (thickness / 2 * Normal) + (frontEdgeOffsets[i] * binormal);
+						backVertices[i] = vertices[i] + (thickness / -2 * Normal) + (backEdgeOffsets[i] * binormal);
 
-					float backA = backEdgeOffsets[i];
-					float backB = backEdgeOffsets[(i - 1 + VertexCount) % VertexCount];
-					float backC = (Mathf.Cos(deltaAngle) * backA - backB) / Mathf.Sin(deltaAngle);
-					backVertices[i] = vertices[i] + (thickness / -2 * Normal) + (backA * binormal) + (backC * tangent);					
+					} else {
+						float frontA = frontEdgeOffsets[i];
+						float frontB = frontEdgeOffsets[(i - 1 + VertexCount) % VertexCount];
+						float frontC = (Mathf.Cos(deltaAngle) * frontA - frontB) / Mathf.Sin(deltaAngle);
+						frontVertices[i] = vertices[i] + (thickness / 2 * Normal) + (frontA * binormal) + (frontC * tangent);
+
+						float backA = backEdgeOffsets[i];
+						float backB = backEdgeOffsets[(i - 1 + VertexCount) % VertexCount];
+						float backC = (Mathf.Cos(deltaAngle) * backA - backB) / Mathf.Sin(deltaAngle);
+						backVertices[i] = vertices[i] + (thickness / -2 * Normal) + (backA * binormal) + (backC * tangent);					
+					}
 				}
 
 				var complexVertices = new List<Vector3>();
