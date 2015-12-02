@@ -21,7 +21,7 @@ namespace Voxelgon.ShipEditor {
 
 		private bool verticesChanged;
 
-		private float thickness = 0.3f; //total thickness of the wall
+		private float thickness = 0.2f; //total thickness of the wall
 
 		//Constructors
 

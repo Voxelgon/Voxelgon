@@ -103,7 +103,7 @@ public class ShipEditor : MonoBehaviour, IModeChangeHandler {
 
 				selectedNode.transform.parent = transform.parent;
 				selectedNode.transform.localPosition = node;
-				selectedNode.transform.localScale = Vector3.one * 0.15f;
+				selectedNode.transform.localScale = Vector3.one * 0.25f;
 
 				selectedNode.GetComponent<BoxCollider>().size = Vector3.one * 1.5f;
 				selectedNode.AddComponent<ShipEditorGridSelected>();
