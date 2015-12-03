@@ -1,22 +1,18 @@
 using UnityEngine;
-using System.Collections;
 
 public class StarController : MonoBehaviour {
 
-	public Transform mainTransform;
 
 	public void Begin() {
-	    Component[] starSystems = gameObject.GetComponentsInChildren<ParticleSystem>();
-	    foreach (Component i in starSystems){
-	        i.GetComponent<ParticleSystem>().Pause();
-	    }
+		var map = new Cubemap(2048, TextureFormat.RGB24, true);
+		if (gameObject.GetComponent<Camera>().RenderToCubemap(map)) {
+			map.SmoothEdges(200);
+			Camera.main.gameObject.GetComponent<Skybox>().material.SetTexture("_Tex", map);
+		}
+		Destroy(gameObject);
 	}
 
 	public void Start() {
-		Invoke("Begin", 1);
-	}
-
-	public void Update() {
-	    transform.position = mainTransform.position;
+		Invoke("Begin", 0.1f);
 	}
 }
