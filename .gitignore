@@ -15,8 +15,6 @@ Assembly-CSharp-firstpass.csproj
 *.app
 
 voxelgon.sublime-project
-
 voxelgon.sublime-workspace
-
 voxelgon.userprefs
 /.vscode*
