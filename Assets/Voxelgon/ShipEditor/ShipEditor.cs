@@ -55,7 +55,7 @@ public class ShipEditor : MonoBehaviour, IModeChangeHandler {
 					List<Mesh> wallMeshes;
 					wallMeshes = new List<Mesh>();
 					foreach (Wall w in walls) {
-						wallMeshes.Add(w.SimpleMesh);
+						wallMeshes.Add(w.ComplexMesh);
 					}
 					simpleHullMesh.Clear();
 					simpleHullMesh = Geometry.MergeMeshes(wallMeshes);
@@ -103,7 +103,7 @@ public class ShipEditor : MonoBehaviour, IModeChangeHandler {
 
 				selectedNode.transform.parent = transform.parent;
 				selectedNode.transform.localPosition = node;
-				selectedNode.transform.localScale = Vector3.one * 0.15f;
+				selectedNode.transform.localScale = Vector3.one * 0.25f;
 
 				selectedNode.GetComponent<BoxCollider>().size = Vector3.one * 1.5f;
 				selectedNode.AddComponent<ShipEditorGridSelected>();
@@ -190,25 +190,34 @@ public class ShipEditor : MonoBehaviour, IModeChangeHandler {
 
 			foreach (Vector3 v in wall.Vertices) {
 				var p = (Position) v;
-				foreach(Wall w in wallVertices[p]) {
-					if (lastList.Contains(w)) {
-						neighbors.Add(w);
+
+				if (wallVertices.ContainsKey(p)) {
+					foreach(Wall w in wallVertices[p]) {
+						if (w != wall && lastList.Contains(w)) {
+							neighbors.Add(w);
+						}
+						lastList = wallVertices[p];
 					}
-					lastList = wallVertices[p];
 				}
 			}
 			return neighbors;
 		}
 
 		public List<Wall> GetWallNeighbors(Wall wall, int edge) {
-			List<Wall> l1 = wallVertices[(Position) wall.Vertices[edge]];
-			List<Wall> l2 = wallVertices[(Position) wall.Vertices[(edge + 1) % wall.VertexCount]];
-			List<Wall> neighbors;
-			neighbors = new List<Wall>();
 
-			foreach (Wall w in l1) {
-				if (l2.Contains(w)) {
-					neighbors.Add(w);
+			var neighbors = new List<Wall>();
+
+			var p1 = (Position) wall.Vertices[edge];
+			var p2 = (Position) wall.Vertices[(edge + 1) % wall.VertexCount];
+
+			if (wallVertices.ContainsKey(p1) && wallVertices.ContainsKey(p2)) {
+				List<Wall> l1 = wallVertices[p1];
+				List<Wall> l2 = wallVertices[p2];
+
+				foreach (Wall w in l1) {
+					if (w != wall && l2.Contains(w)) {
+						neighbors.Add(w);
+					}
 				}
 			}
 			return neighbors;

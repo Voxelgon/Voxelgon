@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<spacescapelayers>
+    <layer>
+        <destBlendFactor>one</destBlendFactor>
+        <ditherAmount>0.03</ditherAmount>
+        <gain>1</gain>
+        <hdrMultiplier>1</hdrMultiplier>
+        <hdrPower>1</hdrPower>
+        <innerColor>0.458824 0.00392157 0.372549 0.105882</innerColor>
+        <lacunarity>2</lacunarity>
+        <name>SpacescapeLayer0</name>
+        <noiseType>fbm</noiseType>
+        <octaves>2</octaves>
+        <offset>1.04</offset>
+        <outerColor>0.0392157 0.0313726 0.12549 1</outerColor>
+        <powerAmount>0.5</powerAmount>
+        <previewTextureSize>256</previewTextureSize>
+        <scale>1</scale>
+        <seed>0</seed>
+        <shelfAmount>0</shelfAmount>
+        <sourceBlendFactor>one</sourceBlendFactor>
+        <type>noise</type>
+    </layer>
+</spacescapelayers>
