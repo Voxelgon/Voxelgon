@@ -64,7 +64,6 @@
      <Compile Include="Assets\Voxelgon\Scripts\CameraController.cs" />
      <Compile Include="Assets\Voxelgon\Scripts\ImportManager.cs" />
      <Compile Include="Assets\Voxelgon\Scripts\InputManager.cs" />
-     <Compile Include="Assets\Voxelgon\Scripts\StarController.cs" />
      <Compile Include="Assets\Voxelgon\Ship\RCSport.cs" />
      <Compile Include="Assets\Voxelgon\Ship\Ship.cs" />
      <Compile Include="Assets\Voxelgon\Ship\ShipManager.cs" />
@@ -77,6 +76,7 @@
      <Compile Include="Assets\Voxelgon\ShipEditor\Wall.cs" />
      <None Include="Assets\Shaders\VCSurfRimNoCull.shader" />
      <None Include="Assets\Shaders\VCSurfRimDF.shader" />
+     <None Include="Assets\SkyBoxes\Clouds1\clouds1.xml" />
      <None Include="Assets\Shaders\VCSurfRim.shader" />
      <None Include="Assets\Shaders\VCSurf.shader" />
      <None Include="Assets\Shaders\VCSurfNoCull.shader" />
