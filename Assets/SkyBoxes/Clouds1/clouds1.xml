@@ -13,11 +13,11 @@
         <octaves>2</octaves>
         <offset>1.04</offset>
         <outerColor>0 0.0313726 0.0313726 0</outerColor>
-        <powerAmount>0.2</powerAmount>
+        <powerAmount>1</powerAmount>
         <previewTextureSize>256</previewTextureSize>
         <scale>1</scale>
         <seed>0</seed>
-        <shelfAmount>0</shelfAmount>
+        <shelfAmount>0.5</shelfAmount>
         <sourceBlendFactor>one</sourceBlendFactor>
         <type>noise</type>
     </layer>
@@ -34,7 +34,7 @@
         <octaves>2</octaves>
         <offset>1</offset>
         <outerColor>0 0.0313726 0.0313726 0</outerColor>
-        <powerAmount>0.5</powerAmount>
+        <powerAmount>1</powerAmount>
         <previewTextureSize>256</previewTextureSize>
         <scale>1</scale>
         <seed>0</seed>
