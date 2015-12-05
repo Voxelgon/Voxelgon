@@ -2,26 +2,26 @@
 using Voxelgon.Math;
 
 namespace Voxelgon.ShipEditor {
-    public class ShipEditorGrid: MonoBehaviour {
+	public class ShipEditorGrid: MonoBehaviour {
 
-        private MeshRenderer renderer;
+		private MeshRenderer renderer;
 
-        public void Start() {
+		public void Start() {
 
-            renderer = gameObject.GetComponent<MeshRenderer>();
-        }
+			renderer = gameObject.GetComponent<MeshRenderer>();
+		}
 
-        public void Update() {
-
-
-            Vector3 editCursorPosition = ShipEditor.GetEditCursorPos(transform.position.y);
-            Vector3 gridPosition = editCursorPosition.Round();
-            Vector3 relativeCursorPosition = editCursorPosition - gridPosition;
+		public void Update() {
 
 
-            
-            transform.position = gridPosition;
-            renderer.material.mainTextureOffset = new Vector2(relativeCursorPosition.x / 10, relativeCursorPosition.z / 10);
-        }
-    }
+			Vector3 editCursorPosition = ShipEditor.GetEditCursorPos(transform.position.y);
+			Vector3 gridPosition = editCursorPosition.Round();
+			Vector3 relativeCursorPosition = editCursorPosition - gridPosition;
+
+
+			
+			transform.position = gridPosition;
+			renderer.material.mainTextureOffset = new Vector2(relativeCursorPosition.x / 10, relativeCursorPosition.z / 10);
+		}
+	}
 }

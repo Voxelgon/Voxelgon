@@ -10,238 +10,238 @@ namespace Voxelgon.ShipEditor {
 
 public class ShipEditor : MonoBehaviour, IModeChangeHandler {
 
-        //Fields
+		//Fields
 
-        private Wall tempWall;
-        private List<Wall> walls;
+		private Wall tempWall;
+		private List<Wall> walls;
 
-        private Dictionary<Position, List<Wall>> wallVertices;
+		private Dictionary<Position, List<Wall>> wallVertices;
 
-        private List<Vector3> nodes = new List<Vector3>();
-        private List<GameObject> nodeObjects = new List<GameObject>();
+		private List<Vector3> nodes = new List<Vector3>();
+		private List<GameObject> nodeObjects = new List<GameObject>();
 
-        private Mesh simpleHullMesh;
-        private bool nodesChanged;
-        private bool wallsChanged;
+		private Mesh simpleHullMesh;
+		private bool nodesChanged;
+		private bool wallsChanged;
 
-        private BuildMode mode = BuildMode.Polygon;
+		private BuildMode mode = BuildMode.Polygon;
 
-        //Properties
+		//Properties
 
-        public Wall TempWall {
-            get { return tempWall; }
-        }
+		public Wall TempWall {
+			get { return tempWall; }
+		}
 
-        public List<Wall> Walls {
-            get { return walls; }
-        }
+		public List<Wall> Walls {
+			get { return walls; }
+		}
 
-        public BuildMode Mode {
-            get { return mode; }
-            set { mode = value; }
-        }
+		public BuildMode Mode {
+			get { return mode; }
+			set { mode = value; }
+		}
 
-        public bool NodesChanged {
-            get { return nodesChanged; }
-        }
+		public bool NodesChanged {
+			get { return nodesChanged; }
+		}
 
-        public bool WallsChanged {
-            get { return wallsChanged; }
-        }
+		public bool WallsChanged {
+			get { return wallsChanged; }
+		}
 
-        public Mesh SimpleHullMesh {
-            get {
-                if (wallsChanged && walls.Count > 0) {
-                    List<Mesh> wallMeshes;
-                    wallMeshes = new List<Mesh>();
-                    foreach (Wall w in walls) {
-                        wallMeshes.Add(w.ComplexMesh);
-                    }
-                    simpleHullMesh.Clear();
-                    simpleHullMesh = Geometry.MergeMeshes(wallMeshes);
-                }
+		public Mesh SimpleHullMesh {
+			get {
+				if (wallsChanged && walls.Count > 0) {
+					List<Mesh> wallMeshes;
+					wallMeshes = new List<Mesh>();
+					foreach (Wall w in walls) {
+						wallMeshes.Add(w.ComplexMesh);
+					}
+					simpleHullMesh.Clear();
+					simpleHullMesh = Geometry.MergeMeshes(wallMeshes);
+				}
 
-                wallsChanged = false;
-                return simpleHullMesh;
-            }
-        }
+				wallsChanged = false;
+				return simpleHullMesh;
+			}
+		}
 
-        //Enums
+		//Enums
 
-        public enum BuildMode {
-            Polygon,
-            Rectangle
-        }
+		public enum BuildMode {
+			Polygon,
+			Rectangle
+		}
 
-        //Methods
+		//Methods
 
-        public void OnModeChange (ModeChangeEventData eventData) {
-        }
+		public void OnModeChange (ModeChangeEventData eventData) {
+		}
 
-        public void Start() {
-            tempWall = new Wall();
-            simpleHullMesh = new Mesh();
-            walls = new List<Wall>();
-            wallVertices = new Dictionary<Position, List<Wall>>();
+		public void Start() {
+			tempWall = new Wall();
+			simpleHullMesh = new Mesh();
+			walls = new List<Wall>();
+			wallVertices = new Dictionary<Position, List<Wall>>();
 
-        }
+		}
 
-        public void Update() {
-            if (Input.GetButtonDown("ChangeFloor")) {
-                transform.Translate(Vector3.up * 2 * (int) Input.GetAxis("ChangeFloor"));
-            }
-        }
+		public void Update() {
+			if (Input.GetButtonDown("ChangeFloor")) {
+				transform.Translate(Vector3.up * 2 * (int) Input.GetAxis("ChangeFloor"));
+			}
+		}
 
-        public bool AddNode(Vector3 node) {
-            if (ValidNode(node)) {
-                GameObject selectedNode = GameObject.CreatePrimitive(PrimitiveType.Cube);
-                selectedNode.name = "selectedNode";
+		public bool AddNode(Vector3 node) {
+			if (ValidNode(node)) {
+				GameObject selectedNode = GameObject.CreatePrimitive(PrimitiveType.Cube);
+				selectedNode.name = "selectedNode";
 
-                MeshRenderer nodeRenderer = selectedNode.GetComponent<MeshRenderer>();
-                nodeRenderer.material.shader = Shader.Find("Unlit/Color");
-                nodeRenderer.material.color = ColorPallette.gridSelected;
+				MeshRenderer nodeRenderer = selectedNode.GetComponent<MeshRenderer>();
+				nodeRenderer.material.shader = Shader.Find("Unlit/Color");
+				nodeRenderer.material.color = ColorPallette.gridSelected;
 
-                selectedNode.transform.parent = transform.parent;
-                selectedNode.transform.localPosition = node;
-                selectedNode.transform.localScale = Vector3.one * 0.25f;
+				selectedNode.transform.parent = transform.parent;
+				selectedNode.transform.localPosition = node;
+				selectedNode.transform.localScale = Vector3.one * 0.25f;
 
-                selectedNode.GetComponent<BoxCollider>().size = Vector3.one * 1.5f;
-                selectedNode.AddComponent<ShipEditorGridSelected>();
+				selectedNode.GetComponent<BoxCollider>().size = Vector3.one * 1.5f;
+				selectedNode.AddComponent<ShipEditorGridSelected>();
 
-                nodes.Add(node);
-                nodeObjects.Add(selectedNode);
-                nodesChanged = true;
-                return true;
-            }
-            return false;
-        }
+				nodes.Add(node);
+				nodeObjects.Add(selectedNode);
+				nodesChanged = true;
+				return true;
+			}
+			return false;
+		}
 
-        public bool RemoveNode(Vector3 node, GameObject obj) {
-            if (nodes.Contains(node)) {
-                nodes.Remove(node);
-                nodeObjects.Remove(obj);
-                nodesChanged = true;
-                return true;
-            }
-            return false;
-        }
+		public bool RemoveNode(Vector3 node, GameObject obj) {
+			if (nodes.Contains(node)) {
+				nodes.Remove(node);
+				nodeObjects.Remove(obj);
+				nodesChanged = true;
+				return true;
+			}
+			return false;
+		}
 
-        public bool ValidNode(Vector3 node) {
-            return (tempWall.ValidVertex(node) && !ContainsNode(node));
-        }
+		public bool ValidNode(Vector3 node) {
+			return (tempWall.ValidVertex(node) && !ContainsNode(node));
+		}
 
-        public bool ContainsNode(Vector3 node) {
-            return nodes.Contains(node);
-        }
+		public bool ContainsNode(Vector3 node) {
+			return nodes.Contains(node);
+		}
 
-        public void AddWall(Wall wall) {
-            foreach (Vector3 v in wall.Vertices) {
-                var p = (Position) v;
-                if (!wallVertices.ContainsKey(p)) {
-                    wallVertices.Add(p, new List<Wall>());
-                }
-                wallVertices[p].Add(wall);
-            }
-            walls.Add(wall);
-            wallsChanged = true;
-        }
+		public void AddWall(Wall wall) {
+			foreach (Vector3 v in wall.Vertices) {
+				var p = (Position) v;
+				if (!wallVertices.ContainsKey(p)) {
+					wallVertices.Add(p, new List<Wall>());
+				}
+				wallVertices[p].Add(wall);
+			}
+			walls.Add(wall);
+			wallsChanged = true;
+		}
 
-        public void RemoveWall(Wall wall) {
-            foreach (Vector3 v in wall.Vertices) {
-                var p = (Position) v;
-                if (wallVertices.ContainsKey(p)) {
-                    wallVertices[p].Remove(wall);
+		public void RemoveWall(Wall wall) {
+			foreach (Vector3 v in wall.Vertices) {
+				var p = (Position) v;
+				if (wallVertices.ContainsKey(p)) {
+					wallVertices[p].Remove(wall);
 
-                    if (wallVertices[p].Count == 0) {
-                        wallVertices.Remove(p);
-                    }
-                }
-            }
-            walls.Remove(wall);
-            wallsChanged = true;
-        }
+					if (wallVertices[p].Count == 0) {
+						wallVertices.Remove(p);
+					}
+				}
+			}
+			walls.Remove(wall);
+			wallsChanged = true;
+		}
 
-        public void FinalizeTempWall() {
-            AddWall(tempWall);
-            tempWall = new Wall(this);
+		public void FinalizeTempWall() {
+			AddWall(tempWall);
+			tempWall = new Wall(this);
 
-            foreach (GameObject g in nodeObjects) {
-                Destroy(g);
-            }
-            nodeObjects.Clear();
-            nodes.Clear();
+			foreach (GameObject g in nodeObjects) {
+				Destroy(g);
+			}
+			nodeObjects.Clear();
+			nodes.Clear();
 
-            nodesChanged = true;
-        }
+			nodesChanged = true;
+		}
 
-        public bool UpdateTempWall() {
-            if (nodesChanged && tempWall.UpdateVertices(nodes, mode)) {
-                nodesChanged = false;
-                return true;
-            }
-            return false;
-        }
+		public bool UpdateTempWall() {
+			if (nodesChanged && tempWall.UpdateVertices(nodes, mode)) {
+				nodesChanged = false;
+				return true;
+			}
+			return false;
+		}
 
 
-        public List<Wall> GetWallNeighbors(Wall wall) {
-            List<Wall> lastList = wallVertices[(Position) wall.Vertices[wall.VertexCount - 1]];
-            List<Wall> neighbors;
-            neighbors = new List<Wall>();
+		public List<Wall> GetWallNeighbors(Wall wall) {
+			List<Wall> lastList = wallVertices[(Position) wall.Vertices[wall.VertexCount - 1]];
+			List<Wall> neighbors;
+			neighbors = new List<Wall>();
 
-            foreach (Vector3 v in wall.Vertices) {
-                var p = (Position) v;
+			foreach (Vector3 v in wall.Vertices) {
+				var p = (Position) v;
 
-                if (wallVertices.ContainsKey(p)) {
-                    foreach(Wall w in wallVertices[p]) {
-                        if (w != wall && lastList.Contains(w)) {
-                            neighbors.Add(w);
-                        }
-                        lastList = wallVertices[p];
-                    }
-                }
-            }
-            return neighbors;
-        }
+				if (wallVertices.ContainsKey(p)) {
+					foreach(Wall w in wallVertices[p]) {
+						if (w != wall && lastList.Contains(w)) {
+							neighbors.Add(w);
+						}
+						lastList = wallVertices[p];
+					}
+				}
+			}
+			return neighbors;
+		}
 
-        public List<Wall> GetWallNeighbors(Wall wall, int edge) {
+		public List<Wall> GetWallNeighbors(Wall wall, int edge) {
 
-            var neighbors = new List<Wall>();
+			var neighbors = new List<Wall>();
 
-            var p1 = (Position) wall.Vertices[edge];
-            var p2 = (Position) wall.Vertices[(edge + 1) % wall.VertexCount];
+			var p1 = (Position) wall.Vertices[edge];
+			var p2 = (Position) wall.Vertices[(edge + 1) % wall.VertexCount];
 
-            if (wallVertices.ContainsKey(p1) && wallVertices.ContainsKey(p2)) {
-                List<Wall> l1 = wallVertices[p1];
-                List<Wall> l2 = wallVertices[p2];
+			if (wallVertices.ContainsKey(p1) && wallVertices.ContainsKey(p2)) {
+				List<Wall> l1 = wallVertices[p1];
+				List<Wall> l2 = wallVertices[p2];
 
-                foreach (Wall w in l1) {
-                    if (w != wall && l2.Contains(w)) {
-                        neighbors.Add(w);
-                    }
-                }
-            }
-            return neighbors;
-        }
+				foreach (Wall w in l1) {
+					if (w != wall && l2.Contains(w)) {
+						neighbors.Add(w);
+					}
+				}
+			}
+			return neighbors;
+		}
 
-        public static Vector3 GetEditCursorPos(float y) {
-            Ray cursorRay = Camera.main.ScreenPointToRay(Input.mousePosition);
+		public static Vector3 GetEditCursorPos(float y) {
+			Ray cursorRay = Camera.main.ScreenPointToRay(Input.mousePosition);
 
-            float xySlope = cursorRay.direction.y / cursorRay.direction.x;
-            float zySlope = cursorRay.direction.y / cursorRay.direction.z;
+			float xySlope = cursorRay.direction.y / cursorRay.direction.x;
+			float zySlope = cursorRay.direction.y / cursorRay.direction.z;
 
-            float deltaY = cursorRay.origin.y - y;
+			float deltaY = cursorRay.origin.y - y;
 
-            float xIntercept = cursorRay.origin.x + deltaY / -xySlope;
-            float zIntercept = cursorRay.origin.z + deltaY / -zySlope;
+			float xIntercept = cursorRay.origin.x + deltaY / -xySlope;
+			float zIntercept = cursorRay.origin.z + deltaY / -zySlope;
 
-            var interceptPoint = new Vector3(xIntercept, y, zIntercept);
+			var interceptPoint = new Vector3(xIntercept, y, zIntercept);
 
-            return interceptPoint; 
-        }
+			return interceptPoint; 
+		}
 
-        public static Vector3 GetEditCursorPos() {
-            return GetEditCursorPos(0);
-        }
+		public static Vector3 GetEditCursorPos() {
+			return GetEditCursorPos(0);
+		}
 
-    }
+	}
 }
