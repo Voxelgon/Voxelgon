@@ -2,9 +2,16 @@
 using UnityEngine.EventSystems;
 using Voxelgon.Graphics;
 
+<<<<<<< HEAD
+namespace Voxelgon.Assets.Voxelgon.ShipEditor {
+    public class ShipEditorGridHover: MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler{
+
+        //ToDo: Should this be hiding Componenet.collider or should it be a 'new' collider?
+=======
 namespace Voxelgon.ShipEditor {
     public class ShipEditorGridHover: MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler{
 
+>>>>>>> d2b354f9a1be5ce77b5b224eb67a7d8de87b4434
         private BoxCollider collider;
         private ShipEditor editor;
 
@@ -20,7 +27,12 @@ namespace Voxelgon.ShipEditor {
         }
 
         public void OnPointerEnter(PointerEventData eventData){
+<<<<<<< HEAD
+            //ToDo: Should this be hiding Component.renderer? 
+            var renderer = gameObject.GetComponent<MeshRenderer>();
+=======
             MeshRenderer renderer = gameObject.GetComponent<MeshRenderer>();
+>>>>>>> d2b354f9a1be5ce77b5b224eb67a7d8de87b4434
             renderer.enabled = true;
             renderer.material.color = ColorPallette.gridHover;
         }
