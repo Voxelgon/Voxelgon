@@ -4,9 +4,9 @@ using System.Collections;
 using Voxelgon;
 
 namespace Voxelgon.EventSystems {
-	public enum ModeChangeEventSource {
-		playerKey,
-		playerButton,
-		game
-	}
+    public enum ModeChangeEventSource {
+        playerKey,
+        playerButton,
+        game
+    }
 }
