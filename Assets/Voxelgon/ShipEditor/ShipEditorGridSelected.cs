@@ -2,7 +2,7 @@
 using UnityEngine.EventSystems;
 using Voxelgon.Graphics;
 
-namespace Voxelgon.ShipEditor {
+namespace Voxelgon.Assets.Voxelgon.ShipEditor {
 	public class ShipEditorGridSelected: MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler{
 
 		private ShipEditor editor;
@@ -26,7 +26,7 @@ namespace Voxelgon.ShipEditor {
 		public void OnPointerClick(PointerEventData eventData) {
 			if (eventData.button == PointerEventData.InputButton.Right) {
 				editor.RemoveNode(transform.localPosition, gameObject);
-				GameObject.Destroy(gameObject,0.0f);
+				Destroy(gameObject,0.0f);
 			} else if (eventData.button == PointerEventData.InputButton.Left && eventData.clickCount > 1) {
 				editor.FinalizeTempWall();
 			}

@@ -1,27 +1,25 @@
 ﻿using UnityEngine;
 using Voxelgon.Math;
 
-namespace Voxelgon.ShipEditor {
-	public class ShipEditorGrid: MonoBehaviour {
+namespace Voxelgon.Assets.Voxelgon.ShipEditor {
+    public class ShipEditorGrid: MonoBehaviour {
 
-		private MeshRenderer renderer;
+        //ToDo: Should this be hiding component.renderer?
+        private MeshRenderer renderer;
 
-		public void Start() {
+        public void Start() {
 
-			renderer = gameObject.GetComponent<MeshRenderer>();
-		}
+            renderer = gameObject.GetComponent<MeshRenderer>();
+        }
 
-		public void Update() {
+        public void Update() {
 
+            var editCursorPosition = ShipEditor.GetEditCursorPos(transform.position.y);
+            var gridPosition = editCursorPosition.Round();
+            var relativeCursorPosition = editCursorPosition - gridPosition;
 
-			Vector3 editCursorPosition = ShipEditor.GetEditCursorPos(transform.position.y);
-			Vector3 gridPosition = editCursorPosition.Round();
-			Vector3 relativeCursorPosition = editCursorPosition - gridPosition;
-
-
-			
-			transform.position = gridPosition;
-			renderer.material.mainTextureOffset = new Vector2(relativeCursorPosition.x / 10, relativeCursorPosition.z / 10);
-		}
-	}
+            transform.position = gridPosition;
+            renderer.material.mainTextureOffset = new Vector2(relativeCursorPosition.x / 10, relativeCursorPosition.z / 10);
+        }
+    }
 }
