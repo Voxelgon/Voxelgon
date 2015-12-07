@@ -1,9 +1,7 @@
 ﻿using UnityEngine;
 
-namespace Voxelgon.Ship
-{
+namespace Voxelgon.Ship {
     public class RCSport : MonoBehaviour {
-
         public float Thrust;
         public float MaxThrust = 2;
 
@@ -21,8 +19,7 @@ namespace Voxelgon.Ship
 
         private Vector3 _torqueVector;
 
-        public RCSport()
-        {
+        public RCSport() {
             _yawMultiplyer = 0;
             _latMultiplyer = 0;
             _linMultiplyer = 0;
@@ -34,9 +31,8 @@ namespace Voxelgon.Ship
             _shipRigidbody = _ship.GetComponent<Rigidbody>();
 
             _torqueVector = Vector3.Cross(
-                transform.position - _shipRigidbody.worldCenterOfMass, 
+                transform.position - _shipRigidbody.worldCenterOfMass,
                 transform.forward);
-
         }
     }
 }

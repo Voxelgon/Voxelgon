@@ -1,12 +1,8 @@
 ﻿using UnityEngine;
 
-namespace Voxelgon.Ship
-{
-    [RequireComponent (typeof (Rigidbody))]
-
-    public class ShipManager : MonoBehaviour
-    {
-
+namespace Voxelgon.Ship {
+    [RequireComponent(typeof (Rigidbody))]
+    public class ShipManager : MonoBehaviour {
         private const double Tolerance = 0.00001;
 
         /// <summary>
@@ -36,44 +32,42 @@ namespace Voxelgon.Ship
             LinInput = Input.GetAxis("Thrust");
             LatInput = Input.GetAxis("Strafe");
 
-            if(Input.GetButtonUp("Kill Rotation")) {
+            if (Input.GetButtonUp("Kill Rotation")) {
                 KillRot = !KillRot;
             }
 
-            if(Input.GetButtonUp("Kill Translation")) {
+            if (Input.GetButtonUp("Kill Translation")) {
                 KillTrans = !KillTrans;
             }
 
             //TODO: PID controller for this
-            if(KillRot 
-                && (System.Math.Abs(YawInput) < Tolerance) 
+            if (KillRot
+                && (System.Math.Abs(YawInput) < Tolerance)
                 && (Mathf.Abs(GetComponent<Rigidbody>().angularVelocity.y) > 0.01)) {
-
                 BrakingYaw = -GetComponent<Rigidbody>().angularVelocity.y;
-
-            } else {
+            }
+            else {
                 BrakingYaw = 0;
             }
 
-            if(KillTrans 
-                && (System.Math.Abs(LinInput) < Tolerance) 
-                && (System.Math.Abs(LatInput) < Tolerance) 
+            if (KillTrans
+                && (System.Math.Abs(LinInput) < Tolerance)
+                && (System.Math.Abs(LatInput) < Tolerance)
                 && (Mathf.Abs(transform.InverseTransformDirection(GetComponent<Rigidbody>().velocity).x) > 0.1)) {
-
-                BrakingLin = (int) -Mathf.Sign(transform.InverseTransformDirection(GetComponent<Rigidbody>().velocity).x);
-
-            } else {
+                BrakingLin =
+                    (int) -Mathf.Sign(transform.InverseTransformDirection(GetComponent<Rigidbody>().velocity).x);
+            }
+            else {
                 BrakingLin = 0;
             }
 
-            if(KillTrans 
+            if (KillTrans
                 && (System.Math.Abs(LatInput) < Tolerance)
-                && (System.Math.Abs(LinInput) < Tolerance) 
+                && (System.Math.Abs(LinInput) < Tolerance)
                 && (Mathf.Abs(transform.InverseTransformDirection(GetComponent<Rigidbody>().velocity).z) > 0.1)) {
-
                 BrakingLat = (int) Mathf.Sign(transform.InverseTransformDirection(GetComponent<Rigidbody>().velocity).z);
-
-            } else {
+            }
+            else {
                 BrakingLat = 0;
             }
 
@@ -81,6 +75,5 @@ namespace Voxelgon.Ship
             Lin = LinInput + BrakingLin;
             Lat = LatInput + BrakingLat;
         }
-
     }
 }
