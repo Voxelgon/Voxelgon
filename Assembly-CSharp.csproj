@@ -61,6 +61,8 @@
      <Compile Include="Assets\Voxelgon\Math\Geometry.cs" />
      <Compile Include="Assets\Voxelgon\Math\Math.cs" />
      <Compile Include="Assets\Voxelgon\Math\Position.cs" />
+     <Compile Include="Assets\Voxelgon\MeshBuilder\CompoundMesh.cs" />
+     <Compile Include="Assets\Voxelgon\MeshBuilder\MeshBuilder.cs" />
      <Compile Include="Assets\Voxelgon\Scripts\CameraController.cs" />
      <Compile Include="Assets\Voxelgon\Scripts\ImportManager.cs" />
      <Compile Include="Assets\Voxelgon\Scripts\InputManager.cs" />
@@ -89,11 +91,11 @@
  <Reference Include="System.Data">
  <HintPath>/Users/drewcassidy/Documents/Github/voxelgon/Assets/System.Data.dll</HintPath>
  </Reference>
- <Reference Include="System.Data">
- <HintPath>/Users/drewcassidy/Documents/Github/voxelgon/Assets/UnitySQL/SQLite/System.Data.dll</HintPath>
- </Reference>
  <Reference Include="Mono.Data.SqliteClient">
  <HintPath>/Users/drewcassidy/Documents/Github/voxelgon/Assets/UnitySQL/SQLite/Mono.Data.SqliteClient.dll</HintPath>
+ </Reference>
+ <Reference Include="System.Data">
+ <HintPath>/Users/drewcassidy/Documents/Github/voxelgon/Assets/UnitySQL/SQLite/System.Data.dll</HintPath>
  </Reference>
  <Reference Include="UnityEditor.iOS.Extensions.Xcode">
  <HintPath>/Applications/Unity/Unity.app/Contents/PlaybackEngines/iOSSupport/UnityEditor.iOS.Extensions.Xcode.dll</HintPath>
