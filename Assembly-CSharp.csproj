@@ -61,7 +61,6 @@
      <Compile Include="Assets\Voxelgon\Math\Geometry.cs" />
      <Compile Include="Assets\Voxelgon\Math\Math.cs" />
      <Compile Include="Assets\Voxelgon\Math\Position.cs" />
-     <Compile Include="Assets\Voxelgon\MeshBuilder\CompoundMesh.cs" />
      <Compile Include="Assets\Voxelgon\MeshBuilder\MeshBuilder.cs" />
      <Compile Include="Assets\Voxelgon\Scripts\CameraController.cs" />
      <Compile Include="Assets\Voxelgon\Scripts\ImportManager.cs" />
