@@ -58,23 +58,39 @@ namespace Voxelgon.MeshBuilder {
         public static int WindingOrder(Vector3 point1, Vector3 point2, Vector3 point3, Vector3 normal) {
             Vector3 delta1 = (point2 - point1).normalized;
             Vector3 delta2 = (point3 - point1).normalized;
-            Vector3 resultNormal = Vector3.Cross(delta1, delta2);
 
-            if(resultNormal.magnitude < 0.001f) {
+            if(Mathf.Abs(Vector3.Dot(delta1, delta2)) < 0.001f) {
                 return 0; //colinear points
             }
 
-            if(Vector3.Angle(normal, resultNormal) < 90.0f) {
+            Vector3 resultNormal = Vector3.Cross(delta1, delta2).normalized;
+
+            if(Vector3.Dot(normal, resultNormal) >= 0) {
                 return 1; //clockwise winding order
             }
-
-            if(Vector3.Angle(normal, resultNormal) > 90.0f) {
-                return -1; //counterclockwise winding order
-            }
+            return -1; //counterclockwise winding order
         }
 
         public static int WindingOrder(List<Vector3> points, Vector3 normal) {
-            return WindingOrder(points[0], points[1], points[2], normal);
+            if (points.Count <= 3) {
+                return WindingOrder(points[0],
+                                    points[1],
+                                    points[2],
+                                    normal);
+            }
+
+            float sum = 0;
+
+            for (int i = 0; i < points.Count; i++) {
+                Vector3 point1 = points[i];
+                Vector3 point2 = points[Next(i, points.Count)];
+                Vector3 point3 = points[Next(i + 1, points.Count)];
+
+                Vector3 delta1 = (point2 - point1).normalized;
+                Vector3 delta2 = (point3 - point1).normalized;
+
+                sum += Vector3.Cross(delta1, delta2).magnitude;
+            }
         }
 
         //Public Methods
@@ -87,6 +103,19 @@ namespace Voxelgon.MeshBuilder {
             _uvs.Clear();
             _tris.Clear();
         }
+
+        public int WindingOrder(List<int> indices) {
+            Vector3 normal = (_normals[indices[0]] 
+                            + _normals[indices[1]]
+                            + _normals[indices[2]])
+                            .normalized;
+
+            return WindingOrder(_vertices[indices[0]],
+                                _vertices[indices[1]],
+                                _vertices[indices[2]],
+                                normal);
+        }
+
 
         //Private Methods
 
