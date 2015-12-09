@@ -119,6 +119,63 @@ namespace Voxelgon.MeshBuilder {
                                 normal);
         }
 
+        public int TriangleWindingOrder(int index1, int index2, int index3, Vector3 normal) {
+            Debug.Log(index3);
+            return WindingOrder(_vertices[index1],
+                                _vertices[index2],
+                                _vertices[index3],
+                                normal);
+        }
+
+        public int PolygonSegment(int origin, int root, int polyStart, int polyEnd, Vector3 normal) {
+            int vertex2 = origin + 1;
+            int vertex3 = origin + 2;
+
+            while (vertex2 < polyEnd) {
+
+                if (TriangleWindingOrder(origin, vertex2, vertex3, normal) == 1) {
+                    AddTriangle(origin, vertex2, vertex3);
+                    vertex2 = vertex3;
+                    vertex3 = (vertex3 + 1 - polyStart) % (polyEnd - polyStart) + polyStart;
+                } else {
+                    vertex3 = PolygonSegment(vertex2, root, polyStart, polyEnd, normal);
+                    if (vertex3 == -1) return -1;
+                }
+            }
+            return -1;
+        }
+
+        public void AddPolygon(List<Vector3> vertices, Vector3 normal) {
+            int size = vertices.Count;
+            int offset = AddVertices(vertices, normal);
+            PolygonSegment(offset, offset, offset, offset + size, normal);
+        }
+
+        public void AddTriangle(int vertex1, int vertex2, int vertex3) {
+            _tris.Add(vertex1);
+            _tris.Add(vertex2);
+            _tris.Add(vertex3);
+        }
+
+        public int AddVertices(List<Vector3> vertices, Vector3 normal) {
+            int size = vertices.Count;
+            int offset = _vertices.Count;
+
+            if (_vertices.Count + size > 65534) {
+                //current mesh is too full to add to, finalize it and clear the buffer
+                FinalizeLastMesh();
+                offset = 0;
+            }
+
+            _vertices.AddRange(vertices);
+
+            for (int i = 0; i < size; i++) {
+                _normals.Add(normal);
+            }
+
+            return offset;
+        }
+
 
         //Private Methods
 
@@ -149,10 +206,6 @@ namespace Voxelgon.MeshBuilder {
                 _completedMeshes.Add(lastMesh);
                 ClearBuffer();
             }
-        }
-
-        private List<int> AddPolygonSegment(List<int> vertices) {
-            var result = new List<int>();
         }
     }
 }
