@@ -90,6 +90,14 @@ namespace Voxelgon.MeshBuilder {
 
         //Private Methods
 
+        private static int Next(int n, int count) {
+            return (n + 1) % count;
+        }
+
+        private static int Prev(int n, int count) {
+            return (n + 1 + count) % count;
+        }
+
         private void FinalizeLastMesh() {
             if (_vertices.Count > 0) {
                 var lastMesh = new Mesh();
