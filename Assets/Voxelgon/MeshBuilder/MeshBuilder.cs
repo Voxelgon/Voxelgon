@@ -65,10 +65,7 @@ namespace Voxelgon.MeshBuilder {
 
             Vector3 resultNormal = Vector3.Cross(delta1, delta2).normalized;
 
-            if(Vector3.Dot(normal, resultNormal) >= 0) {
-                return 1; //clockwise winding order
-            }
-            return -1; //counterclockwise winding order
+            return (Vector3.Dot(normal, resultNormal) >= 0) ? 1 : -1;
         }
 
         public static int WindingOrder(List<Vector3> points, Vector3 normal) {
@@ -83,14 +80,20 @@ namespace Voxelgon.MeshBuilder {
 
             for (int i = 0; i < points.Count; i++) {
                 Vector3 point1 = points[i];
-                Vector3 point2 = points[Next(i, points.Count)];
-                Vector3 point3 = points[Next(i + 1, points.Count)];
+                Vector3 point2 = points[(i + 1) % points.Count];
+                Vector3 point3 = points[(i + 2) % points.Count];
 
                 Vector3 delta1 = (point2 - point1).normalized;
-                Vector3 delta2 = (point3 - point1).normalized;
+                Vector3 delta2 = (point3 - point2).normalized;
 
-                sum += Vector3.Cross(delta1, delta2).magnitude;
+                Vector3 cross = Vector3.Cross(delta1, delta2);
+                float angle = Mathf.Asin(cross.magnitude);
+                if (Vector3.Dot(normal, cross) < 0) angle *= -1; 
+
+                sum += angle;
             }
+
+            return (sum > 0) ? 1 : -1;
         }
 
         //Public Methods
@@ -104,7 +107,7 @@ namespace Voxelgon.MeshBuilder {
             _tris.Clear();
         }
 
-        public int WindingOrder(List<int> indices) {
+        public int TriangleWindingOrder(List<int> indices) {
             Vector3 normal = (_normals[indices[0]] 
                             + _normals[indices[1]]
                             + _normals[indices[2]])
@@ -118,14 +121,6 @@ namespace Voxelgon.MeshBuilder {
 
 
         //Private Methods
-
-        private static int Next(int n, int count) {
-            return (n + 1) % count;
-        }
-
-        private static int Prev(int n, int count) {
-            return (n + 1 + count) % count;
-        }
 
         private void FinalizeLastMesh() {
             if (_vertices.Count > 0) {
