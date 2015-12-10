@@ -69,7 +69,11 @@ namespace Voxelgon.MeshBuilder {
         }
 
         public static int WindingOrder(List<Vector3> points, Vector3 normal) {
-            if (points.Count <= 3) {
+            if (points.Count < 3) {
+                return 0;
+            }
+            
+            if (points.Count == 3) {
                 return WindingOrder(points[0],
                                     points[1],
                                     points[2],
@@ -120,7 +124,6 @@ namespace Voxelgon.MeshBuilder {
         }
 
         public int TriangleWindingOrder(int index1, int index2, int index3, Vector3 normal) {
-            Debug.Log(index3);
             return WindingOrder(_vertices[index1],
                                 _vertices[index2],
                                 _vertices[index3],
@@ -131,16 +134,34 @@ namespace Voxelgon.MeshBuilder {
             int vertex2 = origin + 1;
             int vertex3 = origin + 2;
 
-            while (vertex2 < polyEnd) {
+            while (vertex3 < polyEnd && vertex3 != -1) {
+
 
                 if (TriangleWindingOrder(origin, vertex2, vertex3, normal) == 1) {
-                    AddTriangle(origin, vertex2, vertex3);
-                    vertex2 = vertex3;
-                    vertex3 = (vertex3 + 1 - polyStart) % (polyEnd - polyStart) + polyStart;
+                    bool valid = true;
+                    for (int i = vertex3; i < polyStart; i++) {
+                        if (TriangleWindingOrder(vertex3, i, origin, normal) != 1 
+                         && TriangleWindingOrder(vertex2, vertex3, i, normal) == 1) {
+                            valid = false;
+
+                        }
+                    }
+
+                    if (valid) {
+                        AddTriangle(origin, vertex2, vertex3);
+                        vertex2 = vertex3;
+                        vertex3++;
+                    }
                 } else {
                     vertex3 = PolygonSegment(vertex2, root, polyStart, polyEnd, normal);
-                    if (vertex3 == -1) return -1;
+                    if (vertex3 == -1) {
+                    }
                 }
+
+                if (root != origin && TriangleWindingOrder(root, origin, vertex2, normal) == 1) {
+                    return vertex2;
+                }
+              
             }
             return -1;
         }
