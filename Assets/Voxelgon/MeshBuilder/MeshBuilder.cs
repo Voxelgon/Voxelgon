@@ -1,3 +1,5 @@
+//#define PRINTDEBUG
+
 using UnityEngine;
 using System.Collections.Generic;
 
@@ -20,6 +22,9 @@ namespace Voxelgon.MeshBuilder {
 
         private List<Mesh> _completedMeshes;
 
+        private bool _printDebug;
+
+
         //Constructors
 
         public MeshBuilder(string name = "mesh", bool useUVs = true, bool optimize = true, bool calcNormals = true) {
@@ -36,6 +41,10 @@ namespace Voxelgon.MeshBuilder {
             _useUVs = useUVs;
             _optimize = optimize;
             _calcNormals = calcNormals;
+
+            #if PRINTDEBUG
+            _printDebug = true;
+            #endif
         }
 
         //Properties
@@ -62,7 +71,6 @@ namespace Voxelgon.MeshBuilder {
             Vector3 resultNormal = Vector3.Cross(delta1, delta2);
 
             if (resultNormal.sqrMagnitude < 0.01f) {
-                Debug.Log("colinear!");
                 return 0;
             }
 
@@ -132,28 +140,28 @@ namespace Voxelgon.MeshBuilder {
         }
 
         public int PolygonSegment(int origin, int root, int polyStart, int polyEnd, Vector3 normal) {
-            Debug.Log("Starting new polygon at " + origin);
+            if (_printDebug) Debug.Log("Starting new polygon at " + origin);
+
             int index2 = polyStart;
             int index3 = polyStart + 1;
 
             while (index3 < polyEnd && index3 != -1) {
-                Debug.Log("checking triangle possibility " + origin + " " + index2 + " " + index3);
+                if (_printDebug) Debug.Log("checking triangle possibility " + origin + " " + index2 + " " + index3);
 
                 bool valid = true;
 
                 if (TriangleWindingOrder(origin, index2, index3, normal) == 1) {
                     for (int i = index3 + 1; i < polyEnd; i++) {
-                        valid &= TriangleWindingOrder(index3, i, origin, normal) != -1 || TriangleWindingOrder(index2, index3, i, normal) != 1;
+                        valid &= !TriangleContains(origin, index2, index3, i, normal);
                     }
                 } else {
-                    Debug.Log("not clockwise");
                     valid = false;
                 }
 
                 if (valid) {
-                    Debug.Log("valid! " + origin + " " + index2 + " " + index3);
-                    AddTriangle(origin, index2, index3);
+                    if (_printDebug) Debug.Log("valid! " + origin + " " + index2 + " " + index3);
 
+                    AddTriangle(origin, index2, index3);
 
                     if (root != origin && TriangleWindingOrder(root, origin, index3, normal) == 1) {
                         return index3;
@@ -162,16 +170,11 @@ namespace Voxelgon.MeshBuilder {
                     index2 = index3;
                     index3++;
                 } else {
-                    Debug.Log("invalid! " + origin + " " + index2 + " " + index3);
-                    index3 = PolygonSegment(index2, root, index3, polyEnd, normal);
-                    int oldIndex3 = index3;
-                    Debug.Log("Returning from sub polygon");
+                    if (_printDebug) Debug.Log("invalid! " + origin + " " + index2 + " " + index3);
 
-                    if (oldIndex3 == index3) {
-                        Debug.Log("ERROR! sub polygon returned same end vertex " + index3);
-                    }
+                    index3 = PolygonSegment(index2, root, index3, polyEnd, normal);
                 }
-                
+
             }
             return -1;
         }
@@ -207,6 +210,11 @@ namespace Voxelgon.MeshBuilder {
             return offset;
         }
 
+        public bool TriangleContains(int index1, int index2, int index3, int pointIndex, Vector3 normal) {
+            return (TriangleWindingOrder(index1, index2, pointIndex, normal) != -1
+                 && TriangleWindingOrder(index2, index3, pointIndex, normal) != -1
+                 && TriangleWindingOrder(index3, index1, pointIndex, normal) != -1);
+        }
 
         //Private Methods
 
