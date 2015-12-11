@@ -59,11 +59,12 @@ namespace Voxelgon.MeshBuilder {
             Vector3 delta1 = (point2 - point1).normalized;
             Vector3 delta2 = (point3 - point1).normalized;
 
-            if(Mathf.Abs(Vector3.Dot(delta1, delta2)) < 0.001f) {
-                return 0; //colinear points
-            }
+            Vector3 resultNormal = Vector3.Cross(delta1, delta2);
 
-            Vector3 resultNormal = Vector3.Cross(delta1, delta2).normalized;
+            if (resultNormal.sqrMagnitude < 0.01f) {
+                Debug.Log("colinear!");
+                return 0;
+            }
 
             return (Vector3.Dot(normal, resultNormal) >= 0) ? 1 : -1;
         }
@@ -131,37 +132,46 @@ namespace Voxelgon.MeshBuilder {
         }
 
         public int PolygonSegment(int origin, int root, int polyStart, int polyEnd, Vector3 normal) {
-            int vertex2 = origin + 1;
-            int vertex3 = origin + 2;
+            Debug.Log("Starting new polygon at " + origin);
+            int index2 = polyStart;
+            int index3 = polyStart + 1;
 
-            while (vertex3 < polyEnd && vertex3 != -1) {
+            while (index3 < polyEnd && index3 != -1) {
+                Debug.Log("checking triangle possibility " + origin + " " + index2 + " " + index3);
 
+                bool valid = true;
 
-                if (TriangleWindingOrder(origin, vertex2, vertex3, normal) == 1) {
-                    bool valid = true;
-                    for (int i = vertex3; i < polyStart; i++) {
-                        if (TriangleWindingOrder(vertex3, i, origin, normal) != 1 
-                         && TriangleWindingOrder(vertex2, vertex3, i, normal) == 1) {
-                            valid = false;
-
-                        }
-                    }
-
-                    if (valid) {
-                        AddTriangle(origin, vertex2, vertex3);
-                        vertex2 = vertex3;
-                        vertex3++;
+                if (TriangleWindingOrder(origin, index2, index3, normal) == 1) {
+                    for (int i = index3 + 1; i < polyEnd; i++) {
+                        valid &= TriangleWindingOrder(index3, i, origin, normal) != -1 || TriangleWindingOrder(index2, index3, i, normal) != 1;
                     }
                 } else {
-                    vertex3 = PolygonSegment(vertex2, root, polyStart, polyEnd, normal);
-                    if (vertex3 == -1) {
-                    }
+                    Debug.Log("not clockwise");
+                    valid = false;
                 }
 
-                if (root != origin && TriangleWindingOrder(root, origin, vertex2, normal) == 1) {
-                    return vertex2;
+                if (valid) {
+                    Debug.Log("valid! " + origin + " " + index2 + " " + index3);
+                    AddTriangle(origin, index2, index3);
+
+
+                    if (root != origin && TriangleWindingOrder(root, origin, index3, normal) == 1) {
+                        return index3;
+                    }
+
+                    index2 = index3;
+                    index3++;
+                } else {
+                    Debug.Log("invalid! " + origin + " " + index2 + " " + index3);
+                    index3 = PolygonSegment(index2, root, index3, polyEnd, normal);
+                    int oldIndex3 = index3;
+                    Debug.Log("Returning from sub polygon");
+
+                    if (oldIndex3 == index3) {
+                        Debug.Log("ERROR! sub polygon returned same end vertex " + index3);
+                    }
                 }
-              
+                
             }
             return -1;
         }
@@ -169,7 +179,7 @@ namespace Voxelgon.MeshBuilder {
         public void AddPolygon(List<Vector3> vertices, Vector3 normal) {
             int size = vertices.Count;
             int offset = AddVertices(vertices, normal);
-            PolygonSegment(offset, offset, offset, offset + size, normal);
+            PolygonSegment(offset, offset, offset + 1, offset + size, normal);
         }
 
         public void AddTriangle(int vertex1, int vertex2, int vertex3) {
@@ -228,5 +238,6 @@ namespace Voxelgon.MeshBuilder {
                 ClearBuffer();
             }
         }
+
     }
 }
