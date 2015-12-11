@@ -115,7 +115,7 @@ namespace Voxelgon.ShipEditor {
                 if (IsPolygon) {
                     return wallPlane.normal;
                 } 
-         return Vector3.zero;
+                return Vector3.zero;
             }
         }
 
