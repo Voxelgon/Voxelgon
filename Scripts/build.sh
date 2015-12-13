@@ -51,8 +51,13 @@ echo "Attempting to build $project for Linux"
   -buildLinuxUniversalPlayer "$(pwd)/Build/linux/$project.exe" \
   -quit
 
-echo 'Logs from build'
-cat $(pwd)/unity.log
+grep -q "Scripts have compiler errors." $(pwd)/unity.log
+if [ $? == 0 ]; then
+  echo "Build Failed!"
+  echo "Logs:"
+  cat $(pwd)/unity.log
+  exit 1;
+fi
 
-! grep -q "Scripts have compiler errors." $(pwd)/unity.log
-exit $?
+echo "Build completed without errors"
+exit 0
