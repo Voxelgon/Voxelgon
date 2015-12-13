@@ -5,6 +5,20 @@
 # Change this the name of your project. This will be the name of the final executables as well.
 project="voxelgon"
 
+echo "Running unit tests"
+/Applications/Unity/Unity.app/Contents/MacOS/Unity \
+  -batchmode \
+  -runEditorTests \
+  -editorTestsResultFile $(pwd)/unit_test_results.xml \
+  -projectPath $(pwd) \
+  -quit
+
+if [ $? != 0 ]; then
+  echo "unit tests failed!"
+  cat $(pwd)/unit_test_results.xml
+  exit 1;
+fi
+
 echo "Attempting to build $project for Windows"
 /Applications/Unity/Unity.app/Contents/MacOS/Unity \
   -batchmode \
