@@ -27,7 +27,6 @@ namespace Voxelgon.ShipEditor {
 
         public Wall() {
             wallPlane = new Plane();
-            Editor = GameObject.Find("ShipEditor").GetComponent<ShipEditor>();
         }
 
         public Wall(ShipEditor editor){

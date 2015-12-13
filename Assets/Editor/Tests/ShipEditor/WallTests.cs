@@ -9,7 +9,8 @@ namespace Voxelgon.Tests {
         [Test]
         public void WallCannotHaveDuplicateVertices() {
             //Arrange
-            var wall = new Wall();
+            var editor = new ShipEditor.ShipEditor();
+            var wall = new Wall(editor);
             var nodes = new List<Vector3>();
             nodes.Add(new Vector3(5, 8, 3));
 
