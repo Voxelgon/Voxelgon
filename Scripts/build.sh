@@ -37,3 +37,6 @@ echo "Attempting to build $project for Linux"
 
 echo 'Logs from build'
 cat $(pwd)/unity.log
+
+! grep -q "Scripts have compiler errors." $(pwd)/unity.log
+exit $?
