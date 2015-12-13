@@ -8,6 +8,7 @@ project="voxelgon"
 echo "Running unit tests"
 /Applications/Unity/Unity.app/Contents/MacOS/Unity \
   -batchmode \
+  -nographics \
   -runEditorTests \
   -editorTestsResultFile $(pwd)/unit_test_results.xml \
   -projectPath $(pwd) \
