@@ -3,6 +3,8 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 
 Project("{C5A7EDEB-8AC3-3492-414F-9EA328A992CD}") = "voxelgon", "Assembly-CSharp.csproj", "{700E4893-274B-CDB7-05E8-2DA3024C6EDA}"
 EndProject
+Project("{C5A7EDEB-8AC3-3492-414F-9EA328A992CD}") = "voxelgon", "Assembly-CSharp-Editor.csproj", "{71E167BF-E3EE-B32C-DDC5-FDF27B4F081D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -13,6 +15,10 @@ Global
 		{700E4893-274B-CDB7-05E8-2DA3024C6EDA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{700E4893-274B-CDB7-05E8-2DA3024C6EDA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{700E4893-274B-CDB7-05E8-2DA3024C6EDA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{71E167BF-E3EE-B32C-DDC5-FDF27B4F081D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{71E167BF-E3EE-B32C-DDC5-FDF27B4F081D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{71E167BF-E3EE-B32C-DDC5-FDF27B4F081D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{71E167BF-E3EE-B32C-DDC5-FDF27B4F081D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
