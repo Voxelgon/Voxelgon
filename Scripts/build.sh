@@ -1,4 +1,4 @@
-#! /bin/sh
+#! /bin/bash
 
 # Example build script for Unity3D project. See the entire example: https://github.com/JonathanPorta/ci-build
 
