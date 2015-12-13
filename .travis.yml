@@ -1,27 +1,6 @@
 language: objective-c
 
-env:
- global:
-  - EnableNuGetPackageRestore=true
- matrix:
-  - MONO_VER="2.10.11"
-  - MONO_VER="3.0.12"
-
-before_install:
- - wget "http://download.mono-project.com/archive/${MONO_VER}/macos-10-x86/MonoFramework-MDK-${MONO_VER}.macos10.xamarin.x86.dmg"
- - hdid "MonoFramework-MDK-${MONO_VER}.macos10.xamarin.x86.dmg"
- - sudo installer -pkg "/Volumes/Mono Framework MDK ${MONO_VER}/MonoFramework-MDK-${MONO_VER}.macos10.xamarin.x86.pkg" -target /
- - wget "http://netstorage.unity3d.com/unity/unity-4.5.4.dmg"
- - hdid "unity-4.5.4.dmg"
- - sudo installer -pkg "/Volumes/Unity Installer/Unity.pkg" -target /
-
+install:
+- ./Scripts/install.sh
 script:
- - xbuild voxelgon-csharp.sln
-
-notifications:
- irc:
-  channels:
-   - "irc.subluminal.net#Voxelgon"
-  on_success: always
-  on_failure: always
-  skip_join: true
+- ./Scripts/build.sh
