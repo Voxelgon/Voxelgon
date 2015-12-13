@@ -22,7 +22,7 @@ namespace Voxelgon.ShipEditor {
 
         public List<Wall> Walls { get; private set; }
 
-        public BuildMode Mode { get; set; } = BuildMode.Polygon;
+        public BuildMode Mode { get; set; }
 
         public bool NodesChanged { get; private set; }
 
@@ -54,6 +54,7 @@ namespace Voxelgon.ShipEditor {
         }
 
         public void Start() {
+            Mode = BuildMode.Polygon;
             TempWall = new Wall();
             _simpleHullMesh = new Mesh();
             Walls = new List<Wall>();
