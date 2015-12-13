@@ -15,10 +15,11 @@ echo "Running unit tests"
   -quit
 
 if [ $? != 0 ]; then
-  echo "unit tests failed!"
+  echo "Unit tests failed!"
   cat $(pwd)/unit_test_results.xml
   exit 1;
 fi
+echo "Unit tests passed!"
 
 echo "Attempting to build $project for Windows"
 /Applications/Unity/Unity.app/Contents/MacOS/Unity \
