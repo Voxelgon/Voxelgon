@@ -1,6 +1,6 @@
 language: objective-c
 
 install:
-- ./Scripts/install.sh
+- sudo ./Scripts/install.sh
 script:
-- ./Scripts/build.sh
+- sudo ./Scripts/build.sh
