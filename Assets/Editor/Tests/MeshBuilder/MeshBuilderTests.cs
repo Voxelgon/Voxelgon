@@ -88,7 +88,7 @@ namespace Voxelgon.MeshBuilder.Tests {
             builder.AddVertices(points, normal);
             
             Assert.That(
-                builder.TriangleWindingOrder(0,1,2,normal),
+                builder.TriangleWindingOrder(0, 1, 2, normal),
                 Is.EqualTo(1)
             );
 
