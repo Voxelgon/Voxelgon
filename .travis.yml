@@ -1,6 +1,10 @@
 language: objective-c
 
+before_install:
+- pip install --user codecov
 install:
 - sudo bash ./Scripts/install.sh
 script:
 - sudo bash ./Scripts/build.sh
+after_success:
+- codecov
