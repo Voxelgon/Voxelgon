@@ -1,69 +1,79 @@
 ﻿using UnityEngine;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using Voxelgon;
 
-[RequireComponent (typeof (Rigidbody))]
+namespace Voxelgon.Ship {
+    [RequireComponent(typeof (Rigidbody))]
+    public class ShipManager : MonoBehaviour {
+        private const double Tolerance = 0.00001;
 
-public class ShipManager : MonoBehaviour {
+        /// <summary>
+        /// The port yaw cutoff, set to angle +/- before the port is no longer for rotation
+        /// </summary>
+        public float PortYawCutoff = 30;
 
-    public float portYawCutoff = 30;    //angle +/- before the port is no longer for rotation
+        //input Variables
+        public float LinInput;
+        public float LatInput;
+        public float YawInput;
 
-    //input Variables
-    public float linInput;
-    public float latInput;
-    public float yawInput;
+        public bool KillRot;
+        public bool KillTrans;
 
-    public bool killRot;
-    public bool killTrans;
+        //translation/Yaw
+        public float Yaw;
+        public float Lin;
+        public float Lat;
 
-    //translation/yaw
-    public float yaw;
-    public float lin;
-    public float lat;
+        public float BrakingYaw;
+        public float BrakingLin;
+        public float BrakingLat;
 
-    public float brakingYaw = 0;
-    public float brakingLin = 0;
-    public float brakingLat = 0;
+        private void FixedUpdate() {
+            YawInput = Input.GetAxis("Yaw");
+            LinInput = Input.GetAxis("Thrust");
+            LatInput = Input.GetAxis("Strafe");
 
-    private void FixedUpdate() {
-        yawInput = Input.GetAxis("Yaw");
-        linInput = Input.GetAxis("Thrust");
-        latInput = Input.GetAxis("Strafe");
+            if (Input.GetButtonUp("Kill Rotation")) {
+                KillRot = !KillRot;
+            }
 
-        if(Input.GetButtonUp("Kill Rotation")) {
-            killRot = !killRot;
+            if (Input.GetButtonUp("Kill Translation")) {
+                KillTrans = !KillTrans;
+            }
+
+            //TODO: PID controller for this
+            if (KillRot
+                && (System.Math.Abs(YawInput) < Tolerance)
+                && (Mathf.Abs(GetComponent<Rigidbody>().angularVelocity.y) > 0.01)) {
+                BrakingYaw = -GetComponent<Rigidbody>().angularVelocity.y;
+            }
+            else {
+                BrakingYaw = 0;
+            }
+
+            if (KillTrans
+                && (System.Math.Abs(LinInput) < Tolerance)
+                && (System.Math.Abs(LatInput) < Tolerance)
+                && (Mathf.Abs(transform.InverseTransformDirection(GetComponent<Rigidbody>().velocity).x) > 0.1)) {
+                BrakingLin =
+                    (int) -Mathf.Sign(transform.InverseTransformDirection(GetComponent<Rigidbody>().velocity).x);
+            }
+            else {
+                BrakingLin = 0;
+            }
+
+            if (KillTrans
+                && (System.Math.Abs(LatInput) < Tolerance)
+                && (System.Math.Abs(LinInput) < Tolerance)
+                && (Mathf.Abs(transform.InverseTransformDirection(GetComponent<Rigidbody>().velocity).z) > 0.1)) {
+                BrakingLat = (int) Mathf.Sign(transform.InverseTransformDirection(GetComponent<Rigidbody>().velocity).z);
+            }
+            else {
+                BrakingLat = 0;
+            }
+
+            Yaw = YawInput + BrakingYaw;
+            Lin = LinInput + BrakingLin;
+            Lat = LatInput + BrakingLat;
         }
-
-        if(Input.GetButtonUp("Kill Translation")) {
-            killTrans = !killTrans;
-        }
-
-        //TODO: PID controller for this
-        if((killRot) && (yawInput == 0) && (Mathf.Abs(GetComponent<Rigidbody>().angularVelocity.y) > 0.01)) {
-            brakingYaw = -GetComponent<Rigidbody>().angularVelocity.y;
-
-        } else {
-            brakingYaw = 0;
-        }
-
-        if((killTrans) && (linInput == 0) && (latInput == 0) && (Mathf.Abs(transform.InverseTransformDirection(GetComponent<Rigidbody>().velocity).x) > 0.1)) {
-            brakingLin = (int) -Mathf.Sign(transform.InverseTransformDirection(GetComponent<Rigidbody>().velocity).x);
-
-        } else {
-            brakingLin = 0;
-        }
-
-        if((killTrans) && (latInput == 0)&& (linInput == 0) && (Mathf.Abs(transform.InverseTransformDirection(GetComponent<Rigidbody>().velocity).z) > 0.1)) {
-            brakingLat = (int) Mathf.Sign(transform.InverseTransformDirection(GetComponent<Rigidbody>().velocity).z);
-
-        } else {
-            brakingLat = 0;
-        }
-
-        yaw = yawInput + brakingYaw;
-        lin = linInput + brakingLin;
-        lat = latInput + brakingLat;
     }
 }

@@ -27,7 +27,6 @@ namespace Voxelgon.ShipEditor {
 
         public Wall() {
             wallPlane = new Plane();
-            Editor = GameObject.Find("ShipEditor").GetComponent<ShipEditor>();
         }
 
         public Wall(ShipEditor editor){
@@ -115,7 +114,7 @@ namespace Voxelgon.ShipEditor {
                 if (IsPolygon) {
                     return wallPlane.normal;
                 } 
-         return Vector3.zero;
+                return Vector3.zero;
             }
         }
 

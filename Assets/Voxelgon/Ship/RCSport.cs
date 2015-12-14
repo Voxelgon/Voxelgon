@@ -1,32 +1,38 @@
 ﻿using UnityEngine;
-using System.Collections;
-using Voxelgon;
 
-public class RCSport : MonoBehaviour {
+namespace Voxelgon.Ship {
+    public class RCSport : MonoBehaviour {
+        public float Thrust;
+        public float MaxThrust = 2;
 
-    public float thrust;
-    public float maxThrust = 2;
+        private int _linMultiplyer = 0; //1 through -1 (for inverting axes)
+        private int _latMultiplyer = 0;
+        private int _yawMultiplyer = 0;
 
-    private int linMultiplyer = 0; //1 through -1 (for inverting axes)
-    private int latMultiplyer = 0;
-    private int yawMultiplyer = 0;
+        private GameObject _ship;
+        private ShipManager _shipManager;
+        private Rigidbody _shipRigidbody;
 
-    private GameObject ship;
-    private ShipManager shipManager;
-    private Rigidbody shipRigidbody;
+        private Vector3 _centerOfMass;
+        private Vector3 _offsetVector;
+        private Vector3 _forceVector;
 
-    private Vector3 centerOfMass;
-    private Vector3 offsetVector;
-    private Vector3 forceVector;
+        private Vector3 _torqueVector;
 
-    private Vector3 torqueVector;
+        public RCSport() {
+            _yawMultiplyer = 0;
+            _latMultiplyer = 0;
+            _linMultiplyer = 0;
+        }
 
-    public void Start() {
-        ship = transform.parent.gameObject;
-        shipManager = ship.GetComponent<ShipManager>();
-        shipRigidbody = ship.GetComponent<Rigidbody>();
+        public void Start() {
+            _ship = transform.parent.gameObject;
+            _shipManager = _ship.GetComponent<ShipManager>();
+            _shipRigidbody = _ship.GetComponent<Rigidbody>();
 
-        torqueVector = Vector3.Cross((transform.position - shipRigidbody.worldCenterOfMass), transform.forward);
-
+            _torqueVector = Vector3.Cross(
+                transform.position - _shipRigidbody.worldCenterOfMass,
+                transform.forward);
+        }
     }
 }
