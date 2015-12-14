@@ -68,11 +68,15 @@ namespace Voxelgon.MeshBuilder {
             Vector3 delta1 = (point2 - point1).normalized;
             Vector3 delta2 = (point3 - point1).normalized;
 
-            Vector3 resultNormal = Vector3.Cross(delta1, delta2);
-
-            if (resultNormal.sqrMagnitude < 0.01f) {
+            if (Vector3.Angle(delta1, delta2) < 0.01f) {
                 return 0;
             }
+
+            if (Vector3.Angle(delta1, delta2) > 179.99f) {
+                return 0;
+            }
+
+            Vector3 resultNormal = Vector3.Cross(delta1, delta2);
 
             return (Vector3.Dot(normal, resultNormal) >= 0) ? 1 : -1;
         }
