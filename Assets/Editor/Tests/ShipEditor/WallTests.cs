@@ -3,19 +3,19 @@ using NUnit.Framework;
 using UnityEngine;
 using Voxelgon.ShipEditor;
 
-namespace Voxelgon.Tests {
+namespace Voxelgon.ShipEditor.Tests {
     public class WallTests {
 
         [Test]
         public void WallCannotHaveDuplicateVertices() {
             //Arrange
-            var editor = new ShipEditor.ShipEditor();
+            var editor = new ShipEditor();
             var wall = new Wall(editor);
             var nodes = new List<Vector3>();
             nodes.Add(new Vector3(5, 8, 3));
 
             //Act
-            wall.UpdateVertices(nodes, ShipEditor.ShipEditor.BuildMode.Polygon);
+            wall.UpdateVertices(nodes, ShipEditor.BuildMode.Polygon);
 
             //Assert
             Assert.That(wall.ValidVertex(new Vector3(5, 8, 3)), Is.False);
