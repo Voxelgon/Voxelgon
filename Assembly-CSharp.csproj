@@ -55,6 +55,9 @@
      <Compile Include="Assets\Voxelgon\EventSystem\ModeChangeEventSource.cs" />
      <Compile Include="Assets\Voxelgon\EventSystem\StandardInputModule.cs" />
      <Compile Include="Assets\Voxelgon\GameMode.cs" />
+     <Compile Include="Assets\Voxelgon\Geometry\Geometry.cs" />
+     <Compile Include="Assets\Voxelgon\Geometry\Interfaces\IPolygon.cs" />
+     <Compile Include="Assets\Voxelgon\Geometry\Triangle.cs" />
      <Compile Include="Assets\Voxelgon\Graphics\ColorPallette.cs" />
      <Compile Include="Assets\Voxelgon\Graphics\MonoBehaviour\FPScounter.cs" />
      <Compile Include="Assets\Voxelgon\Graphics\MonoBehaviour\MeshColorsTest.cs" />
