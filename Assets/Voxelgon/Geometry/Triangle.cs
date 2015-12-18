@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 
@@ -39,6 +40,24 @@ namespace Voxelgon.Geometry {
                 Vector3 delta2 = _vertices[2] - _vertices[0];
 
                 return Vector3.Cross(delta1, delta2).normalized;
+            }
+        }
+
+        //is the polygon convex?
+        public bool IsConvex { 
+            //triangles are always convex
+            get { return true; } 
+        }
+
+        //is the polygon valid?
+        // must have >= 3 vertices
+        public bool IsValid { 
+            get {
+                bool valid = true;
+                valid &= (!_vertices[0].Equals(_vertices[1]));
+                valid &= (!_vertices[1].Equals(_vertices[2]));
+                valid &= (!_vertices[2].Equals(_vertices[0]));
+                return valid;
             }
         }
 
@@ -98,6 +117,11 @@ namespace Voxelgon.Geometry {
             if (WindingOrder(normal) == -1) {
                 Reverse();
             }
+        }
+
+        //returns and array of triangles that make up the polygon
+        public List<Triangle> ToTriangles() {
+            return new List<Triangle> {this};
         }
     }
 }

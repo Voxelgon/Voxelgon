@@ -220,6 +220,40 @@ namespace Voxelgon.MeshBuilder {
                  && TriangleWindingOrder(index3, index1, pointIndex, normal) != -1);
         }
 
+        public static Mesh MergeMeshes(List<Mesh> meshes) {
+            var compoundMesh = new Mesh();
+
+            var compoundVertices = new List<Vector3>();
+            var compoundNormals = new List<Vector3>();
+            var compoundColors = new List<Color>();
+            var compoundTriangles = new List<int>();
+            
+            foreach (Mesh m in meshes) {
+                if (compoundVertices.Count + m.vertices.Length > 65534) {
+                    break;
+                }
+                compoundVertices.AddRange(m.vertices);
+                compoundNormals.AddRange(m.normals);
+                compoundColors.AddRange(m.colors);
+                compoundTriangles.AddRange(m.triangles);
+                
+                if (compoundTriangles.Count - m.triangles.Length != 0) {
+                    for (int t = 1; t <= m.triangles.Length; t++) {
+                        compoundTriangles[compoundTriangles.Count - t] += compoundVertices.Count - m.vertices.Length;
+                    }
+                }
+            }
+
+            compoundMesh.SetVertices(compoundVertices);
+            compoundMesh.SetNormals(compoundNormals);
+            compoundMesh.SetColors(compoundColors);
+            compoundMesh.SetTriangles(compoundTriangles, 0);
+            compoundMesh.RecalculateBounds();
+            compoundMesh.RecalculateNormals();
+            
+            return compoundMesh;
+        }
+
         //Private Methods
 
         private void FinalizeLastMesh() {

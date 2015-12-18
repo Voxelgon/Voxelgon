@@ -1,6 +1,9 @@
+using System.Collections.Generic;
 using UnityEngine;
 
+
 namespace Voxelgon.Geometry {
+
     public interface IPolygon {
 
         //PROPERTIES
@@ -10,6 +13,13 @@ namespace Voxelgon.Geometry {
 
         //the normal of the clockwise polygon
         Vector3 Normal { get; }
+
+        //is the polygon convex?
+        bool IsConvex { get; }
+
+        //is the polygon valid?
+        // must have >= 3 vertices
+        bool IsValid { get; }
 
         //the area of the polygon
         float Area { get; }
@@ -33,5 +43,8 @@ namespace Voxelgon.Geometry {
 
         //if the polygon is counter-clockwise, reverse it so it is clockwise
         void EnsureClockwise(Vector3 normal);
+
+        //returns and array of triangles that make up the polygon
+        List<Triangle> ToTriangles();
     }
 }

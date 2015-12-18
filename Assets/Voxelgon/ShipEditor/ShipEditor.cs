@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Voxelgon.Math;
 using Voxelgon.Graphics;
+using Voxelgon.MeshBuilder;
 using Voxelgon.EventSystems;
 
 namespace Voxelgon.ShipEditor {
@@ -33,7 +34,7 @@ namespace Voxelgon.ShipEditor {
                 if (WallsChanged && Walls.Count > 0) {
                     var wallMeshes = Walls.Select(w => w.ComplexMesh).ToList();
                     _simpleHullMesh.Clear();
-                    _simpleHullMesh = Geometry.MergeMeshes(wallMeshes);
+                    _simpleHullMesh = MeshBuilder.MeshBuilder.MergeMeshes(wallMeshes);
                 }
 
                 WallsChanged = false;
@@ -55,7 +56,7 @@ namespace Voxelgon.ShipEditor {
 
         public void Start() {
             Mode = BuildMode.Polygon;
-            TempWall = new Wall();
+            TempWall = new Wall(this);
             _simpleHullMesh = new Mesh();
             Walls = new List<Wall>();
             _wallVertices = new Dictionary<Position, List<Wall>>();

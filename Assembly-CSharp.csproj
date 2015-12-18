@@ -57,11 +57,11 @@
      <Compile Include="Assets\Voxelgon\GameMode.cs" />
      <Compile Include="Assets\Voxelgon\Geometry\Geometry.cs" />
      <Compile Include="Assets\Voxelgon\Geometry\Interfaces\IPolygon.cs" />
+     <Compile Include="Assets\Voxelgon\Geometry\Polygon.cs" />
      <Compile Include="Assets\Voxelgon\Geometry\Triangle.cs" />
      <Compile Include="Assets\Voxelgon\Graphics\ColorPallette.cs" />
      <Compile Include="Assets\Voxelgon\Graphics\MonoBehaviour\FPScounter.cs" />
      <Compile Include="Assets\Voxelgon\Graphics\MonoBehaviour\MeshColorsTest.cs" />
-     <Compile Include="Assets\Voxelgon\Math\Geometry.cs" />
      <Compile Include="Assets\Voxelgon\Math\Math.cs" />
      <Compile Include="Assets\Voxelgon\Math\Position.cs" />
      <Compile Include="Assets\Voxelgon\MeshBuilder\MeshBuilder.cs" />
