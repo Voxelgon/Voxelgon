@@ -13,6 +13,8 @@ Assembly-CSharp-firstpass.csproj
 *.db
 *.git
 *.app
+*.csproj
+*.sln
 
 voxelgon.sublime-project
 voxelgon.sublime-workspace
