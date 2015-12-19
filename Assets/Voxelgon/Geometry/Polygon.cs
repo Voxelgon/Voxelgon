@@ -21,10 +21,12 @@ namespace Voxelgon.Geometry {
 
         //IPolygon
         //the normal of the clockwise polygon
+        // if the polygon is invalid, return Vector3.zero
         public Vector3 Normal { 
             get {
-                if (!IsValid)
+                if (!IsValid) {
                     return Vector3.zero;
+                }
 
                 Vector3 baseNormal = Geometry.TriangleNormal(
                                          _vertices[0],
@@ -86,8 +88,9 @@ namespace Voxelgon.Geometry {
         //the area of the polygon
         public float Area { 
             get {
-                if (!IsValid)
+                if (!IsValid) {
                     return 0;
+                }
 
                 float area = 0;
                 foreach (Triangle t in ToTriangles()) {
@@ -120,8 +123,9 @@ namespace Voxelgon.Geometry {
         //IPolygon
         //returns whether or not `point` is on or inside the polygon
         public bool Contains(Vector3 point) {
-            if (!IsValid)
+            if (!IsValid) {
                 return false;
+            }
 
             bool contains = false;
             foreach (Triangle t in ToTriangles()) {

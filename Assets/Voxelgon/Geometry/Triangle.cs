@@ -38,8 +38,13 @@ namespace Voxelgon.Geometry {
 
         //IPolygon
         //the normal of the clockwise polygon
+        // if the polygon is invalid, return Vector3.zero
         public Vector3 Normal {
             get {
+                if (!IsValid) {
+                    return Vector3.zero;
+                }
+                
                 Vector3 delta1 = _vertices[1] - _vertices[0];
                 Vector3 delta2 = _vertices[2] - _vertices[0];
 
