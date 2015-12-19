@@ -44,7 +44,7 @@ namespace Voxelgon.Geometry {
         //if the polygon is counter-clockwise, reverse it so it is clockwise
         void EnsureClockwise(Vector3 normal);
 
-        //returns and array of triangles that make up the polygon
+        //returns an array of triangles that make up the polygon
         List<Triangle> ToTriangles();
     }
 }
