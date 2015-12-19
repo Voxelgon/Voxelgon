@@ -23,7 +23,8 @@ namespace Voxelgon.Geometry {
         //the normal of the clockwise polygon
         public Vector3 Normal { 
             get {
-                if (!IsValid) return Vector3.zero;
+                if (!IsValid)
+                    return Vector3.zero;
 
                 Vector3 baseNormal = Geometry.TriangleNormal(
                                          _vertices[0],
@@ -51,7 +52,8 @@ namespace Voxelgon.Geometry {
         //is the polygon convex?
         public bool IsConvex { 
             get {
-                if (!IsValid) return false;
+                if (!IsValid)
+                    return false;
 
                 for (int i = 0; i < VertexCount; i++) {
                     int j = (i + 1) % VertexCount;
@@ -84,7 +86,8 @@ namespace Voxelgon.Geometry {
         //the area of the polygon
         public float Area { 
             get {
-                if (!IsValid) return 0;
+                if (!IsValid)
+                    return 0;
 
                 float area = 0;
                 foreach (Triangle t in ToTriangles()) {
@@ -109,17 +112,19 @@ namespace Voxelgon.Geometry {
         //-1 = counter-clockwise
         // 0 = all points are colinear, or polygon is invalid
         public int WindingOrder(Vector3 normal) {
-            if (!IsValid) return 0;
+            if (!IsValid)
+                return 0;
             return (Vector3.Dot(normal, Normal) >= 0) ? 1 : -1;
         }
 
         //IPolygon
         //returns whether or not `point` is on or inside the polygon
         public bool Contains(Vector3 point) {
-            if (!IsValid) return false;
+            if (!IsValid)
+                return false;
 
             bool contains = false;
-            foreach(Triangle t in ToTriangles()) {
+            foreach (Triangle t in ToTriangles()) {
                 contains |= t.Contains(point);
             }
             return contains;
