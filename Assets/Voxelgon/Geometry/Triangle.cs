@@ -16,8 +16,8 @@ namespace Voxelgon.Geometry {
         //create a simple default triangle
         public Triangle() {
             _vertices[0] = Vector3.zero;
-            _vertices[1] = Vector3.zero;
-            _vertices[2] = Vector3.zero;
+            _vertices[1] = Vector3.forward;
+            _vertices[2] = Vector3.left;
         }
 
         //create a triangle from the three given points
