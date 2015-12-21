@@ -115,8 +115,10 @@ namespace Voxelgon.Geometry {
         //-1 = counter-clockwise
         // 0 = all points are colinear, or polygon is invalid
         public int WindingOrder(Vector3 normal) {
-            if (!IsValid)
+            if (!IsValid) {
                 return 0;
+            }
+
             return (Vector3.Dot(normal, Normal) >= 0) ? 1 : -1;
         }
 
@@ -160,6 +162,8 @@ namespace Voxelgon.Geometry {
 
             return triangles;
         }
+
+        //PRIVATE METHODS
 
         //adds triangles to List `triangles`, calls itself recursively to handle concave polygonsa
         private int PolygonSegment(List<Triangle> triangles, int index1, int index2, Vector3 normal) {
