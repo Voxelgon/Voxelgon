@@ -12,6 +12,7 @@ namespace Voxelgon.Geometry {
         Vector3 this[int index] { get; set; }
 
         //the normal of the clockwise polygon
+        // if the polygon is invalid, return Vector3.zero
         Vector3 Normal { get; }
 
         //is the polygon convex?
