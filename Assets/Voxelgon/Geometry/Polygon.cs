@@ -153,12 +153,11 @@ namespace Voxelgon.Geometry {
         //IPolygon
         //returns an array of triangles that make up the polygon
         public List<Triangle> ToTriangles() {
-            if (!IsValid) {
-                throw new System.InvalidOperationException("Polygon must have at least 3 vertices");
-            }
-
             var triangles = new List<Triangle>();
-            PolygonSegment(triangles, 0, 1, Normal);
+
+            if (IsValid) {
+                PolygonSegment(triangles, 0, 1, Normal);
+            }
 
             return triangles;
         }
