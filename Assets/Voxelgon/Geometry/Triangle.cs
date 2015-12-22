@@ -33,7 +33,6 @@ namespace Voxelgon.Geometry {
         //access each vertex individually by its index
         public Vector3 this[int index] {
             get { return _vertices[index]; }
-            set { _vertices[index] = value; }
         }
 
         //IPolygon

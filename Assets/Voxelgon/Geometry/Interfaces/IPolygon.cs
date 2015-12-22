@@ -9,7 +9,7 @@ namespace Voxelgon.Geometry {
         //PROPERTIES
 
         //access each vertex individually by its index
-        Vector3 this[int index] { get; set; }
+        Vector3 this[int index] { get; }
 
         //the normal of the clockwise polygon
         // if the polygon is invalid, return Vector3.zero
