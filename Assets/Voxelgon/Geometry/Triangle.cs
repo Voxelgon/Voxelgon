@@ -88,6 +88,13 @@ namespace Voxelgon.Geometry {
             get { return 3; }
         }
 
+        //OPERATORS
+
+        //Convert to a 3-sided polygon
+        public static explicit operator Polygon(Triangle t) {
+            return new Polygon(new List<Vector3>(t._vertices));
+        }
+
         //METHODS
 
         //IPolygon
@@ -139,6 +146,13 @@ namespace Voxelgon.Geometry {
         //returns and array of triangles that make up the polygon
         public List<Triangle> ToTriangles() {
             return new List<Triangle> {this};
+        }
+
+        //IPolygon
+        //returns a polygon truncated starting at Vector3 `point` by vector3 `offset`
+        public Polygon Truncate(Vector3 point, Vector3 offset) {
+            var poly = (Polygon) this;
+            return poly.Truncate(point, offset);
         }
     }
 }

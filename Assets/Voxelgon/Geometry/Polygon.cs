@@ -10,6 +10,12 @@ namespace Voxelgon.Geometry {
 
         private readonly List<Vector3> _vertices = new List<Vector3>();
 
+        //CONSTRUCTORS
+
+        public Polygon(List<Vector3> vertices) {
+            _vertices = new List<Vector3>(vertices);
+        }
+
         //PROPERTIES
 
         //IPolygon
@@ -159,6 +165,60 @@ namespace Voxelgon.Geometry {
             }
 
             return triangles;
+        }
+
+        //IPolygon
+        //returns a polygon truncated starting at Vector3 `point` by vector3 `offset`
+        public Polygon Truncate(Vector3 point, Vector3 offset) {
+            var plane = new Plane(offset.normalized, offset + point);
+            var verts = new List<Vector3>();
+            var trim = new List<int>();
+            int start = 0;
+
+
+            for (int i = 0; i < _vertices.Count; i++) {
+                if ((!plane.GetSide(_vertices[i]))) {
+                    trim.Add(i);
+                }
+            }
+
+            for (int i = 0; i < trim.Count; i++) {
+                int lastTrim = (i - 1 + trim.Count) % trim.Count;
+                int nextTrim = (i + 1) % trim.Count;
+                int lastVert = (trim[i] - 1 + _vertices.Count) % _vertices.Count;
+                int nextVert = (trim[i] + 1) % _vertices.Count;
+
+                if (trim[lastTrim] != lastVert|| trim.Count == 1) {
+                    verts.AddRange(_vertices.GetRange(start, trim[i] - start));
+
+                    var normal = (_vertices[lastVert] - _vertices[trim[i]]).normalized;
+                    var ray = new Ray(_vertices[trim[i]], normal);
+                    float length;
+                    plane.Raycast(ray, out length);
+                    verts.Add(_vertices[trim[i]] + normal * length);
+                }
+                if (trim[nextTrim] != nextVert || trim.Count == 1) {
+                    start = trim[i] + 1;
+
+                    var normal = (_vertices[nextVert] - _vertices[trim[i]]).normalized;
+                    var ray = new Ray(_vertices[trim[i]], normal);
+                    float length;
+                    plane.Raycast(ray, out length);
+                    verts.Add(_vertices[trim[i]] + normal * length);
+                }
+            }
+
+            if (trim.Count == 0) {
+                verts = new List<Vector3>(_vertices);
+            }
+            return new Polygon(verts);
+        }
+
+        public void Draw() {
+            for (int i = 0; i < _vertices.Count; i++) {
+                int next = (i + 1) % _vertices.Count;
+                Debug.DrawLine(_vertices[i], _vertices[next]);
+            }
         }
 
         //PRIVATE METHODS

@@ -47,5 +47,8 @@ namespace Voxelgon.Geometry {
 
         //returns an array of triangles that make up the polygon
         List<Triangle> ToTriangles();
+
+        //returns a polygon truncated starting at Vector3 `point` by vector3 `offset`
+        Polygon Truncate(Vector3 point, Vector3 offset);
     }
 }
