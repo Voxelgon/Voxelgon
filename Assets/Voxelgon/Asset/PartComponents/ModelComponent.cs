@@ -28,8 +28,8 @@ namespace Voxelgon.Asset {
 
         public override GameObject Instantiate(GameObject parent) {
             var gameObject = base.Instantiate(parent);
-            var mesh = Database.GetMesh(ModelPathFull);
-            var material = Database.GetMaterial(Material);
+            var mesh = AssetDatabase.GetMesh(ModelPathFull);
+            var material = AssetDatabase.GetMaterial(Material);
 
             var filter = gameObject.AddComponent<MeshFilter>();
             var renderer = gameObject.AddComponent<MeshRenderer>();

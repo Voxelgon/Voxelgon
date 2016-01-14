@@ -2,7 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 
 namespace Voxelgon.Asset {
-    public static class Database {
+    public static class AssetDatabase {
 
         // FIELDS
 

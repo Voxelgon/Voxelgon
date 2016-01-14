@@ -176,7 +176,7 @@ namespace Voxelgon.Asset{
         //Sets up database for assets//
         static public void Setup() {
             resourcePath = Parent(Application.dataPath) + "/Resources";
-            Database.Populate();
+            AssetDatabase.Populate();
 
         }
 
