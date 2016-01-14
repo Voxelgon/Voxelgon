@@ -34,7 +34,7 @@ namespace Voxelgon.Asset {
             try {
                 mesh = _meshMap[key];
             } catch (KeyNotFoundException e) {
-                Debug.Log("Could not find a mesh matching \"" + key + "\"");
+                Debug.LogWarning("Could not find a mesh matching \"" + key + "\"");
                 return _meshMap["Error"];
             }
 
