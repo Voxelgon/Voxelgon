@@ -2,11 +2,11 @@ using UnityEngine;
 using System.Text;
 
 namespace Voxelgon.Asset {
-    public class ComponentTransform {
+    public class YamlTransform {
 
         //CONSTRUCTORS
 
-        public ComponentTransform() {
+        public YamlTransform() {
             Position = Vector3.zero;
             Rotation = Vector3.zero;
             Scale = Vector3.one;
@@ -15,9 +15,9 @@ namespace Voxelgon.Asset {
 
         //PROPERTIES
 
-        public ComponentVector Position {get; set;}
-        public ComponentVector Rotation {get; set;}
-        public ComponentVector Scale {get; set;}
+        public YamlVector Position {get; set;}
+        public YamlVector Rotation {get; set;}
+        public YamlVector Scale {get; set;}
 
 
         //METHODS

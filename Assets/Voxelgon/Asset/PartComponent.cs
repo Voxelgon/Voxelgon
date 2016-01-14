@@ -7,14 +7,14 @@ namespace Voxelgon.Asset {
 
         public PartComponent() {
             ID = "no_ID";
-            Transform = new ComponentTransform();
+            Transform = new YamlTransform();
         }
 
 
         //PROPERTIES
 
         public string ID {get; set;}
-        public ComponentTransform Transform {get; set;}
+        public YamlTransform Transform {get; set;}
 
 
         //METHODS

@@ -8,7 +8,6 @@ namespace Voxelgon.Asset {
 
         public ModelComponent() {
             Shader = "standard";
-            Transform = new ComponentTransform();
         }
 
 
@@ -32,7 +31,10 @@ namespace Voxelgon.Asset {
 
         //IPartComponent
         public override string ToString() {
-            var builder = new StringBuilder(base.ToString());
+            var builder = new StringBuilder();
+
+            builder.AppendLine("# Model #");
+            builder.Append(base.ToString());
 
             builder.AppendLine("Path: " + Path);
             builder.AppendLine("Shader: " + Shader);

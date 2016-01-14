@@ -23,7 +23,10 @@ namespace Voxelgon.Asset {
         //METHODS
 
         public override string ToString() {
-            var builder = new StringBuilder(base.ToString());
+            var builder = new StringBuilder();
+
+            builder.AppendLine("# Part #");
+            builder.Append(base.ToString());
 
             builder.AppendLine("Name: " + Name);
             builder.AppendLine("Components:");

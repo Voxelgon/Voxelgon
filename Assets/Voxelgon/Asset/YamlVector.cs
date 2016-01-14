@@ -1,17 +1,17 @@
 using UnityEngine;
 
 namespace Voxelgon.Asset {
-    public class ComponentVector {
+    public class YamlVector {
 
         // CONSTRUCTORS
 
-        public ComponentVector() {
+        public YamlVector() {
             X = 0;
             Y = 0;
             Z = 0;
         }
 
-        public ComponentVector(float x, float y, float z) {
+        public YamlVector(float x, float y, float z) {
             X = x;
             Y = y;
             Z = z;
@@ -34,12 +34,12 @@ namespace Voxelgon.Asset {
 
         // OPERATORS
 
-        public static implicit operator Vector3(ComponentVector v) {
+        public static implicit operator Vector3(YamlVector v) {
             return new Vector3(v.X, v.Y, v.Z);
         }
 
-        public static implicit operator ComponentVector(Vector3 v) {
-            return new ComponentVector(v.x, v.y, v.z);
+        public static implicit operator YamlVector(Vector3 v) {
+            return new YamlVector(v.x, v.y, v.z);
         }
     }
 }
