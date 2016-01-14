@@ -217,7 +217,10 @@ namespace Voxelgon.Asset{
             reader.Expect<StreamStart>();
 
             while(reader.Accept<DocumentStart>()) {
-                imported.Add(deserializer.Deserialize<Asset>(reader));
+                var asset = deserializer.Deserialize<Asset>(reader);
+                asset.Path = path;
+
+                imported.Add(asset);
             }
 
             return imported;

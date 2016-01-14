@@ -1,3 +1,4 @@
+using UnityEngine;
 using System.Text;
 
 namespace Voxelgon.Asset {
@@ -18,6 +19,18 @@ namespace Voxelgon.Asset {
 
 
         //METHODS
+
+        public virtual GameObject Create(GameObject parent) {
+            var gameObject = new GameObject(ID);
+
+            var objectTransform = gameObject.AddComponent<Transform>();
+            objectTransform.parent           = parent.transform; 
+            objectTransform.localPosition    = Transform.Position;
+            objectTransform.localEulerAngles = Transform.Rotation;
+            objectTransform.localScale       = Transform.Scale;
+
+            return gameObject;
+        }
 
         public virtual string ToString() {
             var builder = new StringBuilder();

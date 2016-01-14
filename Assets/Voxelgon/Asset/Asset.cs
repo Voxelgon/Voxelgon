@@ -13,6 +13,7 @@ namespace Voxelgon.Asset {
 
         //PROPERTIES
 
+        public string Path {get; set;}
         public string Namespace {get; set;}
         public string ID {get; set;}
 
@@ -28,6 +29,7 @@ namespace Voxelgon.Asset {
         public virtual string ToString() {
             var builder = new StringBuilder();
 
+            builder.AppendLine("Path: " + Path);
             builder.AppendLine("Namespace: " + Namespace);
             builder.AppendLine("Global ID: " + GlobalID);
 

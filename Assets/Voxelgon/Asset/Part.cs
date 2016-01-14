@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Text;
 
 namespace Voxelgon.Asset {
-    public class Part  : Asset{
+    public class Part  : Asset {
 
         // CONSTRUCTOR
 

@@ -6,6 +6,6 @@ Description: 'this is a test object, I am using it to test the import mechanism'
 
 Components:
 - !!model
-  Path: "models/test.obj"
+  ModelPath: "models/test.obj"
   Transform: 
     Position: {X: 1.5, Y: -3.2, Z: 0.0}

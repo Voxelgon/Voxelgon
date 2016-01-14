@@ -13,30 +13,28 @@ namespace Voxelgon.Asset {
 
         // PROPERTIES
 
-        public string Path {get; set;}
+        public string ModelPath {get; set;}
         public string Shader {get; set;}
 
 
         // METHODS
 
-        //IPartComponent
-        public GameObject Create() {
-            var gameObject = new GameObject();
+        public GameObject Create(GameObject parent) {
+            var gameObject = base.Create(parent);
 
-            gameObject.AddComponent<MeshFilter>();
-            gameObject.AddComponent<MeshRenderer>();
+            var filter = gameObject.AddComponent<MeshFilter>();
+            var renderer = gameObject.AddComponent<MeshRenderer>();
 
             return gameObject;
         }
 
-        //IPartComponent
         public override string ToString() {
             var builder = new StringBuilder();
 
             builder.AppendLine("# Model #");
             builder.Append(base.ToString());
 
-            builder.AppendLine("Path: " + Path);
+            builder.AppendLine("Model Path: " + ModelPath);
             builder.AppendLine("Shader: " + Shader);
 
             return builder.ToString();
