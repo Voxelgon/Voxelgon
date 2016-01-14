@@ -18,6 +18,9 @@ namespace Voxelgon.Asset {
         }     
 
         public static Material GetMaterial(string key) {
+            if (!_materialMap.ContainsKey(key)) {
+                return _materialMap["Standard"];
+            }
             return _materialMap[key];
         }
 
@@ -27,7 +30,15 @@ namespace Voxelgon.Asset {
         }
 
         public static Mesh GetMesh(string key) {
-            return _meshMap[key];
+            Mesh mesh;
+            try {
+                mesh = _meshMap[key];
+            } catch (KeyNotFoundException e) {
+                Debug.Log("Could not find a mesh matching \"" + key + "\"");
+                return _meshMap["Error"];
+            }
+
+            return mesh;
         }
 
 
@@ -37,6 +48,20 @@ namespace Voxelgon.Asset {
 
         public static Part GetPart(string key) {
             return _partMap[key];
+        }
+
+        public static void Populate() {
+            Mesh[] models = Resources.LoadAll<Mesh>("Models");
+            Material[] materials = Resources.LoadAll<Material>("Materials");
+
+            foreach (Mesh m in models) {
+                AddMesh(m.name, m);
+            }
+
+            foreach (Material m in materials) {
+                AddMaterial(m.name, m);
+            }
+
         }
     }
 }

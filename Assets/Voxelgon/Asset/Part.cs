@@ -1,3 +1,4 @@
+using UnityEngine;
 using System.Collections.Generic;
 using System.Text;
 
@@ -22,6 +23,18 @@ namespace Voxelgon.Asset {
 
         //METHODS
 
+        public GameObject Instantiate() {
+            var gameObject = new GameObject(GlobalID);
+            var part = gameObject.AddComponent<PartObject>();
+            part.Part = this;
+
+            foreach (PartComponent c in Components) {
+                c.Instantiate(gameObject);
+            }
+
+            return gameObject;
+        }
+
         public override string ToString() {
             var builder = new StringBuilder();
 
@@ -36,6 +49,14 @@ namespace Voxelgon.Asset {
             }
 
             return builder.ToString();
+        }
+
+        public override void SetYamlPath(string path) {
+            base.SetYamlPath(path);
+
+            foreach (PartComponent c in Components) {
+                c.YamlPath = path;
+            }
         }
     }
 }

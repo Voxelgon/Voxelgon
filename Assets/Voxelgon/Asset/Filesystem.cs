@@ -176,6 +176,7 @@ namespace Voxelgon.Asset{
         //Sets up database for assets//
         static public void Setup() {
             resourcePath = Parent(Application.dataPath) + "/Resources";
+            Database.Populate();
 
         }
 
@@ -218,7 +219,12 @@ namespace Voxelgon.Asset{
 
             while(reader.Accept<DocumentStart>()) {
                 var asset = deserializer.Deserialize<Asset>(reader);
-                asset.Path = path;
+                asset.SetYamlPath(path);
+                if (asset.GetType() == typeof(Part)) {
+                    var part = (Part) asset;
+
+                    part.Instantiate();
+                }
 
                 imported.Add(asset);
             }

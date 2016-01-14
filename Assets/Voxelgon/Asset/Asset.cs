@@ -13,7 +13,7 @@ namespace Voxelgon.Asset {
 
         //PROPERTIES
 
-        public string Path {get; set;}
+        public string YamlPath {get; private set;}
         public string Namespace {get; set;}
         public string ID {get; set;}
 
@@ -26,10 +26,14 @@ namespace Voxelgon.Asset {
 
         //METHODS
 
+        public virtual void SetYamlPath(string path) {
+            YamlPath = path;
+        }
+
         public virtual string ToString() {
             var builder = new StringBuilder();
 
-            builder.AppendLine("Path: " + Path);
+            builder.AppendLine("Path: " + YamlPath);
             builder.AppendLine("Namespace: " + Namespace);
             builder.AppendLine("Global ID: " + GlobalID);
 

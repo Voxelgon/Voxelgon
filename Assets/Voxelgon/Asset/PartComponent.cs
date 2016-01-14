@@ -14,20 +14,20 @@ namespace Voxelgon.Asset {
 
         //PROPERTIES
 
+        public string YamlPath {get; set;}
         public string ID {get; set;}
         public YamlTransform Transform {get; set;}
 
 
         //METHODS
 
-        public virtual GameObject Create(GameObject parent) {
+        public virtual GameObject Instantiate(GameObject parent) {
             var gameObject = new GameObject(ID);
 
-            var objectTransform = gameObject.AddComponent<Transform>();
-            objectTransform.parent           = parent.transform; 
-            objectTransform.localPosition    = Transform.Position;
-            objectTransform.localEulerAngles = Transform.Rotation;
-            objectTransform.localScale       = Transform.Scale;
+            gameObject.transform.parent           = parent.transform; 
+            gameObject.transform.localPosition    = Transform.Position;
+            gameObject.transform.localEulerAngles = Transform.Rotation;
+            gameObject.transform.localScale       = Transform.Scale;
 
             return gameObject;
         }

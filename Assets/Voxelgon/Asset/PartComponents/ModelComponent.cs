@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Text;
+using System.IO;
 
 namespace Voxelgon.Asset {
     public class ModelComponent : PartComponent {
@@ -7,23 +8,34 @@ namespace Voxelgon.Asset {
         // CONSTRUCTOR
 
         public ModelComponent() {
-            Shader = "standard";
+            Material = "standard";
         }
 
 
         // PROPERTIES
 
         public string ModelPath {get; set;}
-        public string Shader {get; set;}
+        public string Material {get; set;}
+
+        public string ModelPathFull {
+            get {
+                return Path.Combine(Path.GetDirectoryName(YamlPath), ModelPath);
+            }
+        }
 
 
         // METHODS
 
-        public GameObject Create(GameObject parent) {
-            var gameObject = base.Create(parent);
+        public override GameObject Instantiate(GameObject parent) {
+            var gameObject = base.Instantiate(parent);
+            var mesh = Database.GetMesh(ModelPathFull);
+            var material = Database.GetMaterial(Material);
 
             var filter = gameObject.AddComponent<MeshFilter>();
             var renderer = gameObject.AddComponent<MeshRenderer>();
+
+            filter.mesh = mesh;
+            renderer.material = material;
 
             return gameObject;
         }
@@ -34,8 +46,8 @@ namespace Voxelgon.Asset {
             builder.AppendLine("# Model #");
             builder.Append(base.ToString());
 
-            builder.AppendLine("Model Path: " + ModelPath);
-            builder.AppendLine("Shader: " + Shader);
+            builder.AppendLine("Model Path: " + ModelPathFull);
+            builder.AppendLine("Material: " + Material);
 
             return builder.ToString();
         }
