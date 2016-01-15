@@ -22,8 +22,8 @@ namespace Voxelgon.Asset{
 
         private static readonly Dictionary<string, Filetype> _extensions = new Dictionary<string, Filetype> {
             {".obj", Filetype.Mesh},
-            {".yml", Filetype.YAML},
-            {".yaml", Filetype.YAML}
+            {".yml", Filetype.Yaml},
+            {".yaml", Filetype.Yaml}
         };
 
         private static readonly Dictionary<string, System.Type> _yamlTypes = new Dictionary<string, System.Type> {
@@ -39,7 +39,7 @@ namespace Voxelgon.Asset{
 
         public enum Filetype {
             Other,
-            YAML,
+            Yaml,
             Mesh,
             Code
 
@@ -162,10 +162,10 @@ namespace Voxelgon.Asset{
 
             Log("Importing Assets...");
 
-            var YAMLPaths = FilesUnderDirectory(resourcePath, Filetype.YAML);
+            var yamlPaths = FilesUnderDirectory(resourcePath, Filetype.Yaml);
             var imported = new List<Asset>();
 
-            foreach(string s in YAMLPaths) {
+            foreach(string s in yamlPaths) {
                 imported.AddRange(ImportYaml(s));
             }
 
