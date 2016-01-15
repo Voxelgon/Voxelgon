@@ -158,7 +158,7 @@ namespace Voxelgon.Asset{
             var imported = new List<Asset>();
 
             foreach(string s in YAMLPaths) {
-                imported.AddRange(ImportYAML(s));
+                imported.AddRange(ImportYaml(s));
             }
 
             foreach(Asset a in imported) {
@@ -170,7 +170,7 @@ namespace Voxelgon.Asset{
         // PRIVATE FUNCTIONS
 
         // reads a .yaml file and returns the objects
-        private static List<Asset> ImportYAML(string path) {
+        private static List<Asset> ImportYaml(string path) {
             var imported = new List<Asset>();
 
             var input = new StreamReader(path);
@@ -198,9 +198,6 @@ namespace Voxelgon.Asset{
             }
 
             return imported;
-
         }
-
-
     }
 }
