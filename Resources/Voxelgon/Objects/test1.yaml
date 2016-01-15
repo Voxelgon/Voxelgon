@@ -9,3 +9,8 @@ Components:
   ModelPath: "models/test.obj"
   Transform: 
     Position: {X: 1.5, Y: -3.2, Z: 0.0}
+
+- !!sphere_collider
+  ID: 'Sphere_Collider'
+  Radius: 0.3
+  Potato: 43

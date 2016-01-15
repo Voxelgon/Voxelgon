@@ -30,7 +30,7 @@ namespace Voxelgon.Asset {
             YamlPath = path;
         }
 
-        public virtual string ToString() {
+        public override string ToString() {
             var builder = new StringBuilder();
 
             builder.AppendLine("Path: " + YamlPath);
