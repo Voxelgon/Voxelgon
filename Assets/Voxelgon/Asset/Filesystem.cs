@@ -32,6 +32,8 @@ namespace Voxelgon.Asset{
             {"sphere_collider", typeof(SphereColliderComponent)}
         };
 
+        private static Deserializer _yamlDeserializer = new Deserializer(ignoreUnmatched: true);
+
 
         // ENUMERATORS
 
@@ -143,6 +145,12 @@ namespace Voxelgon.Asset{
 
         // Sets up database for assets
         public static void Setup() {
+            //Populate tag mappings for deserializer
+            var baseURI = "tag:yaml.org,2002:";
+            foreach (KeyValuePair<string, System.Type> entry in _yamlTypes) {
+                _yamlDeserializer.RegisterTagMapping(baseURI + entry.Key, entry.Value);
+            }
+
             resourcePath = Path.GetDirectoryName(Application.dataPath) + "/Resources";
             AssetDatabase.Populate();
 
@@ -175,18 +183,11 @@ namespace Voxelgon.Asset{
 
             var input = new StreamReader(path);
             var reader = new EventReader(new Parser(input));
-            var deserializer = new Deserializer(ignoreUnmatched: true);
-            //So I dont typo it again...
-            var baseURI = "tag:yaml.org,2002:";
-
-            foreach (KeyValuePair<string, System.Type> entry in _yamlTypes) {
-                deserializer.RegisterTagMapping(baseURI + entry.Key, entry.Value);
-            }
 
             reader.Expect<StreamStart>();
 
             while(reader.Accept<DocumentStart>()) {
-                var asset = deserializer.Deserialize<Asset>(reader);
+                var asset = _yamlDeserializer.Deserialize<Asset>(reader);
                 asset.SetYamlPath(path);
                 if (asset.GetType() == typeof(Part)) {
                     var part = (Part) asset;
