@@ -200,5 +200,119 @@ namespace Voxelgon.Asset{
 
             return imported;
         }
+
+        //reads a .obj file and returns a Mesh object
+        static private Mesh ImportObj(string path) {
+            var mesh = new Mesh();
+
+            var triangles = new List<int>();
+            var vertices = new List<Vector3>();
+            var uv = new List<Vector2>();
+            var normals = new List<Vector3>();
+            var facedata = new List<int[]>();
+
+            using (var reader = new StreamReader(path)){
+                string line;
+                string[] brokenString;
+
+                line = reader.ReadLine();
+
+                while (line != null){
+                    line = line.Replace("  "," ");
+                    line = line.Trim();
+
+                    brokenString = line.Split(' ');
+
+                    switch (brokenString[0]) {
+                        case "v":
+                            var vertexVector = new Vector3();
+                            vertexVector.x = System.Convert.ToSingle(brokenString[1]);
+                            vertexVector.y = System.Convert.ToSingle(brokenString[2]);
+                            vertexVector.z = System.Convert.ToSingle(brokenString[3]);
+
+                            vertices.Add(vertexVector);
+                            break;
+
+                        case "vt":
+                        case "vt1":
+                        case "vt2":
+                            var uvVector = new Vector2();
+                            uvVector.x = System.Convert.ToSingle(brokenString[1]);
+                            uvVector.y = System.Convert.ToSingle(brokenString[2]);
+
+                            uv.Add(uvVector);
+                            break;
+
+                        case "vn":
+                            var normalVector = new Vector3();
+                            normalVector.x = System.Convert.ToSingle(brokenString[1]);
+                            normalVector.y = System.Convert.ToSingle(brokenString[2]);
+                            normalVector.z = System.Convert.ToSingle(brokenString[3]);
+
+                            normals.Add(normalVector);
+                            break;
+
+                        case "f":
+                            var face = new List<int>();
+
+                            for (int j = 1; j < brokenString.Length && ("" + brokenString[j]).Length > 0; j++) {
+                                var faceDataObject = new int[3];
+                                string[] facePolyString;
+                                facePolyString = brokenString[j].Split('/');
+
+                                faceDataObject[0] = System.Convert.ToInt32(facePolyString[0]);
+
+                                if (facePolyString.Length > 1){
+                                    if (facePolyString[1] != "") {
+                                        faceDataObject[1] = System.Convert.ToInt32(facePolyString[1]);
+                                    }
+                                    if (facePolyString.Length > 2){
+                                        faceDataObject[2] = System.Convert.ToInt32(facePolyString[2]);
+                                    }
+                                }
+                                facedata.Add(faceDataObject);
+                                face.Add(faceDataObject[0]);
+                            }
+
+                            for(int k = 2; k < face.Count; k++) {
+                                triangles.Add(face[0]-1);
+                                triangles.Add(face[k - 1]-1);
+                                triangles.Add(face[k]-1);
+                            }
+
+                            break;
+                    }
+                    line = reader.ReadLine();
+
+                }
+            }
+
+            var uvArray = new Vector2[vertices.Count];
+            var normalArray = new Vector3[vertices.Count];
+
+            int i = 0;
+            foreach (int[] f in facedata) {
+                if( f[1] >= 1 ) {
+                    uvArray[f[0] - 1] = uv[f[1] - 1];
+                }
+                if( f[2] >= 1 ) {
+                    normalArray[f[0] - 1] = normals[f[2] - 1];
+                }
+                Debug.Log(f[0]-1);
+                Debug.Log(f[1]-1);
+                i++;
+            }
+
+            mesh.SetVertices(vertices);
+            mesh.uv = uvArray;
+            mesh.normals = normalArray;
+            mesh.triangles = triangles.ToArray();
+
+            mesh.RecalculateBounds();
+            mesh.RecalculateNormals();
+            mesh.Optimize();
+
+            return mesh;
+        }
     }
 }
