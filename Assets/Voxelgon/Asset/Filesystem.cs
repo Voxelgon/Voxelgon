@@ -32,7 +32,7 @@ namespace Voxelgon.Asset{
             {"sphere_collider", typeof(SphereColliderComponent)}
         };
 
-        private static Deserializer _yamlDeserializer = new Deserializer(ignoreUnmatched: true);
+        private static readonly Deserializer _yamlDeserializer = new Deserializer(ignoreUnmatched: true);
 
 
         // ENUMERATORS
