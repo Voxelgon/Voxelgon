@@ -14,16 +14,22 @@ namespace Voxelgon.Asset{
 
         static string resourcePath;
 
-        private static string[] ignoredFiles= {
+        private static readonly string[] _ignoredFiles= {
             ".[Dd][Ss]_[Ss]tore$",
             ".[Mm]eta$",
             ".[Ss]wp$"
         };
 
-        public static Dictionary<string, Filetype> _extensions = new Dictionary<string, Filetype> {
+        private static readonly Dictionary<string, Filetype> _extensions = new Dictionary<string, Filetype> {
             {".obj", Filetype.Mesh},
             {".yml", Filetype.YAML},
             {".yaml", Filetype.YAML}
+        };
+
+        private static readonly Dictionary<string, System.Type> _yamlTypes = new Dictionary<string, System.Type> {
+            {"part", typeof(Part)},
+            {"model", typeof(ModelComponent)},
+            {"sphere_collider", typeof(SphereColliderComponent)}
         };
 
 
@@ -47,9 +53,9 @@ namespace Voxelgon.Asset{
 
 
         // Returns TRUE if the given path is ignored
-        static public bool Ignored(string path){
+        public static bool Ignored(string path){
 
-            foreach (string r in ignoredFiles) {
+            foreach (string r in _ignoredFiles) {
                 if (Regex.Match(path, r).Success) {
                     return true;
                 }
@@ -60,7 +66,7 @@ namespace Voxelgon.Asset{
 
 
         // Returns a list of files under the given path directory
-        static public List<string> GetFiles(string path, string extension = null) {
+        public static List<string> GetFiles(string path, string extension = null) {
 
             var filesRaw = new List<string>(Directory.GetFiles(path));
             var files = new List<string>();
@@ -81,7 +87,7 @@ namespace Voxelgon.Asset{
         }
 
         // Returns a list of files under the given path directory
-        static public List<string> GetFiles(string path, Filetype filetype) {
+        public static List<string> GetFiles(string path, Filetype filetype) {
 
             var filesRaw = new List<string>(Directory.GetFiles(path));
             var files = new List<string>();
@@ -100,14 +106,14 @@ namespace Voxelgon.Asset{
 
 
         // Returns a list of directories under the given directory
-        static public List<string> GetDirectories(string path) {
+        public static List<string> GetDirectories(string path) {
 
             return new List<string>(Directory.GetDirectories(path));
         }
 
 
         // Returns a list of all files under the given directory in the file tree
-        static public List<string> FilesUnderDirectory(string path, string extension = null) {
+        public static List<string> FilesUnderDirectory(string path, string extension = null) {
 
             List<string> directories = GetDirectories(path);
 
@@ -121,7 +127,7 @@ namespace Voxelgon.Asset{
         }
 
         // Returns a list of all files under the given directory in the file tree
-        static public List<string> FilesUnderDirectory(string path, Filetype filetype) {
+        public static List<string> FilesUnderDirectory(string path, Filetype filetype) {
 
             List<string> directories = GetDirectories(path);
 
@@ -136,7 +142,7 @@ namespace Voxelgon.Asset{
 
 
         // Sets up database for assets
-        static public void Setup() {
+        public static void Setup() {
             resourcePath = Path.GetDirectoryName(Application.dataPath) + "/Resources";
             AssetDatabase.Populate();
 
@@ -144,7 +150,7 @@ namespace Voxelgon.Asset{
 
 
         // Imports assets
-        static public void Import() {
+        public static void Import() {
 
             Log("Importing Assets...");
 
@@ -164,7 +170,7 @@ namespace Voxelgon.Asset{
         // PRIVATE FUNCTIONS
 
         // reads a .yaml file and returns the objects
-        static private List<Asset> ImportYAML(string path) {
+        private static List<Asset> ImportYAML(string path) {
             var imported = new List<Asset>();
 
             var input = new StreamReader(path);
@@ -173,9 +179,9 @@ namespace Voxelgon.Asset{
             //So I dont typo it again...
             var baseURI = "tag:yaml.org,2002:";
 
-            deserializer.RegisterTagMapping(baseURI + "part", typeof(Part));
-            deserializer.RegisterTagMapping(baseURI + "model", typeof(ModelComponent));
-            deserializer.RegisterTagMapping(baseURI + "sphere_collider", typeof(SphereColliderComponent));
+            foreach (KeyValuePair<string, System.Type> entry in _yamlTypes) {
+                deserializer.RegisterTagMapping(baseURI + entry.Key, entry.Value);
+            }
 
             reader.Expect<StreamStart>();
 
