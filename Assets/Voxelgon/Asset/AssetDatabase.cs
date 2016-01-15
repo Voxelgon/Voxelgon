@@ -46,8 +46,19 @@ namespace Voxelgon.Asset {
             _partMap.Add(key, value);
         }
 
+        public static void AddPart(Part part) {
+            _partMap.Add(part.GlobalID, part);
+        }
+
         public static Part GetPart(string key) {
             return _partMap[key];
+        }
+
+
+        public static void AddAsset(Asset asset) {
+            if (asset.GetType() == typeof(Part)) {
+                AddPart((Part) asset);
+            }
         }
 
         public static void Populate() {

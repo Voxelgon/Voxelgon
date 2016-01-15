@@ -171,6 +171,7 @@ namespace Voxelgon.Asset{
 
             foreach(Asset a in imported) {
                 Log("\n" + a);
+                AssetDatabase.AddAsset(a);
             }
         }
 
@@ -189,13 +190,6 @@ namespace Voxelgon.Asset{
             while(reader.Accept<DocumentStart>()) {
                 var asset = _yamlDeserializer.Deserialize<Asset>(reader);
                 asset.SetYamlPath(path);
-                if (asset.GetType() == typeof(Part)) {
-                    var part = (Part) asset;
-
-                    part.Instantiate();
-                }
-
-                imported.Add(asset);
             }
 
             return imported;
