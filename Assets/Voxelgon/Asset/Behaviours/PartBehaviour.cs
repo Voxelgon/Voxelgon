@@ -1,7 +1,7 @@
 using UnityEngine;
 
 namespace Voxelgon.Asset {
-    public class PartObject : MonoBehaviour {
+    public class PartBehaviour : MonoBehaviour {
 
         // PROPERTIES
 

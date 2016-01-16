@@ -25,7 +25,7 @@ namespace Voxelgon.Asset {
 
         public GameObject Instantiate() {
             var gameObject = new GameObject(GlobalID);
-            var part = gameObject.AddComponent<PartObject>();
+            var part = gameObject.AddComponent<PartBehaviour>();
             part.Part = this;
 
             foreach (PartComponent c in Components) {
