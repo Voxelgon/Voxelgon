@@ -19,7 +19,7 @@ namespace Voxelgon.Asset {
 
         public string GlobalID {
             get {
-                return Namespace + "_" + ID;
+                return Namespace + ":" + ID;
             }
         }
 
