@@ -200,6 +200,7 @@ namespace Voxelgon.Asset{
             while(reader.Accept<DocumentStart>()) {
                 var asset = _yamlDeserializer.Deserialize<Asset>(reader);
                 asset.SetYamlPath(path);
+                imported.Add(asset);
             }
 
             return imported;
