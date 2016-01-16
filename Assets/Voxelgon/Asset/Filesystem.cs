@@ -176,6 +176,16 @@ namespace Voxelgon.Asset{
         }
 
 
+        // Exports an object to a string
+        public static string ExportYaml(object o) {
+            var serializer = new Serializer(SerializationOptions.Roundtrip);
+            var writer = new StringWriter();
+
+            serializer.Serialize(writer, o);
+
+            return writer.ToString();
+        }
+
         // PRIVATE FUNCTIONS
 
         // reads a .yaml file and returns the objects
