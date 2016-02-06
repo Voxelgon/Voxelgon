@@ -1011,17 +1011,17 @@ MonoBehaviour:
     m_TypeName: UnityEngine.UI.MaskableGraphic+CullStateChangedEvent, UnityEngine.UI,
       Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
   m_FontData:
-    m_Font: {fileID: 12800000, guid: c3fda2a90c01043baa67255836b2362b, type: 3}
-    m_FontSize: 15
-    m_FontStyle: 0
+    m_Font: {fileID: 12800000, guid: 7fb7df7c8118b438daea58e6bb215caa, type: 3}
+    m_FontSize: 20
+    m_FontStyle: 1
     m_BestFit: 0
-    m_MinSize: 10
+    m_MinSize: 2
     m_MaxSize: 40
     m_Alignment: 3
     m_AlignByGeometry: 0
     m_RichText: 1
     m_HorizontalOverflow: 0
-    m_VerticalOverflow: 0
+    m_VerticalOverflow: 1
     m_LineSpacing: 1
   m_Text: Voxelgon Alpha 1.0.0
 --- !u!222 &1171828088
@@ -1473,8 +1473,8 @@ RectTransform:
   m_RootOrder: 0
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 59.650024, y: -32.924988}
-  m_SizeDelta: {x: 82, y: 17.6}
+  m_AnchoredPosition: {x: 68.6, y: -32.924988}
+  m_SizeDelta: {x: 100, y: 20}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1901889720
 MonoBehaviour:
@@ -1512,7 +1512,7 @@ MonoBehaviour:
     m_TypeName: UnityEngine.UI.MaskableGraphic+CullStateChangedEvent, UnityEngine.UI,
       Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
   m_FontData:
-    m_Font: {fileID: 12800000, guid: 2863224f8f24646138188b42595b6e19, type: 3}
+    m_Font: {fileID: 12800000, guid: 7fb7df7c8118b438daea58e6bb215caa, type: 3}
     m_FontSize: 20
     m_FontStyle: 0
     m_BestFit: 0
