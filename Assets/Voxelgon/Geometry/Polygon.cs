@@ -9,9 +9,9 @@ namespace Voxelgon.Geometry {
         // FIELDS
 
         private readonly List<Vector3> _vertices = new List<Vector3>();
+        private readonly List<Vector3> _normals = new List<Vector3>();
 
         //CONSTRUCTORS
-
         public Polygon(List<Vector3> vertices) {
             _vertices = new List<Vector3>(vertices);
         }
@@ -19,15 +19,9 @@ namespace Voxelgon.Geometry {
         // PROPERTIES
 
         //IPolygon
-        //access each vertex individually by its index
-        public Vector3 this[int index] { 
-            get { return _vertices[index]; }
-        }
-
-        //IPolygon
         //the normal of the clockwise polygon
         //if the polygon is invalid, return Vector3.zero
-        public Vector3 Normal { 
+        public Vector3 SurfaceNormal { 
             get {
                 if (!IsValid) {
                     return Vector3.zero;
@@ -70,7 +64,7 @@ namespace Voxelgon.Geometry {
                             _vertices[i],
                             _vertices[j],
                             _vertices[k],
-                            Normal) != 1) {
+                            SurfaceNormal) != 1) {
                         return false;
                     }
                 }
@@ -124,7 +118,7 @@ namespace Voxelgon.Geometry {
                 return 0;
             }
 
-            return (Vector3.Dot(normal, Normal) >= 0) ? 1 : -1;
+            return (Vector3.Dot(normal, SurfaceNormal) >= 0) ? 1 : -1;
         }
 
         //IPolygon
@@ -161,7 +155,7 @@ namespace Voxelgon.Geometry {
             var triangles = new List<Triangle>();
 
             if (IsValid) {
-                PolygonSegment(triangles, 0, 1, Normal);
+                PolygonSegment(triangles, 0, 1, SurfaceNormal);
             }
 
             return triangles;
@@ -212,6 +206,46 @@ namespace Voxelgon.Geometry {
                 verts = new List<Vector3>(_vertices);
             }
             return new Polygon(verts);
+        }
+
+        //IPolygon
+        //returns the vertex at index `index`
+        public Vector3 GetVertex(int index) {
+            return _vertices[index];
+        }
+
+        //IPolygon
+        //returns the vertex normal at index `index`
+        //same as mesh normal, usually close to parallel with plane normal
+        public Vector3 GetNormal(int index) {
+            return _normals[index];
+        }
+
+        //IPolygon
+        //returns the vector pointing "out" of the vertex at index `index`
+        //normalized average of two adjacent edge normals
+        public Vector3 GetVertexNormal(int index) {
+            Vector3 edge1 = GetEdgeNormal(index);
+            Vector3 edge2 = GetEdgeNormal((index - 1 + VertexCount) % VertexCount);
+
+            return (edge1 + edge2) / 2;
+        }
+
+        //IPolygon
+        //returns the edge vector at index `index`
+        //normalized vector from a vertex to the following vertex
+        public Vector3 GetEdge(int index) {
+            Vector3 vertex1 = _vertices[index];
+            Vector3 vertex2 = _vertices[(index + 1) % VertexCount];
+
+            return (vertex2 - vertex1).normalized;
+        }
+
+        //IPolygon
+        //returns the edge normal at index `index`
+        //cross product of plane normal and edge
+        Vector3 GetEdgeNormal(int index) {
+            return Vector3.Cross(SurfaceNormal, GetEdge(index));
         }
 
         //draw the polygon in the world for 1 frame

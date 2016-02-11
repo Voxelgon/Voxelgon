@@ -8,12 +8,9 @@ namespace Voxelgon.Geometry {
 
         // PROPERTIES
 
-        //access each vertex individually by its index
-        Vector3 this[int index] { get; }
-
         //the normal of the clockwise polygon
         // if the polygon is invalid, return Vector3.zero
-        Vector3 Normal { get; }
+        Vector3 SurfaceNormal { get; }
 
         //is the polygon convex?
         bool IsConvex { get; }
@@ -50,5 +47,26 @@ namespace Voxelgon.Geometry {
 
         //returns a polygon truncated starting at Vector3 `point` by vector3 `offset`
         Polygon Truncate(Vector3 point, Vector3 offset);
+
+        //returns the vertex at index `index`
+        Vector3 GetVertex(int index);
+
+        //returns the vertex normal at index `index`
+        //same as mesh normal, usually close to parallel with plane normal
+        Vector3 GetNormal(int index);
+
+        //returns the vector pointing "out" of the vertex at index `index`
+        //normalized average of two adjacent edge normals
+        Vector3 GetVertexNormal(int index);
+
+        //returns the edge vector at index `index`
+        //normalized vector from a vertex to the following vertex
+        Vector3 GetEdge(int index);
+
+        //returns the edge normal at index `index`
+        //cross product of plane normal and edge
+        Vector3 GetEdgeNormal(int index);
+
+
     }
 }
