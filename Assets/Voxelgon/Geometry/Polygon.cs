@@ -16,6 +16,39 @@ namespace Voxelgon.Geometry {
             _vertices = new List<Vector3>(vertices);
         }
 
+        public Polygon(Vector3 center, Vector3 normal, float radius, int sideCount) {
+            if (normal.Equals(Vector3.zero)) {
+                normal = Vector3.forward;
+            }
+
+            var vertices = new List<Vector3>();
+            var rotation = Quaternion.AngleAxis(360.0f / sideCount, normal);
+            var tangent = Vector3.Cross(Vector3.up, normal);
+
+            if (tangent.Equals(Vector3.zero)) {
+                tangent = Vector3.Cross(Vector3.forward, normal);
+            }
+
+            for (int i = 0; i < sideCount; i++) {
+                vertices.Add(center + (tangent * radius));
+                tangent = rotation * tangent;
+            }
+
+            _vertices = vertices;
+        }
+
+        public Polygon(Vector3 center, Vector3 normal, Vector3 tangent, float radius, int sideCount) {
+            var vertices = new List<Vector3>();
+            var rotation = Quaternion.AngleAxis(360.0f / sideCount, normal);
+
+            for (int i = 0; i < sideCount; i++) {
+                vertices.Add(center + (tangent * radius));
+                tangent = rotation * tangent;
+            }
+
+            _vertices = vertices;
+        }
+
         // PROPERTIES
 
         //IPolygon
