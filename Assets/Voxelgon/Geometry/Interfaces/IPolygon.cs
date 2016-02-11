@@ -68,7 +68,7 @@ namespace Voxelgon.Geometry {
         Vector3 GetEdgeNormal(int index);
 
         //returns a clone of this IPolygon
-        Vector3 Clone();
+        Polygon Clone();
 
 
     }
