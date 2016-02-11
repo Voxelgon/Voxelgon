@@ -244,7 +244,7 @@ namespace Voxelgon.Geometry {
         //IPolygon
         //returns the edge normal at index `index`
         //cross product of plane normal and edge
-        Vector3 GetEdgeNormal(int index) {
+        public Vector3 GetEdgeNormal(int index) {
             return Vector3.Cross(SurfaceNormal, GetEdge(index));
         }
 
