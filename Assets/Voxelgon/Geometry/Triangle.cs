@@ -125,16 +125,19 @@ namespace Voxelgon.Geometry {
 
         //IPolygon
         //reverses the polygon's winding order
-        public void Reverse() {
-            Array.Reverse(_vertices);
+        public Polygon Reverse() {
+            var rev = (Vector3[]) _vertices.Clone();
+            Array.Reverse(rev);
+            return new Polygon(rev);
         }
 
         //IPolygon
         //if the polygon is counter-clockwise, reverse it so it is clockwise
-        public void EnsureClockwise(Vector3 normal) {
+        public Polygon EnsureClockwise(Vector3 normal) {
             if (WindingOrder(normal) == -1) {
-                Reverse();
+                return Reverse();
             }
+            return Clone();
         }
 
         //IPolygon
@@ -188,6 +191,12 @@ namespace Voxelgon.Geometry {
         //cross product of plane normal and edge
         public Vector3 GetEdgeNormal(int index) {
             return Vector3.Cross(SurfaceNormal, GetEdge(index));
+        }
+
+        //IPolygon
+        //returns a clone of this IPolygon
+        public Polygon Clone() {
+            return new Polygon(_vertices);
         }
     }
 }

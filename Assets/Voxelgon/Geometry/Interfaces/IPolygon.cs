@@ -37,10 +37,10 @@ namespace Voxelgon.Geometry {
         bool Contains(Vector3 point);
 
         //reverses the polygon's winding order
-        void Reverse();
+        Polygon Reverse();
 
         //if the polygon is counter-clockwise, reverse it so it is clockwise
-        void EnsureClockwise(Vector3 normal);
+        Polygon EnsureClockwise(Vector3 normal);
 
         //returns an array of triangles that make up the polygon
         List<Triangle> ToTriangles();
@@ -66,6 +66,9 @@ namespace Voxelgon.Geometry {
         //returns the edge normal at index `index`
         //cross product of plane normal and edge
         Vector3 GetEdgeNormal(int index);
+
+        //returns a clone of this IPolygon
+        Vector3 Clone();
 
 
     }
