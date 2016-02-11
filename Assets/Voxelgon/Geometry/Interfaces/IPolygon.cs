@@ -6,7 +6,7 @@ namespace Voxelgon.Geometry {
 
     public interface IPolygon {
 
-        //PROPERTIES
+        // PROPERTIES
 
         //access each vertex individually by its index
         Vector3 this[int index] { get; }
@@ -28,7 +28,7 @@ namespace Voxelgon.Geometry {
         //the number of vertices in the polygon
         int VertexCount { get; }
 
-        //METHODS
+        // METHODS
 
         //returns the winding order relative to the normal
         // 1 = clockwise

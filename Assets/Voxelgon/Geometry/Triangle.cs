@@ -7,11 +7,11 @@ namespace Voxelgon.Geometry {
 
     public class Triangle : IPolygon {
 
-        //FIELDS
+        // FIELDS
 
         private readonly Vector3[] _vertices = new Vector3[3];
 
-        //CONSTRUCTORS
+        // CONSTRUCTORS
 
         //create a simple default triangle
         public Triangle() {
@@ -27,7 +27,7 @@ namespace Voxelgon.Geometry {
             _vertices[2] = vertex3;
         }
 
-        //PROPERTIES
+        // PROPERTIES
 
         //IPolygon
         //access each vertex individually by its index
@@ -37,7 +37,7 @@ namespace Voxelgon.Geometry {
 
         //IPolygon
         //the normal of the clockwise polygon
-        // if the polygon is invalid, return Vector3.zero
+        //if the polygon is invalid, return Vector3.zero
         public Vector3 Normal {
             get {
                 if (!IsValid) {
@@ -88,14 +88,14 @@ namespace Voxelgon.Geometry {
             get { return 3; }
         }
 
-        //OPERATORS
+        // OPERATORS
 
         //Convert to a 3-sided polygon
         public static explicit operator Polygon(Triangle t) {
             return new Polygon(new List<Vector3>(t._vertices));
         }
 
-        //METHODS
+        // METHODS
 
         //IPolygon
         //returns the winding order relative to the normal

@@ -5,6 +5,8 @@ namespace Voxelgon.Geometry {
 
     public static class Geometry {
 
+        // PUBLIC STATIC METHODS
+
         public static int TriangleWindingOrder(Vector3 point1, Vector3 point2, Vector3 point3, Vector3 normal) {
             Vector3 vectorA = (point2 - point1);
             Vector3 vectorB = (point3 - point1);

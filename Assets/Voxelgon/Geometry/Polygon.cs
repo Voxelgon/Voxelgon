@@ -6,7 +6,7 @@ namespace Voxelgon.Geometry {
 
     public class Polygon : IPolygon {
 
-        //FIELDS
+        // FIELDS
 
         private readonly List<Vector3> _vertices = new List<Vector3>();
 
@@ -16,7 +16,7 @@ namespace Voxelgon.Geometry {
             _vertices = new List<Vector3>(vertices);
         }
 
-        //PROPERTIES
+        // PROPERTIES
 
         //IPolygon
         //access each vertex individually by its index
@@ -26,7 +26,7 @@ namespace Voxelgon.Geometry {
 
         //IPolygon
         //the normal of the clockwise polygon
-        // if the polygon is invalid, return Vector3.zero
+        //if the polygon is invalid, return Vector3.zero
         public Vector3 Normal { 
             get {
                 if (!IsValid) {
@@ -112,7 +112,7 @@ namespace Voxelgon.Geometry {
             get { return _vertices.Count; }
         }
 
-        //METHODS
+        // METHODS
 
         //IPolygon
         //returns the winding order relative to the normal
@@ -214,6 +214,7 @@ namespace Voxelgon.Geometry {
             return new Polygon(verts);
         }
 
+        //draw the polygon in the world for 1 frame
         public void Draw() {
             for (int i = 0; i < _vertices.Count; i++) {
                 int next = (i + 1) % _vertices.Count;
@@ -221,7 +222,7 @@ namespace Voxelgon.Geometry {
             }
         }
 
-        //PRIVATE METHODS
+        // PRIVATE METHODS
 
         //adds triangles to List `triangles`, calls itself recursively to handle concave polygonsa
         private int PolygonSegment(List<Triangle> triangles, int index1, int index2, Vector3 normal) {
