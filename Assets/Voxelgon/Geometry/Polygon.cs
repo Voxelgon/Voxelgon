@@ -11,7 +11,8 @@ namespace Voxelgon.Geometry {
         private readonly List<Vector3> _vertices = new List<Vector3>();
         private readonly List<Vector3> _normals = new List<Vector3>();
 
-        //CONSTRUCTORS
+        // CONSTRUCTORS
+
         public Polygon(List<Vector3> vertices) {
             _vertices = new List<Vector3>(vertices);
         }
