@@ -70,6 +70,9 @@ namespace Voxelgon.Geometry {
         //returns a clone of this IPolygon
         Polygon Clone();
 
+        //are the polygons equal?
+        bool Equals(IPolygon p);
+
 
     }
 }

@@ -150,6 +150,14 @@ namespace Voxelgon.Geometry {
             get { return _vertices.Length; }
         }
 
+
+        // OPERATORS
+
+        public static bool operator ==(IPolygon p1, IPolygon p2) {
+            return p1.Equals(p2);
+        }
+
+
         // METHODS
 
         //IPolygon
@@ -313,9 +321,21 @@ namespace Voxelgon.Geometry {
             }
         }
 
+        //IPolygon
+        //are the polygons equal?
+        public bool Equals(IPolygon p) {
+            if (VertexCount != p.VertexCount) { return false; }
+            for (int i = 0; i < VertexCount; i++) {
+                if (GetVertex(i) != p.GetVertex(i) || GetNormal(i) != p.GetNormal(i)) { return false; }
+            }
+
+            return true;
+        }
+
+
         // PRIVATE METHODS
 
-        //adds triangles to List `triangles`, calls itself recursively to handle concave polygonsa
+        //adds triangles to List `triangles`, calls itself recursively to handle concave polygons
         private int PolygonSegment(List<Triangle> triangles, int index1, int index2, Vector3 normal) {
             int index3 = index2 + 1;
 

@@ -198,5 +198,16 @@ namespace Voxelgon.Geometry {
         public Polygon Clone() {
             return new Polygon(_vertices);
         }
+
+        //IPolygon
+        //are the polygons equal?
+        public bool Equals(IPolygon p) {
+            if (p.VertexCount != 3) { return false; }
+            for (int i = 0; i < 3; i++) {
+                if (GetVertex(i) != p.GetVertex(i) || GetNormal(i) != p.GetNormal(i)) { return false; }
+            }
+
+            return true;
+        }
     }
 }
