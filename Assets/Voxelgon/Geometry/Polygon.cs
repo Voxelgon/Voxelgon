@@ -8,17 +8,27 @@ namespace Voxelgon.Geometry {
 
         // FIELDS
 
-        private readonly List<Vector3> _vertices = new List<Vector3>();
-        private readonly List<Vector3> _normals = new List<Vector3>();
+        private readonly Vector3[] _vertices;
+        private readonly Vector3[] _normals;
 
         // CONSTRUCTORS
 
         public Polygon(List<Vector3> vertices) {
-            _vertices = new List<Vector3>(vertices);
+            _vertices = vertices.ToArray();
         }
 
         public Polygon(Vector3[] vertices) {
-            _vertices = new List<Vector3>(vertices);
+            _vertices = (Vector3[]) vertices.Clone();
+        }
+
+        public Polygon(List<Vector3> vertices, List<Vector3> normals) {
+            _vertices = vertices.ToArray();
+            _normals = normals.ToArray();
+        }
+
+        public Polygon(Vector3[] vertices, Vector3[] normals) {
+            _vertices = (Vector3[]) vertices.Clone();
+            _normals = (Vector3[]) normals.Clone();
         }
 
         public Polygon(Vector3 center, Vector3 normal, float radius, int sideCount) {
@@ -26,7 +36,7 @@ namespace Voxelgon.Geometry {
                 normal = Vector3.forward;
             }
 
-            var vertices = new List<Vector3>();
+            var vertices = new Vector3[sideCount];
             var rotation = Quaternion.AngleAxis(360.0f / sideCount, normal);
             var tangent = Vector3.Cross(Vector3.up, normal);
 
@@ -35,7 +45,7 @@ namespace Voxelgon.Geometry {
             }
 
             for (int i = 0; i < sideCount; i++) {
-                vertices.Add(center + (tangent * radius));
+                vertices[i] = center + (tangent * radius);
                 tangent = rotation * tangent;
             }
 
@@ -43,11 +53,11 @@ namespace Voxelgon.Geometry {
         }
 
         public Polygon(Vector3 center, Vector3 normal, Vector3 tangent, float radius, int sideCount) {
-            var vertices = new List<Vector3>();
+            var vertices = new Vector3[sideCount];
             var rotation = Quaternion.AngleAxis(360.0f / sideCount, normal);
 
             for (int i = 0; i < sideCount; i++) {
-                vertices.Add(center + (tangent * radius));
+                vertices[i] = center + (tangent * radius);
                 tangent = rotation * tangent;
             }
 
@@ -141,7 +151,7 @@ namespace Voxelgon.Geometry {
         //IPolygon
         //the number of vertices in the polygon
         public int VertexCount {
-            get { return _vertices.Count; }
+            get { return _vertices.Length; }
         }
 
         // METHODS
@@ -207,11 +217,12 @@ namespace Voxelgon.Geometry {
         public Polygon Truncate(Vector3 point, Vector3 offset) {
             var plane = new Plane(offset.normalized, offset + point);
             var verts = new List<Vector3>();
+            var norms = new List<Vector3>();
             var trim = new List<int>();
             int start = 0;
 
 
-            for (int i = 0; i < _vertices.Count; i++) {
+            for (int i = 0; i < VertexCount; i++) {
                 if ((!plane.GetSide(_vertices[i]))) {
                     trim.Add(i);
                 }
@@ -220,11 +231,14 @@ namespace Voxelgon.Geometry {
             for (int i = 0; i < trim.Count; i++) {
                 int lastTrim = (i - 1 + trim.Count) % trim.Count;
                 int nextTrim = (i + 1) % trim.Count;
-                int lastVert = (trim[i] - 1 + _vertices.Count) % _vertices.Count;
-                int nextVert = (trim[i] + 1) % _vertices.Count;
+                int lastVert = (trim[i] - 1 + VertexCount) % VertexCount;
+                int nextVert = (trim[i] + 1) % VertexCount;
 
                 if (trim[lastTrim] != lastVert|| trim.Count == 1) {
-                    verts.AddRange(_vertices.GetRange(start, trim[i] - start));
+                    for (int j = start; j < trim[i]; j++) {
+                        verts.Add(_vertices[j]);
+                        norms.Add(_normals[j]);
+                    }
 
                     var normal = (_vertices[lastVert] - _vertices[trim[i]]).normalized;
                     var ray = new Ray(_vertices[trim[i]], normal);
@@ -292,13 +306,13 @@ namespace Voxelgon.Geometry {
         //IPolygon
         //returns a clone of this IPolygon
         public Polygon Clone() {
-            return new Polygon(_vertices);
+            return new Polygon(_vertices, _normals);
         }
 
         //draw the polygon in the world for 1 frame
         public void Draw() {
-            for (int i = 0; i < _vertices.Count; i++) {
-                int next = (i + 1) % _vertices.Count;
+            for (int i = 0; i < VertexCount; i++) {
+                int next = (i + 1) % VertexCount;
                 Debug.DrawLine(_vertices[i], _vertices[next]);
             }
         }
@@ -309,12 +323,12 @@ namespace Voxelgon.Geometry {
         private int PolygonSegment(List<Triangle> triangles, int index1, int index2, Vector3 normal) {
             int index3 = index2 + 1;
 
-            while (index3 < _vertices.Count && index3 >= 0) {
+            while (index3 < VertexCount && index3 >= 0) {
                 bool validTri = true;
 
                 if (Geometry.TriangleWindingOrder(_vertices[index1], _vertices[index2], _vertices[index3], normal) == 1) {
 
-                    for (int i = index3 + 1; i < _vertices.Count; i++) {
+                    for (int i = index3 + 1; i < VertexCount; i++) {
                         validTri &= !Geometry.TriangleContains(_vertices[index1], _vertices[index2], _vertices[index3], _vertices[i], normal);
                     }
                 }
