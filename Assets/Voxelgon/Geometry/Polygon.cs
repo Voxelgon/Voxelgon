@@ -36,7 +36,7 @@ namespace Voxelgon.Geometry {
                 normal = Vector3.forward;
             }
 
-            var vertices = new Vector3[sideCount];
+            _vertices = new Vector3[sideCount];
             var rotation = Quaternion.AngleAxis(360.0f / sideCount, normal);
             var tangent = Vector3.Cross(Vector3.up, normal);
 
@@ -45,23 +45,19 @@ namespace Voxelgon.Geometry {
             }
 
             for (int i = 0; i < sideCount; i++) {
-                vertices[i] = center + (tangent * radius);
+                _vertices[i] = center + (tangent * radius);
                 tangent = rotation * tangent;
             }
-
-            _vertices = vertices;
         }
 
         public Polygon(Vector3 center, Vector3 normal, Vector3 tangent, float radius, int sideCount) {
-            var vertices = new Vector3[sideCount];
+            _vertices = new Vector3[sideCount];
             var rotation = Quaternion.AngleAxis(360.0f / sideCount, normal);
 
             for (int i = 0; i < sideCount; i++) {
-                vertices[i] = center + (tangent * radius);
+                _vertices[i] = center + (tangent * radius);
                 tangent = rotation * tangent;
             }
-
-            _vertices = vertices;
         }
 
         // PROPERTIES
