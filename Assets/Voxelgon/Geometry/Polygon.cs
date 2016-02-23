@@ -151,13 +151,6 @@ namespace Voxelgon.Geometry {
         }
 
 
-        // OPERATORS
-
-        public static bool operator ==(IPolygon p1, IPolygon p2) {
-            return p1.Equals(p2);
-        }
-
-
         // METHODS
 
         //IPolygon
