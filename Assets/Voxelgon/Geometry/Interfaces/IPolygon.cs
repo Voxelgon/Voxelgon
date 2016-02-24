@@ -67,6 +67,9 @@ namespace Voxelgon.Geometry {
         //cross product of plane normal and edge
         Vector3 GetEdgeNormal(int index);
 
+        //returns the color at index `index`
+        Color32 GetColor(int index);
+
         //returns a clone of this IPolygon
         Polygon Clone();
 

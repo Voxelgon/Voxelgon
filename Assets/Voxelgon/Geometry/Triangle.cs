@@ -11,6 +11,7 @@ namespace Voxelgon.Geometry {
 
         private readonly Vector3[] _vertices = new Vector3[3];
         private readonly Vector3[] _normals = new Vector3[3];
+        private readonly Color32[] _colors = new Color32[3];
 
         // CONSTRUCTORS
 
@@ -191,6 +192,11 @@ namespace Voxelgon.Geometry {
         //cross product of plane normal and edge
         public Vector3 GetEdgeNormal(int index) {
             return Vector3.Cross(SurfaceNormal, GetEdge(index));
+        }
+
+        //returns the color at index `index`
+        public Color32 GetColor(int index) {
+            return _colors[index];
         }
 
         //IPolygon
