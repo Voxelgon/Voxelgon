@@ -32,6 +32,28 @@ namespace Voxelgon.Geometry {
             _normals = (Vector3[]) normals.Clone();
         }
 
+        public Polygon(List<Vector3> vertices, List<Color32> colors) {
+            _vertices = vertices.ToArray();
+            _colors = colors.ToArray();
+        }
+
+        public Polygon(Vector3[] vertices, Color32[] colors) {
+            _vertices = (Vector3[]) vertices.Clone();
+            _colors = (Color32[]) colors.Clone();
+        }
+
+        public Polygon(List<Vector3> vertices, List<Vector3> normals, List<Color32> colors) {
+            _vertices = vertices.ToArray();
+            _normals = normals.ToArray();
+            _colors = colors.ToArray();
+        }
+
+        public Polygon(Vector3[] vertices, Vector3[] normals, Color32[] colors) {
+            _vertices = (Vector3[]) vertices.Clone();
+            _normals = (Vector3[]) normals.Clone();
+            _colors = (Color32[]) colors.Clone();
+        }
+
         public Polygon(Vector3 center, Vector3 normal, float radius, int sideCount) {
             if (normal.Equals(Vector3.zero)) {
                 normal = Vector3.forward;
