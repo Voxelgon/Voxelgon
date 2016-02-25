@@ -1,4 +1,5 @@
 using UnityEngine;
+using System;
 using System.Collections.Generic;
 
 
@@ -14,44 +15,28 @@ namespace Voxelgon.Geometry {
 
         // CONSTRUCTORS
 
-        public Polygon(List<Vector3> vertices) {
-            _vertices = vertices.ToArray();
-        }
-
         public Polygon(Vector3[] vertices) {
             _vertices = (Vector3[]) vertices.Clone();
         }
 
-        public Polygon(List<Vector3> vertices, List<Vector3> normals) {
-            _vertices = vertices.ToArray();
-            _normals = normals.ToArray();
-        }
-
         public Polygon(Vector3[] vertices, Vector3[] normals) {
             _vertices = (Vector3[]) vertices.Clone();
-            _normals = (Vector3[]) normals.Clone();
-        }
-
-        public Polygon(List<Vector3> vertices, List<Color32> colors) {
-            _vertices = vertices.ToArray();
-            _colors = colors.ToArray();
+            _normals = new Vector3[_vertices.Length];
+            normals.CopyTo(_normals, 0);
         }
 
         public Polygon(Vector3[] vertices, Color32[] colors) {
             _vertices = (Vector3[]) vertices.Clone();
-            _colors = (Color32[]) colors.Clone();
-        }
-
-        public Polygon(List<Vector3> vertices, List<Vector3> normals, List<Color32> colors) {
-            _vertices = vertices.ToArray();
-            _normals = normals.ToArray();
-            _colors = colors.ToArray();
+            _colors = new Color32[_vertices.Length];
+            colors.CopyTo(_colors, 0);
         }
 
         public Polygon(Vector3[] vertices, Vector3[] normals, Color32[] colors) {
             _vertices = (Vector3[]) vertices.Clone();
-            _normals = (Vector3[]) normals.Clone();
-            _colors = (Color32[]) colors.Clone();
+            _normals = new Vector3[_vertices.Length];
+            _colors = new Color32[_vertices.Length];
+            normals.CopyTo(_normals, 0);
+            colors.CopyTo(_colors, 0);
         }
 
         public Polygon(Vector3 center, Vector3 normal, float radius, int sideCount) {
@@ -206,9 +191,13 @@ namespace Voxelgon.Geometry {
         //IPolygon
         //reverses the polygon's winding order
         public Polygon Reverse() {
-            var rev = new List<Vector3>(_vertices);
-            rev.Reverse();
-            return new Polygon(rev);
+            var vertices = (Vector3[]) _vertices.Clone();
+            var normals  = (Vector3[]) _normals.Clone();
+            var colors   = (Color32[]) _colors.Clone();
+            Array.Reverse(vertices);
+            Array.Reverse(normals);
+            Array.Reverse(colors);
+            return new Polygon(vertices, normals, colors);
         }
 
         //IPolygon
@@ -280,7 +269,7 @@ namespace Voxelgon.Geometry {
             if (trim.Count == 0) {
                 verts = new List<Vector3>(_vertices);
             }
-            return new Polygon(verts);
+            return new Polygon(verts.ToArray());
         }
 
         //IPolygon
