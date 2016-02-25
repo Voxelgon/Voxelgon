@@ -88,7 +88,7 @@ namespace Voxelgon.Geometry {
         //IPolygon
         //the normal of the clockwise polygon
         //if the polygon is invalid, return Vector3.zero
-        public Vector3 SurfaceNormal { 
+        public Vector3 SurfaceNormal {
             get {
                 if (!IsValid) {
                     return Vector3.zero;
@@ -118,7 +118,7 @@ namespace Voxelgon.Geometry {
 
         //IPolygon
         //is the polygon convex?
-        public bool IsConvex { 
+        public bool IsConvex {
             get {
                 if (!IsValid)
                     return false;
@@ -142,7 +142,7 @@ namespace Voxelgon.Geometry {
         //IPolygon
         //is the polygon valid?
         // must have >= 3 vertices
-        public bool IsValid { 
+        public bool IsValid {
             get {
                 bool valid = true;
                 valid &= (VertexCount >= 3);
@@ -152,7 +152,7 @@ namespace Voxelgon.Geometry {
 
         //IPolygon
         //the area of the polygon
-        public float Area { 
+        public float Area {
             get {
                 if (!IsValid) {
                     return 0;
