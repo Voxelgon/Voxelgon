@@ -5,19 +5,17 @@ using System.Collections.Generic;
 
 namespace Voxelgon.Geometry {
 
-    public class Polygon : IPolygon {
+    public class Polygon {
 
         // FIELDS
 
-        private static readonly Color32 _defaultColor = new Color32(0x88, 0x88, 0x88, 0xFF);
-
-        private readonly Vector3[] _vertices;
-        private readonly Vector3[] _normals;
-        private readonly Color32[] _colors;
+        internal readonly Vector3[] _vertices;
+        internal readonly Vector3[] _normals;
+        internal readonly Color32[] _colors;
 
         // CONSTRUCTORS
 
-        public Polygon(Vector3[] vertices, Vector3[] normals = null, Color32[] colors = null, Color32 color = _defaultColor) {
+        public Polygon(Vector3[] vertices, Vector3[] normals = null, Color32[] colors = null, Color32? color = null) {
             _vertices = (Vector3[]) vertices.Clone();
             _normals = new Vector3[_vertices.Length];
             _colors = new Color32[_vertices.Length];
@@ -42,11 +40,11 @@ namespace Voxelgon.Geometry {
             }
 
             for (int i = colorCount; i < _vertices.Length; i++) {
-                _colors[i] = color;
+                _colors[i] = color ?? Color.gray;
             }
         }
 
-        public Polygon(Vector3 center, float radius, int sideCount, Vector3 normal, Vector3 tangent = Vector3.zero) {
+        public Polygon(Vector3 center, float radius, int sideCount, Vector3 normal, Vector3 tangent = default(Vector3)) {
             if (normal.Equals(Vector3.zero)) {
                 normal = Vector3.forward;
             }
@@ -70,7 +68,6 @@ namespace Voxelgon.Geometry {
 
         // PROPERTIES
 
-        //IPolygon
         //the normal of the clockwise polygon
         //if the polygon is invalid, return Vector3.zero
         public Vector3 SurfaceNormal {
@@ -83,6 +80,9 @@ namespace Voxelgon.Geometry {
                                          _vertices[0],
                                          _vertices[1],
                                          _vertices[2]);
+                if (VertexCount == 3) {
+                    return baseNormal;
+                }
 
                 float angleSum = 0;
 
@@ -101,7 +101,6 @@ namespace Voxelgon.Geometry {
             }
         }
 
-        //IPolygon
         //is the polygon convex?
         public bool IsConvex {
             get {
@@ -124,7 +123,6 @@ namespace Voxelgon.Geometry {
             }
         }
 
-        //IPolygon
         //is the polygon valid?
         // must have >= 3 vertices
         public bool IsValid {
@@ -135,7 +133,6 @@ namespace Voxelgon.Geometry {
             }
         }
 
-        //IPolygon
         //the area of the polygon
         public float Area {
             get {
@@ -152,7 +149,6 @@ namespace Voxelgon.Geometry {
             }
         }
 
-        //IPolygon
         //the number of vertices in the polygon
         public int VertexCount {
             get { return _vertices.Length; }
@@ -161,7 +157,6 @@ namespace Voxelgon.Geometry {
 
         // METHODS
 
-        //IPolygon
         //returns the winding order relative to the normal
         // 1 = clockwise
         //-1 = counter-clockwise
@@ -174,7 +169,6 @@ namespace Voxelgon.Geometry {
             return (Vector3.Dot(normal, SurfaceNormal) >= 0) ? 1 : -1;
         }
 
-        //IPolygon
         //returns whether or not `point` is on or inside the polygon
         public bool Contains(Vector3 point) {
             if (!IsValid) {
@@ -188,7 +182,6 @@ namespace Voxelgon.Geometry {
             return contains;
         }
 
-        //IPolygon
         //reverses the polygon's winding order
         public Polygon Reverse() {
             var vertices = (Vector3[]) _vertices.Clone();
@@ -200,7 +193,6 @@ namespace Voxelgon.Geometry {
             return new Polygon(vertices, normals, colors);
         }
 
-        //IPolygon
         //if the polygon is counter-clockwise, reverse it so it is clockwise
         public Polygon EnsureClockwise(Vector3 normal) {
             if (WindingOrder(normal) == -1) {
@@ -209,7 +201,6 @@ namespace Voxelgon.Geometry {
             return Clone();
         }
 
-        //IPolygon
         //returns an array of triangles that make up the polygon
         public List<Triangle> ToTriangles() {
             var triangles = new List<Triangle>();
@@ -221,7 +212,6 @@ namespace Voxelgon.Geometry {
             return triangles;
         }
 
-        //IPolygon
         //returns a polygon truncated starting at Vector3 `point` by vector3 `offset`
         public Polygon Truncate(Vector3 point, Vector3 offset) {
             var plane = new Plane(offset.normalized, offset + point);
@@ -272,20 +262,17 @@ namespace Voxelgon.Geometry {
             return new Polygon(verts.ToArray());
         }
 
-        //IPolygon
         //returns the vertex at index `index`
         public Vector3 GetVertex(int index) {
             return _vertices[index];
         }
 
-        //IPolygon
         //returns the vertex normal at index `index`
         //same as mesh normal, usually close to parallel with plane normal
         public Vector3 GetNormal(int index) {
             return _normals[index];
         }
 
-        //IPolygon
         //returns the vector pointing "out" of the vertex at index `index`
         //normalized average of two adjacent edge normals
         public Vector3 GetVertexNormal(int index) {
@@ -295,7 +282,6 @@ namespace Voxelgon.Geometry {
             return (edge1 + edge2) / 2;
         }
 
-        //IPolygon
         //returns the edge vector at index `index`
         //normalized vector from a vertex to the following vertex
         public Vector3 GetEdge(int index) {
@@ -305,7 +291,6 @@ namespace Voxelgon.Geometry {
             return (vertex2 - vertex1).normalized;
         }
 
-        //IPolygon
         //returns the edge normal at index `index`
         //cross product of plane normal and edge
         public Vector3 GetEdgeNormal(int index) {
@@ -317,7 +302,6 @@ namespace Voxelgon.Geometry {
             return _colors[index];
         }
 
-        //IPolygon
         //returns a clone of this IPolygon
         public Polygon Clone() {
             return new Polygon(_vertices, _normals);
@@ -331,9 +315,8 @@ namespace Voxelgon.Geometry {
             }
         }
 
-        //IPolygon
         //are the polygons equal?
-        public bool Equals(IPolygon p) {
+        public bool Equals(Polygon p) {
             if (VertexCount != p.VertexCount) { return false; }
             for (int i = 0; i < VertexCount; i++) {
                 if (GetVertex(i) != p.GetVertex(i) || GetNormal(i) != p.GetNormal(i)) { return false; }
