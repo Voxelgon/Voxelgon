@@ -9,58 +9,58 @@ namespace Voxelgon.Geometry {
 
         // FIELDS
 
+        private static readonly Color32 _defaultColor = new Color32(0x88, 0x88, 0x88, 0xFF);
+
         private readonly Vector3[] _vertices;
         private readonly Vector3[] _normals;
         private readonly Color32[] _colors;
 
         // CONSTRUCTORS
 
-        public Polygon(Vector3[] vertices) {
-            _vertices = (Vector3[]) vertices.Clone();
-        }
-
-        public Polygon(Vector3[] vertices, Vector3[] normals) {
-            _vertices = (Vector3[]) vertices.Clone();
-            _normals = new Vector3[_vertices.Length];
-            normals.CopyTo(_normals, 0);
-        }
-
-        public Polygon(Vector3[] vertices, Color32[] colors) {
-            _vertices = (Vector3[]) vertices.Clone();
-            _colors = new Color32[_vertices.Length];
-            colors.CopyTo(_colors, 0);
-        }
-
-        public Polygon(Vector3[] vertices, Vector3[] normals, Color32[] colors) {
+        public Polygon(Vector3[] vertices, Vector3[] normals = null, Color32[] colors = null, Color32 color = _defaultColor) {
             _vertices = (Vector3[]) vertices.Clone();
             _normals = new Vector3[_vertices.Length];
             _colors = new Color32[_vertices.Length];
-            normals.CopyTo(_normals, 0);
-            colors.CopyTo(_colors, 0);
+
+            //fill in unassigned normals with the SurfaceNormal
+            Vector3 normal = SurfaceNormal;
+            int normalCount = 0;
+            if (normals != null) {
+                normalCount = normals.Length;
+                normals.CopyTo(_normals, 0);
+            }
+
+            for (int i = normalCount; i < _vertices.Length; i++) {
+                _normals[i] = normal;
+            }
+
+            //fill in unassigned vertex colors with `color`
+            int colorCount = 0;
+            if (colors != null) { 
+                colorCount = colors.Length;
+                colors.CopyTo(_colors, 0);
+            }
+
+            for (int i = colorCount; i < _vertices.Length; i++) {
+                _colors[i] = color;
+            }
         }
 
-        public Polygon(Vector3 center, Vector3 normal, float radius, int sideCount) {
+        public Polygon(Vector3 center, float radius, int sideCount, Vector3 normal, Vector3 tangent = Vector3.zero) {
             if (normal.Equals(Vector3.zero)) {
                 normal = Vector3.forward;
             }
 
             _vertices = new Vector3[sideCount];
             var rotation = Quaternion.AngleAxis(360.0f / sideCount, normal);
-            var tangent = Vector3.Cross(Vector3.up, normal);
+
+            if (tangent.Equals(Vector3.zero)) {
+                tangent = Vector3.Cross(Vector3.up, normal);
+            }
 
             if (tangent.Equals(Vector3.zero)) {
                 tangent = Vector3.Cross(Vector3.forward, normal);
             }
-
-            for (int i = 0; i < sideCount; i++) {
-                _vertices[i] = center + (tangent * radius);
-                tangent = rotation * tangent;
-            }
-        }
-
-        public Polygon(Vector3 center, Vector3 normal, Vector3 tangent, float radius, int sideCount) {
-            _vertices = new Vector3[sideCount];
-            var rotation = Quaternion.AngleAxis(360.0f / sideCount, normal);
 
             for (int i = 0; i < sideCount; i++) {
                 _vertices[i] = center + (tangent * radius);

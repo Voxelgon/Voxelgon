@@ -5,13 +5,7 @@ using UnityEngine;
 
 namespace Voxelgon.Geometry {
 
-    public class Triangle : IPolygon {
-
-        // FIELDS
-
-        private readonly Vector3[] _vertices = new Vector3[3];
-        private readonly Vector3[] _normals = new Vector3[3];
-        private readonly Color32[] _colors = new Color32[3];
+    public class Triangle : Polygon {
 
         // CONSTRUCTORS
 
@@ -88,7 +82,7 @@ namespace Voxelgon.Geometry {
 
         //Convert to a 3-sided polygon
         public static explicit operator Polygon(Triangle t) {
-            return new Polygon(new List<Vector3>(t._vertices));
+            return new Polygon(t._vertices);
         }
 
         // METHODS
