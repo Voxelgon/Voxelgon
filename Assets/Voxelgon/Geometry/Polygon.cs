@@ -49,7 +49,7 @@ namespace Voxelgon.Geometry {
 
         //the normal of the clockwise polygon
         //if the polygon is invalid, return Vector3.zero
-        public Vector3 SurfaceNormal {
+        public virtual Vector3 SurfaceNormal {
             get {
                 if (!IsValid) {
                     return Vector3.zero;
@@ -81,7 +81,7 @@ namespace Voxelgon.Geometry {
         }
 
         //is the polygon convex?
-        public bool IsConvex {
+        public virtual bool IsConvex {
             get {
                 if (!IsValid)
                     return false;
@@ -104,7 +104,7 @@ namespace Voxelgon.Geometry {
 
         //is the polygon valid?
         // must have >= 3 vertices
-        public bool IsValid {
+        public virtual bool IsValid {
             get {
                 bool valid = true;
                 valid &= (VertexCount >= 3);
@@ -113,7 +113,7 @@ namespace Voxelgon.Geometry {
         }
 
         //the area of the polygon
-        public float Area {
+        public virtual float Area {
             get {
                 if (!IsValid) {
                     return 0;
@@ -129,7 +129,7 @@ namespace Voxelgon.Geometry {
         }
 
         //the number of vertices in the polygon
-        public int VertexCount {
+        public virtual int VertexCount {
             get { return _vertices.Length; }
         }
 
@@ -140,7 +140,7 @@ namespace Voxelgon.Geometry {
         // 1 = clockwise
         //-1 = counter-clockwise
         // 0 = all points are colinear, or polygon is invalid
-        public int WindingOrder(Vector3 normal) {
+        public virtual int WindingOrder(Vector3 normal) {
             if (!IsValid) {
                 return 0;
             }
@@ -149,7 +149,7 @@ namespace Voxelgon.Geometry {
         }
 
         //returns whether or not `point` is on or inside the polygon
-        public bool Contains(Vector3 point) {
+        public virtual bool Contains(Vector3 point) {
             if (!IsValid) {
                 return false;
             }
@@ -162,7 +162,7 @@ namespace Voxelgon.Geometry {
         }
 
         //reverses the polygon's winding order
-        public Polygon Reverse() {
+        public virtual Polygon Reverse() {
             var vertices = (Vector3[]) _vertices.Clone();
             var normals  = (Vector3[]) _normals.Clone();
             var colors   = (Color32[]) _colors.Clone();
@@ -173,7 +173,7 @@ namespace Voxelgon.Geometry {
         }
 
         //if the polygon is counter-clockwise, reverse it so it is clockwise
-        public Polygon EnsureClockwise(Vector3 normal) {
+        public virtual Polygon EnsureClockwise(Vector3 normal) {
             if (WindingOrder(normal) == -1) {
                 return Reverse();
             }
@@ -181,7 +181,7 @@ namespace Voxelgon.Geometry {
         }
 
         //returns an array of triangles that make up the polygon
-        public List<Triangle> ToTriangles() {
+        public virtual List<Triangle> ToTriangles() {
             var triangles = new List<Triangle>();
 
             if (IsValid) {
@@ -192,7 +192,7 @@ namespace Voxelgon.Geometry {
         }
 
         //returns a polygon truncated starting at Vector3 `point` by vector3 `offset`
-        public Polygon Truncate(Vector3 point, Vector3 offset) {
+        public virtual Polygon Truncate(Vector3 point, Vector3 offset) {
             var plane = new Plane(offset.normalized, offset + point);
             var verts = new List<Vector3>();
             var norms = new List<Vector3>();

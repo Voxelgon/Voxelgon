@@ -55,7 +55,7 @@ namespace Voxelgon.Geometry {
 
         //the normal of the clockwise polygon
         //if the polygon is invalid, return Vector3.zero
-        public Vector3 SurfaceNormal {
+        public override Vector3 SurfaceNormal {
             get { return _normal; }
         }
 

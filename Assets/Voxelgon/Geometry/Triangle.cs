@@ -16,14 +16,14 @@ namespace Voxelgon.Geometry {
         // PROPERTIES
 
         //is the polygon convex?
-        public static bool IsConvex { 
+        public override bool IsConvex { 
             //triangles are always convex
             get { return true; } 
         }
 
         //is the polygon valid?
         // must have >= 3 vertices
-        public bool IsValid { 
+        public override bool IsValid { 
             get {
                 bool valid = true;
                 valid &= (!_vertices[0].Equals(_vertices[1]));
@@ -37,7 +37,7 @@ namespace Voxelgon.Geometry {
         // METHODS
 
         //returns and array of triangles that make up the polygon
-        public List<Triangle> ToTriangles() {
+        public override List<Triangle> ToTriangles() {
             return new List<Triangle> {this};
         }
     }
