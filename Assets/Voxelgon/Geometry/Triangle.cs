@@ -11,9 +11,6 @@ namespace Voxelgon.Geometry {
         //create a triangle from the three given points and a color
         public Triangle(Vector3 vertex1, Vector3 vertex2, Vector3 vertex3, Color32? color = null) :
             base(new [] {vertex1, vertex2, vertex3}, color: color) {
-            _vertices[0] = vertex1;
-            _vertices[1] = vertex2;
-            _vertices[2] = vertex3;
         }
 
         // PROPERTIES
