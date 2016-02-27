@@ -319,7 +319,11 @@ namespace Voxelgon.Geometry {
         public bool Equals(Polygon p) {
             if (VertexCount != p.VertexCount) { return false; }
             for (int i = 0; i < VertexCount; i++) {
-                if (GetVertex(i) != p.GetVertex(i) || GetNormal(i) != p.GetNormal(i)) { return false; }
+                if (!GetVertex(i).Equals(p.GetVertex(i))
+                 || !GetNormal(i).Equals(p.GetNormal(i)) 
+                 || !GetColor(i).Equals(p.GetColor(i))) { 
+                    return false; 
+                }
             }
 
             return true;
