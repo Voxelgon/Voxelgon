@@ -3,8 +3,11 @@ using System;
 using System.Collections.Generic;
 using Voxelgon.Math;
 using Voxelgon.ShipEditor;
+using Voxelgon.Geometry;
+
 
 namespace Voxelgon.ShipEditor {
+
     public class Wall {
 
         //Fields
@@ -12,16 +15,19 @@ namespace Voxelgon.ShipEditor {
         public readonly ShipEditor Editor;
 
         private readonly List<Vector3> vertices = new List<Vector3>();
+
         private readonly List<Vector3> tangents = new List<Vector3>();
 
         private readonly Mesh simpleMesh = new Mesh();
-        private readonly Mesh complexMesh = new Mesh();
+
+        private Mesh complexMesh = new Mesh();
 
         private Plane wallPlane;
 
         private bool verticesChanged;
 
-        private float thickness = 0.2f; //total thickness of the wall
+        private float thickness = 0.2f;
+        //total thickness of the wall
 
         //Constructors
 
@@ -29,7 +35,7 @@ namespace Voxelgon.ShipEditor {
             wallPlane = new Plane();
         }
 
-        public Wall(ShipEditor editor){
+        public Wall(ShipEditor editor) {
             wallPlane = new Plane();
             Editor = editor;
         }
@@ -62,7 +68,7 @@ namespace Voxelgon.ShipEditor {
                 return simpleMesh;
             }
         }
-        
+
         public Mesh ComplexMesh {
             get {
                 BuildComplexMesh();
@@ -137,7 +143,7 @@ namespace Voxelgon.ShipEditor {
         public bool UpdateVertices(List<Vector3> nodes, ShipEditor.BuildMode mode) {
             if (mode == ShipEditor.BuildMode.Polygon) {
                 vertices.Clear();
-                foreach(Vector3 node in nodes) {
+                foreach (Vector3 node in nodes) {
                     if (!AddVertex(node)) {
                         return false;
                     }
@@ -149,7 +155,7 @@ namespace Voxelgon.ShipEditor {
 
         public Vector3 GetTangent(Vector3 vertex) {
             for (int i = 0; i < vertices.Count; i++) {
-                if ((Position) vertices[i] == (Position) vertex) {
+                if ((Position)vertices[i] == (Position)vertex) {
                     return GetTangent(i);
                 }
             }
@@ -158,15 +164,15 @@ namespace Voxelgon.ShipEditor {
 
         public Vector3 GetTangent(Vector3 v1, Vector3 v2) {
             for (int i = 0; i < vertices.Count; i++) {
-                if ((Position) vertices[i] == (Position) v1) {
+                if ((Position)vertices[i] == (Position)v1) {
                     //if the next vertex is v2 (vertices in correct order)
 
-                    if ((Position) vertices[(i + 1) % vertices.Count] == (Position) v2) {
+                    if ((Position)vertices[(i + 1) % vertices.Count] == (Position)v2) {
                         return Vector3.Normalize(v2 - v1);
                     }
 
                     //if the previous vertex is v2 (vertices in reverse order)
-                    if ((Position) vertices[(i - 1 + vertices.Count) % vertices.Count] == (Position) v2) {
+                    if ((Position)vertices[(i - 1 + vertices.Count) % vertices.Count] == (Position)v2) {
                         return Vector3.Normalize(v1 - v2);
                     }
                     throw new ArgumentException("given vertex is not present in this wall", "v2");
@@ -231,7 +237,7 @@ namespace Voxelgon.ShipEditor {
                 var meshNorms = new Vector3[vertCountSimple];
                 var meshColors = new Color[vertCountSimple];
 
-                for (int i = 0; 3 * i < triCountSimple; i ++) {
+                for (int i = 0; 3 * i < triCountSimple; i++) {
                     meshTris[3 * i] = 0;
                     meshTris[3 * i + 1] = i + 1;
                     meshTris[3 * i + 2] = i + 2;
@@ -246,7 +252,7 @@ namespace Voxelgon.ShipEditor {
                 simpleMesh.triangles = meshTris;
                 simpleMesh.normals = meshNorms;
                 simpleMesh.colors = meshColors;
-                simpleMesh.Optimize();
+                ;
 
                 verticesChanged = false;
             }
@@ -256,7 +262,7 @@ namespace Voxelgon.ShipEditor {
             complexMesh.Clear();
             GenerateTangents();
 
-            if (IsPolygon) {
+            /* if (IsPolygon) {
                 var frontEdgeOffsets = new float[VertexCount];
                 var backEdgeOffsets  = new float[VertexCount];
                 var frontVertices = new Vector3[VertexCount];
@@ -405,7 +411,15 @@ namespace Voxelgon.ShipEditor {
                 complexMesh.RecalculateBounds();
                 //complexMesh.RecalculateNormals();
                 //complexMesh.Optimize();
-            }
+            } */
+
+            var mb = new MeshBuilder();
+            Polygon p1 = new RegularPolygon(new Vector3(0, 0, 0), 5, 10, Vector3.up, Vector3.forward, Color.blue);
+            Polygon p2 = new RegularPolygon(new Vector3(-2, 5, 0), 3, 10, Vector3.up + Vector3.left, Vector3.forward, Color.blue);
+            mb.AddPolygon(p1);
+            mb.AddPolygon(p2);
+            mb.BridgePolygons(p1, p2, true);
+            complexMesh = mb.FirstMesh;
         }
     }
 }

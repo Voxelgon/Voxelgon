@@ -3,16 +3,19 @@ using System.Collections.Generic;
 using System.Linq;
 using Voxelgon.Math;
 using Voxelgon.Graphics;
-using Voxelgon.MeshBuilder;
+using Voxelgon.Geometry;
 using Voxelgon.EventSystems;
 
+
 namespace Voxelgon.ShipEditor {
+
     public class ShipEditor : MonoBehaviour, IModeChangeHandler {
         //Fields
 
         private Dictionary<Position, List<Wall>> _wallVertices;
 
         private readonly List<Vector3> _nodes = new List<Vector3>();
+
         private readonly List<GameObject> _nodeObjects = new List<GameObject>();
 
         private Mesh _simpleHullMesh;
@@ -34,7 +37,7 @@ namespace Voxelgon.ShipEditor {
                 if (WallsChanged && Walls.Count > 0) {
                     var wallMeshes = Walls.Select(w => w.ComplexMesh).ToList();
                     _simpleHullMesh.Clear();
-                    _simpleHullMesh = MeshBuilder.MeshBuilder.MergeMeshes(wallMeshes);
+                    _simpleHullMesh = MeshBuilder.MergeMeshes(wallMeshes);
                 }
 
                 WallsChanged = false;
@@ -64,7 +67,7 @@ namespace Voxelgon.ShipEditor {
 
         public void Update() {
             if (Input.GetButtonDown("ChangeFloor")) {
-                transform.Translate(Vector3.up*2*(int) Input.GetAxis("ChangeFloor"));
+                transform.Translate(Vector3.up * 2 * (int)Input.GetAxis("ChangeFloor"));
             }
         }
 
@@ -79,9 +82,9 @@ namespace Voxelgon.ShipEditor {
 
                 selectedNode.transform.parent = transform.parent;
                 selectedNode.transform.localPosition = node;
-                selectedNode.transform.localScale = Vector3.one*0.25f;
+                selectedNode.transform.localScale = Vector3.one * 0.25f;
 
-                selectedNode.GetComponent<BoxCollider>().size = Vector3.one*1.5f;
+                selectedNode.GetComponent<BoxCollider>().size = Vector3.one * 1.5f;
                 selectedNode.AddComponent<ShipEditorGridSelected>();
 
                 _nodes.Add(node);
@@ -93,7 +96,8 @@ namespace Voxelgon.ShipEditor {
         }
 
         public bool RemoveNode(Vector3 node, GameObject obj) {
-            if (!_nodes.Contains(node)) return false;
+            if (!_nodes.Contains(node))
+                return false;
 
             _nodes.Remove(node);
             _nodeObjects.Remove(obj);
@@ -149,7 +153,8 @@ namespace Voxelgon.ShipEditor {
         }
 
         public bool UpdateTempWall() {
-            if (!NodesChanged || !TempWall.UpdateVertices(_nodes, Mode)) return false;
+            if (!NodesChanged || !TempWall.UpdateVertices(_nodes, Mode))
+                return false;
 
             NodesChanged = false;
             return true;
@@ -157,11 +162,11 @@ namespace Voxelgon.ShipEditor {
 
 
         public List<Wall> GetWallNeighbors(Wall wall) {
-            var lastList = _wallVertices[(Position) wall.Vertices[wall.VertexCount - 1]];
+            var lastList = _wallVertices[(Position)wall.Vertices[wall.VertexCount - 1]];
             var neighbors = new List<Wall>();
 
             foreach (var v in wall.Vertices) {
-                var p = (Position) v;
+                var p = (Position)v;
 
                 if (_wallVertices.ContainsKey(p)) {
                     foreach (var w in _wallVertices[p]) {
@@ -178,10 +183,11 @@ namespace Voxelgon.ShipEditor {
         public List<Wall> GetWallNeighbors(Wall wall, int edge) {
             var neighbors = new List<Wall>();
 
-            var p1 = (Position) wall.Vertices[edge];
-            var p2 = (Position) wall.Vertices[(edge + 1)%wall.VertexCount];
+            var p1 = (Position)wall.Vertices[edge];
+            var p2 = (Position)wall.Vertices[(edge + 1) % wall.VertexCount];
 
-            if (!_wallVertices.ContainsKey(p1) || !_wallVertices.ContainsKey(p2)) return neighbors;
+            if (!_wallVertices.ContainsKey(p1) || !_wallVertices.ContainsKey(p2))
+                return neighbors;
 
 
             var l1 = _wallVertices[p1];
@@ -194,13 +200,13 @@ namespace Voxelgon.ShipEditor {
         public static Vector3 GetEditCursorPos(float y) {
             var cursorRay = Camera.main.ScreenPointToRay(Input.mousePosition);
 
-            var xySlope = cursorRay.direction.y/cursorRay.direction.x;
-            var zySlope = cursorRay.direction.y/cursorRay.direction.z;
+            var xySlope = cursorRay.direction.y / cursorRay.direction.x;
+            var zySlope = cursorRay.direction.y / cursorRay.direction.z;
 
             var deltaY = cursorRay.origin.y - y;
 
-            var xIntercept = cursorRay.origin.x + deltaY/-xySlope;
-            var zIntercept = cursorRay.origin.z + deltaY/-zySlope;
+            var xIntercept = cursorRay.origin.x + deltaY / -xySlope;
+            var zIntercept = cursorRay.origin.z + deltaY / -zySlope;
 
             var interceptPoint = new Vector3(xIntercept, y, zIntercept);
 

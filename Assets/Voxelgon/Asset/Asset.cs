@@ -362,7 +362,7 @@ namespace Voxelgon{
 
             mesh.RecalculateBounds();
             mesh.RecalculateNormals();
-            mesh.Optimize();
+            ;
 
             return mesh;
         }

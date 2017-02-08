@@ -9,9 +9,20 @@ namespace Voxelgon.Geometry {
         // CONSTRUCTORS
 
         //create a triangle from the three given points and a color
-        public Triangle(Vector3 vertex1, Vector3 vertex2, Vector3 vertex3, Color32? color = null) :
-            base(new [] {vertex1, vertex2, vertex3}, color: color) {
+        public Triangle(Vector3 vertex1, Vector3 vertex2, Vector3 vertex3, Color32 color) :
+            base(new [] {vertex1, vertex2, vertex3}, null, null, color) {
         }
+
+        //create a triangle from the three given points and a color
+        public Triangle(Vector3 vertex1, Vector3 vertex2, Vector3 vertex3, Color32[] colors) :
+            base(new [] {vertex1, vertex2, vertex3}, null, colors, null) {
+        }
+
+        //create a triangle from the three given points and a color
+        public Triangle(Vector3 vertex1, Vector3 vertex2, Vector3 vertex3, Color32 color1, Color32 color2, Color32 color3) :
+            base(new [] {vertex1, vertex2, vertex3}, null, new [] {color1, color2, color3}, null) {
+        }
+
 
         // PROPERTIES
 
@@ -39,6 +50,10 @@ namespace Voxelgon.Geometry {
         //returns and array of triangles that make up the polygon
         public override List<Triangle> ToTriangles() {
             return new List<Triangle> {this};
+        }
+
+        public override List<int> ToTriangleIndices() {
+            return new List<int> {0, 1, 2};
         }
     }
 }
