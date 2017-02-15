@@ -10,50 +10,44 @@ namespace Voxelgon.Geometry {
 
         //create a triangle from the three given points and a color
         public Triangle(Vector3 vertex1, Vector3 vertex2, Vector3 vertex3, Color32 color) :
-            base(new [] {vertex1, vertex2, vertex3}, null, null, color) {
-        }
+            this(new[] { vertex1, vertex2, vertex3 }, color) { }
 
-        //create a triangle from the three given points and a color
-        public Triangle(Vector3 vertex1, Vector3 vertex2, Vector3 vertex3, Color32[] colors) :
-            base(new [] {vertex1, vertex2, vertex3}, null, colors, null) {
-        }
-
-        //create a triangle from the three given points and a color
-        public Triangle(Vector3 vertex1, Vector3 vertex2, Vector3 vertex3, Color32 color1, Color32 color2, Color32 color3) :
-            base(new [] {vertex1, vertex2, vertex3}, null, new [] {color1, color2, color3}, null) {
-        }
-
+        public Triangle(Vector3[] vertices, Color32 color) :
+            base(
+                vertices,
+                Geometry.TriangleNormal(vertices[0], vertices[1], vertices[2]),
+                Geometry.VectorAvg(vertices),
+                color) { }
 
         // PROPERTIES
 
-        //is the polygon convex?
-        public override bool IsConvex { 
+        //is the triangle convex?
+        public override bool IsConvex {
             //triangles are always convex
-            get { return true; } 
+            get { return true; }
         }
 
-        //is the polygon valid?
-        // must have >= 3 vertices
-        public override bool IsValid { 
-            get {
-                bool valid = true;
-                valid &= (!_vertices[0].Equals(_vertices[1]));
-                valid &= (!_vertices[1].Equals(_vertices[2]));
-                valid &= (!_vertices[2].Equals(_vertices[0]));
-                return valid;
-            }
+        //the area of the triangle 
+        public override float Area {
+            get { return Vector3.Cross(_vertices[1] - _vertices[0], _vertices[2] - _vertices[0]).magnitude / 2; }
         }
+
+        //the number of vertices in the polygon
+        public override int VertexCount {
+            get { return 3; }
+        }
+
+        public override int[] TriangleIndices {
+            get { return new int[] { 0, 1, 2 }; }
+        }
+
 
 
         // METHODS
 
         //returns and array of triangles that make up the polygon
-        public override List<Triangle> ToTriangles() {
-            return new List<Triangle> {this};
-        }
-
-        public override List<int> ToTriangleIndices() {
-            return new List<int> {0, 1, 2};
+        public override Triangle[] ToTriangles() {
+            return new Triangle[] { new Triangle(_vertices, _color) };
         }
     }
 }

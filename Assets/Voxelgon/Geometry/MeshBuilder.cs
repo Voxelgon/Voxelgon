@@ -26,6 +26,12 @@ namespace Voxelgon.Geometry {
 
         private readonly bool _printDebug = false;
 
+        public enum BridgeMode {
+            Tri,
+            Quad,
+            Smooth
+        }
+
 
         //Constructors
 
@@ -72,16 +78,34 @@ namespace Voxelgon.Geometry {
         }
 
         public void AddPolygon(Polygon p) {
-            int offset = AddVertices(p.Vertices, p.Normals, p.Colors);
-            foreach (int i in p.ToTriangleIndices()) {
-                _tris.Add(offset + i);
+            int size = p.VertexCount;
+            int offset = _vertices.Count;
+
+            Color32 color = p.Color;
+            Vector3 normal = p.Normal;
+
+
+            if (_vertices.Count + size > 65534) {
+                //current mesh is too full to add to, finalize it and clear the buffer
+                FinalizeLastMesh();
+                offset = 0;
+            }
+
+            for (var i = 0; i < size; i++) {
+                _normals.Add(normal);
+                _colors32.Add(color);
+            }
+            _vertices.AddRange(p.Vertices);
+
+            foreach (int tri in p.TriangleIndices) {
+                _tris.Add(offset + tri);
             }
         }
 
         public int AddVertices(List<Vector3> vertices, List<Vector3> normals, List<Color32> colors) {
             int size = vertices.Count;
 
-            if (normals.Count != size && colors.Count != size) {
+            if (normals.Count != size || colors.Count != size) {
                 throw new InvalidPolygonException();
             }
 
@@ -100,16 +124,56 @@ namespace Voxelgon.Geometry {
             return offset;
         }
 
-        public void BridgePolygons(Polygon p1, Polygon p2, bool smooth = true) {
-            float ratio = p1.VertexCount / p2.VertexCount;
-            float error = ratio;
+        public int AddVertices(Vector3[] vertices, Vector3[] normals, Color32 color) {
+            int size = vertices.Length;
 
-            if (ratio > 1) {
-                BridgePolygons(p2, p1, smooth);
-                return;
+            if (normals.Length != size) {
+                throw new InvalidPolygonException();
             }
 
-            var offset = p1.Center - p2.Center;
+            int offset = _vertices.Count;
+
+            if (_vertices.Count + size > 65534) {
+                //current mesh is too full to add to, finalize it and clear the buffer
+                FinalizeLastMesh();
+                offset = 0;
+            }
+
+            _vertices.AddRange(vertices);
+            _normals.AddRange(normals);
+            for (var i = 0; i < size; i++) {
+                _colors32.Add(color);
+            }
+
+            return offset;
+        }
+
+        public int AddVertices(Vector3[] vertices, Vector3 normal, Color32 color) {
+            int size = vertices.Length;
+            int offset = _vertices.Count;
+
+            if (_vertices.Count + size > 65534) {
+                //current mesh is too full to add to, finalize it and clear the buffer
+                FinalizeLastMesh();
+                offset = 0;
+            }
+
+            _vertices.AddRange(vertices);
+            for (var i = 0; i < size; i++) {
+                _normals.Add(normal);
+                _colors32.Add(color);
+            }
+
+            return offset;
+        }
+
+
+        public void BridgePolygons(Polygon p1, Polygon p2, Color32 color, bool smooth = true) {
+            if (p1.VertexCount > p2.VertexCount) {
+                BridgePolygons(p2, p1, color, smooth);
+                return;
+            }
+            var offset = p2.Center - p1.Center;
 
             p1 = p1.EnsureClockwise(offset);
             p2 = p2.EnsureClockwise(offset);
@@ -117,89 +181,79 @@ namespace Voxelgon.Geometry {
             int p1Size = p1.VertexCount;
             int p2Size = p2.VertexCount;
 
-            var p2Indices = new int[p1Size];
-            for (int i = 0; i < p1Size; i++) {
-                Vector3 p1Vertex = (p1.GetVertex(i) + p1.GetVertex((i + 1) % p1Size)) / 2;
-                float angle = 100;
-                int index = -1;
-                for (int j = 0; j < p2Size; j++) {
-                    float thisAngle = Mathf.Abs(Geometry.VectorAngle(p1Vertex - p1.Center, p2.GetVertex(j) - p2.Center, offset));
-                    thisAngle = (thisAngle + (Mathf.PI * 2)) % (Mathf.PI * 2);
-                    if (thisAngle > 0 && thisAngle < angle) {
-                        index = j;
-                        angle = thisAngle;
-                    }
-                }
-                p2Indices[i] = index;
-            }
-
+            var p2Indices = VertexPairs(p1, p2);
             if (smooth) {
-                var p1Normals = p1.Normals;
-                var p2Normals = p2.Normals;
-/*
-                for (int i = 0; i < p1Size; i++) {
-                    var delta = p2.GetVertex(p2Indices[i]) - p1.GetVertex(i);
-                    var normal = p1.GetVertexNormal(i);
-                    Vector3.OrthoNormalize(ref delta, ref normal);
-                    p1Normals[i] = normal;
-
-                    for (int j = p2Indices[i]; j != p2Indices[(i + 1) % p1Size]; j = (j + 1) % p2Size) {
-                        var delta2 = p1.GetVertex((j + 1) % p2Size) - p2.GetVertex(j);
-                        var normal2 = p2.GetVertexNormal(j);
-                        Vector3.OrthoNormalize(ref delta2, ref normal2);
-                        p2Normals[j] = normal2;
-                    }
-                }
-                */
-
-                var vertices = new List<Vector3>();
-                vertices.AddRange(p1.Vertices);
-                vertices.AddRange(p2.Vertices);
-
-                var normals = new List<Vector3>();
-                normals.AddRange(p1Normals);
-                normals.AddRange(p2Normals);
-
-                var colors = new List<Color32>();
-                colors.AddRange(p1.Colors);
-                colors.AddRange(p2.Colors);
-
-                int p1Start = AddVertices(vertices, normals, colors);
-                int p2Start = p1Start + p1Size;
+                int p1Start = AddVertices(p1.Vertices, p1.VertexNormals, color);
+                int p2Start = AddVertices(p2.Vertices, p2.VertexNormals, color);
 
                 for (int i = 0; i < p1Size; i++) {
-                    _tris.Add(p1Start + i);
-                    _tris.Add(p2Start + p2Indices[i]);
-                    _tris.Add(p1Start + ((i + 1) % p1Size));
-                    for (int j = p2Indices[i]; j != p2Indices[(i + 1) % p1Size]; j = (j + 1) % p2Size) {
-                        _tris.Add(p2Start + j);
-                        _tris.Add(p2Start + ((j + 1) % p2Size));
-                        _tris.Add(p1Start + ((i + 1) % p1Size));
-                    }
+                    BridgeSegment(p1Start + i, p1Start + (i + 1) % p1Size, p2Indices[i], p2Indices[(i + 1) % p1Size], p2Start, p2Size);
                 }
             } else {
                 for (int i = 0; i < p1Size; i++) {
-                    AddPolygon(new Triangle(
-                            p1.GetVertex(i),
-                            p2.GetVertex(p2Indices[i]),
-                            p1.GetVertex((i + 1) % p1Size),
-                            p1.GetColor(i)
-                        ));
+                    var points = new Vector3[] {p1.GetVertex(i),
+                                                p1.GetVertex((i + 1) % p1Size),
+                                                p2.GetVertex(p2Indices[i])};
+                                
+                    var normal = Geometry.TriangleNormal(points);
+                    var triOffset = AddVertices(points, normal, color);
+                    for (var t = 0; t < 3; t++) {
+                        _tris.Add(triOffset + t);
+                    }
+
                     for (int j = p2Indices[i]; j != p2Indices[(i + 1) % p1Size]; j = (j + 1) % p2Size) {
-                        AddPolygon(new Triangle(
-                                p2.GetVertex(j),
-                                p2.GetVertex((j + 1) % p2Size),
-                                p1.GetVertex((i + 1 + p1Size) % p1Size),
-                                p1.GetColor(i)
-                            ));
+                        points = new Vector3[] { p1.GetVertex((i + 1) % p1Size),
+                                                 p2.GetVertex((j + 1) % p2Size),
+                                                 p2.GetVertex(j)};
+                        normal = Geometry.TriangleNormal(points);
+                        triOffset = AddVertices(points, normal, color);
+                        for (var t = 0; t < 3; t++) {
+                            _tris.Add(triOffset + t);
+                        }
                     }
                 }
             }
         }
 
         public void Extrude(Polygon p, Vector3 offset, float scale = 1.0f, bool smooth = true) {
+            if (smooth) {
+
+            } else {
+            }
 
         }
+
+
+        public void Sweep(Polygon profile, Path path, Color32 color, bool cap = false, bool smoothCorners = false, bool smooth = true) {
+            Polygon p1 = null;
+            Polygon p2 = profile.Transform(Matrix4x4.TRS(
+                path.GetVertex(0),
+                Quaternion.FromToRotation(profile.Normal, path.GetTangent(0)),
+                Vector3.one * path.GetScale(0)));
+
+            if (cap) {
+                AddPolygon(p2);
+            }
+
+            for (var i = 1; i < path.VertexCount; i++) {
+                p1 = p2;
+                p2 = profile.Transform(Matrix4x4.TRS(
+                    path.GetVertex(i),
+                    Quaternion.FromToRotation(profile.Normal, path.GetTangent(i)),
+                    Vector3.one * path.GetScale(i)));
+
+                if (smoothCorners) {
+
+                } else {
+                    BridgePolygons(p1, p2, color, smooth);
+                }
+            }
+
+            if (cap) {
+                AddPolygon(p2);
+            }
+        }
+
 
         public static Mesh MergeMeshes(List<Mesh> meshes) {
             var compoundMesh = new Mesh();
@@ -261,5 +315,66 @@ namespace Voxelgon.Geometry {
             }
         }
 
+        private void BridgeSegment(int p1Index1, int p1Index2, int P2Offset1, int p2Offset2, int p2Start, int p2Size) {
+            _tris.Add(p1Index1);
+            _tris.Add(p1Index2);
+            _tris.Add(p2Start + P2Offset1);
+
+            for (int j = P2Offset1; j != p2Offset2;) {
+                _tris.Add(p2Start + j);
+                _tris.Add(p1Index2);
+                _tris.Add(p2Start + (j = ((j + 1) % p2Size)));
+            }
+        }
+
+        private static int[] VertexPairs(Polygon p1, Polygon p2) {
+            if (p1.VertexCount > p2.VertexCount) {
+                throw new System.ArgumentException();
+            }
+            var offset = p1.Center - p2.Center;
+
+            var p1Size = p1.VertexCount;
+            var p2Size = p2.VertexCount;
+
+            var p1Flat = p1.FlatVertices(offset);
+            var p2Flat = p2.FlatVertices(offset);
+
+            var p2Indices = new int[p1Size];
+
+            if (p1Size == p2Size) {
+                var smallest = 0;
+                var smallestDist = float.MaxValue;
+
+                for (var i = 0; i < p2Size; i++) {
+                    var dist = (p1Flat[0] - p2Flat[i]).SqrMagnitude();
+                    if (dist < smallestDist) {
+                        smallestDist = dist;
+                        smallest = i;
+                    }
+                }
+
+                for (var i = 0; i < p1Size; i++) {
+                    p2Indices[i] = smallest;
+                    smallest = (smallest + 1) % p2Size;
+                }
+                return p2Indices;
+            }
+
+            for (int i = 0; i < p1Size; i++) {
+                Vector3 p1Vertex = (p1.GetVertex(i) + p1.GetVertex((i + 1) % p1Size)) / 2;
+                float angle = 100;
+                int index = -1;
+                for (int j = 0; j < p2Size; j++) {
+                    float thisAngle = Mathf.Abs(Geometry.VectorAngle(p1Vertex - p1.Center, p2.GetVertex(j) - p2.Center, offset));
+                    if (thisAngle > 0 && thisAngle < angle) {
+                        index = j;
+                        angle = thisAngle;
+                    }
+                }
+                p2Indices[i] = index;
+            }
+
+            return p2Indices;
+        }
     }
 }

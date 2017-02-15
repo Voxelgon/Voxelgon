@@ -2,7 +2,6 @@ using UnityEngine;
 using System;
 using System.Collections.Generic;
 using Voxelgon.Math;
-using Voxelgon.ShipEditor;
 using Voxelgon.Geometry;
 
 
@@ -414,11 +413,16 @@ namespace Voxelgon.ShipEditor {
             } */
 
             var mb = new MeshBuilder();
-            Polygon p1 = new RegularPolygon(new Vector3(0, 0, 0), 5, 10, Vector3.up, Vector3.forward, Color.blue);
-            Polygon p2 = new RegularPolygon(new Vector3(-2, 5, 0), 3, 10, Vector3.up + Vector3.left, Vector3.forward, Color.blue);
-            mb.AddPolygon(p1);
-            mb.AddPolygon(p2);
-            mb.BridgePolygons(p1, p2, true);
+            Polygon p1 = new Polygon(new Vector3(0, 0, 0), 0.5f, 20, Vector3.up, Color.blue, Vector3.forward);
+            Path path = new Path(
+                new Vector3[] {Vector3.zero, Vector3.up, Vector3.up + Vector3.left, Vector3.up + 2*Vector3.left},
+                new Vector3[] {Vector3.up, Vector3.up + Vector3.left, Vector3.left, Vector3.left},
+                new float[] {1, 1, 1, 2});
+            //Polygon p2 = new Polygon(new Vector3(-2, 5, 0), 3, 10, Vector3.up + Vector3.left, Color.blue, Vector3.forward);
+            //mb.AddPolygon(p1);
+            //mb.AddPolygon(p2);
+            //mb.BridgePolygons(p1, p2, Color.cyan, true);
+            mb.Sweep(p1, path, Color.red, true, false, false);
             complexMesh = mb.FirstMesh;
         }
     }
