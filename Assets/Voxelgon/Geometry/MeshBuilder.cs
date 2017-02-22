@@ -26,20 +26,13 @@ namespace Voxelgon.Geometry {
 
         private readonly bool _printDebug = false;
 
-        public enum BridgeMode {
-            Tri,
-            Quad,
-            Smooth
-        }
-
-
         //Constructors
 
         public MeshBuilder(string name = "mesh", bool optimize = true, bool calcNormals = true) {
-            _vertices = new List<Vector3>();
-            _normals = new List<Vector3>();
-            _colors32 = new List<Color32>();
-            _tris = new List<int>();
+            _vertices = new List<Vector3>(512);
+            _normals = new List<Vector3>(512);
+            _colors32 = new List<Color32>(512);
+            _tris = new List<int>(512);
 
             _completedMeshes = new List<Mesh>();
 
@@ -70,35 +63,37 @@ namespace Voxelgon.Geometry {
 
         //Public Methods
 
-        public void ClearBuffer() {
-            _vertices.Clear();
-            _normals.Clear();
-            _colors32.Clear();
-            _tris.Clear();
+        public void Clear() {
+            ClearBuffer();
+            _completedMeshes.Clear();
         }
 
         public void AddPolygon(Polygon p) {
             int size = p.VertexCount;
-            int offset = _vertices.Count;
-
-            Color32 color = p.Color;
-            Vector3 normal = p.Normal;
-
-
-            if (_vertices.Count + size > 65534) {
-                //current mesh is too full to add to, finalize it and clear the buffer
-                FinalizeLastMesh();
-                offset = 0;
-            }
+            int offset = CheckSize(size);
 
             for (var i = 0; i < size; i++) {
-                _normals.Add(normal);
-                _colors32.Add(color);
+                _colors32.Add(p.Color);
+                _normals.Add(p.Normal);
             }
             _vertices.AddRange(p.Vertices);
 
             foreach (int tri in p.TriangleIndices) {
                 _tris.Add(offset + tri);
+            }
+        }
+
+        public void AddTriangle(Vector3 point0, Vector3 point1, Vector3 point2, Color32 color) {
+            var triOffset = CheckSize(3);
+
+            _vertices.Add(point0);
+            _vertices.Add(point1);
+            _vertices.Add(point2);
+
+            for (var t = 0; t < 3; t++) {
+                _colors32.Add(color);
+                _normals.Add(Geometry.TriangleNormal(point0, point1, point2));
+                _tris.Add(triOffset + t);
             }
         }
 
@@ -109,13 +104,7 @@ namespace Voxelgon.Geometry {
                 throw new InvalidPolygonException();
             }
 
-            int offset = _vertices.Count;
-
-            if (_vertices.Count + size > 65534) {
-                //current mesh is too full to add to, finalize it and clear the buffer
-                FinalizeLastMesh();
-                offset = 0;
-            }
+            int offset = CheckSize(size);
 
             _vertices.AddRange(vertices);
             _normals.AddRange(normals);
@@ -131,13 +120,7 @@ namespace Voxelgon.Geometry {
                 throw new InvalidPolygonException();
             }
 
-            int offset = _vertices.Count;
-
-            if (_vertices.Count + size > 65534) {
-                //current mesh is too full to add to, finalize it and clear the buffer
-                FinalizeLastMesh();
-                offset = 0;
-            }
+            int offset = CheckSize(size);
 
             _vertices.AddRange(vertices);
             _normals.AddRange(normals);
@@ -150,13 +133,7 @@ namespace Voxelgon.Geometry {
 
         public int AddVertices(Vector3[] vertices, Vector3 normal, Color32 color) {
             int size = vertices.Length;
-            int offset = _vertices.Count;
-
-            if (_vertices.Count + size > 65534) {
-                //current mesh is too full to add to, finalize it and clear the buffer
-                FinalizeLastMesh();
-                offset = 0;
-            }
+            int offset = CheckSize(size);
 
             _vertices.AddRange(vertices);
             for (var i = 0; i < size; i++) {
@@ -167,51 +144,30 @@ namespace Voxelgon.Geometry {
             return offset;
         }
 
-
         public void BridgePolygons(Polygon p1, Polygon p2, Color32 color, bool smooth = true) {
             if (p1.VertexCount > p2.VertexCount) {
                 BridgePolygons(p2, p1, color, smooth);
                 return;
             }
+
             var offset = p2.Center - p1.Center;
 
-            p1 = p1.EnsureClockwise(offset);
-            p2 = p2.EnsureClockwise(offset);
+            if (p1.WindingOrder(offset) < 0) {
+                p1 = p1.Reverse();
+            }
 
-            int p1Size = p1.VertexCount;
-            int p2Size = p2.VertexCount;
+            if (p2.WindingOrder(offset) < 0) {
+                p2 = p2.Reverse();
+            }
 
             var p2Indices = VertexPairs(p1, p2);
             if (smooth) {
                 int p1Start = AddVertices(p1.Vertices, p1.VertexNormals, color);
                 int p2Start = AddVertices(p2.Vertices, p2.VertexNormals, color);
 
-                for (int i = 0; i < p1Size; i++) {
-                    BridgeSegment(p1Start + i, p1Start + (i + 1) % p1Size, p2Indices[i], p2Indices[(i + 1) % p1Size], p2Start, p2Size);
-                }
+                BridgeSmoothLoop(p1Start, p1.VertexCount, p2Start, p2.VertexCount, p2Indices);
             } else {
-                for (int i = 0; i < p1Size; i++) {
-                    var points = new Vector3[] {p1.GetVertex(i),
-                                                p1.GetVertex((i + 1) % p1Size),
-                                                p2.GetVertex(p2Indices[i])};
-                                
-                    var normal = Geometry.TriangleNormal(points);
-                    var triOffset = AddVertices(points, normal, color);
-                    for (var t = 0; t < 3; t++) {
-                        _tris.Add(triOffset + t);
-                    }
-
-                    for (int j = p2Indices[i]; j != p2Indices[(i + 1) % p1Size]; j = (j + 1) % p2Size) {
-                        points = new Vector3[] { p1.GetVertex((i + 1) % p1Size),
-                                                 p2.GetVertex((j + 1) % p2Size),
-                                                 p2.GetVertex(j)};
-                        normal = Geometry.TriangleNormal(points);
-                        triOffset = AddVertices(points, normal, color);
-                        for (var t = 0; t < 3; t++) {
-                            _tris.Add(triOffset + t);
-                        }
-                    }
-                }
+                BridgeTriLoop(p1, p2, p2Indices, color);
             }
         }
 
@@ -223,8 +179,7 @@ namespace Voxelgon.Geometry {
 
         }
 
-
-        public void Sweep(Polygon profile, Path path, Color32 color, bool cap = false, bool smoothCorners = false, bool smooth = true) {
+        public void Sweep(Polygon profile, Path path, Color32 color, bool cap = false, bool smooth = false, bool smoothCorners = true) {
             Polygon p1 = null;
             Polygon p2 = profile.Transform(Matrix4x4.TRS(
                 path.GetVertex(0),
@@ -253,7 +208,6 @@ namespace Voxelgon.Geometry {
                 AddPolygon(p2);
             }
         }
-
 
         public static Mesh MergeMeshes(List<Mesh> meshes) {
             var compoundMesh = new Mesh();
@@ -291,6 +245,22 @@ namespace Voxelgon.Geometry {
 
         //Private Methods
 
+        private void ClearBuffer() {
+            _vertices.Clear();
+            _normals.Clear();
+            _colors32.Clear();
+            _tris.Clear();
+        }
+
+        private int CheckSize(int size) {
+            if (_vertices.Count + size > 65534) {
+                //current mesh is too full to add to, finalize it and clear the buffer
+                FinalizeLastMesh();
+                return 0;
+            }
+            return _vertices.Count;
+        }
+
         private void FinalizeLastMesh() {
             if (_vertices.Count > 0) {
                 var lastMesh = new Mesh();
@@ -303,7 +273,7 @@ namespace Voxelgon.Geometry {
                 lastMesh.RecalculateBounds();
 
                 if (_calcNormals) {
-                    lastMesh.RecalculateNormals();
+                    //lastMesh.RecalculateNormals();
                 }
 
                 if (_optimize) {
@@ -315,7 +285,7 @@ namespace Voxelgon.Geometry {
             }
         }
 
-        private void BridgeSegment(int p1Index1, int p1Index2, int P2Offset1, int p2Offset2, int p2Start, int p2Size) {
+        private void BridgeSmoothSegment(int p1Index1, int p1Index2, int P2Offset1, int p2Offset2, int p2Start, int p2Size) {
             _tris.Add(p1Index1);
             _tris.Add(p1Index2);
             _tris.Add(p2Start + P2Offset1);
@@ -324,6 +294,36 @@ namespace Voxelgon.Geometry {
                 _tris.Add(p2Start + j);
                 _tris.Add(p1Index2);
                 _tris.Add(p2Start + (j = ((j + 1) % p2Size)));
+            }
+        }
+
+        private void BridgeSmoothLoop(int p1Start, int p1Size, int p2Start, int p2Size, int[] p2Indices) {
+            for (int i = 0; i < p1Size; i++) {
+                BridgeSmoothSegment(
+                    p1Start + i,
+                    p1Start + (i + 1) % p1Size,
+                    p2Indices[i],
+                    p2Indices[(i + 1) % p1Size],
+                    p2Start, p2Size);
+            }
+        }
+
+        private void BridgeTriLoop(Polygon p1, Polygon p2, int[] p2Indices, Color32 color) {
+            var p1Size = p1.VertexCount;
+            var p2Size = p2.VertexCount;
+            for (int i = 0; i < p1Size; i++) {
+                AddTriangle(
+                    p1.GetVertex(i),
+                    p1.GetVertex((i + 1) % p1Size),
+                    p2.GetVertex(p2Indices[i]),
+                    color);
+                for (int j = p2Indices[i]; j != p2Indices[(i + 1) % p1Size]; j = (j + 1) % p2Size) {
+                    AddTriangle(
+                        p1.GetVertex((i + 1) % p1Size),
+                        p2.GetVertex((j + 1) % p2Size),
+                        p2.GetVertex(j),
+                        color);
+                }
             }
         }
 
@@ -347,6 +347,7 @@ namespace Voxelgon.Geometry {
 
                 for (var i = 0; i < p2Size; i++) {
                     var dist = (p1Flat[0] - p2Flat[i]).SqrMagnitude();
+                    if (dist < 0.01f) break;
                     if (dist < smallestDist) {
                         smallestDist = dist;
                         smallest = i;

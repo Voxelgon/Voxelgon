@@ -282,6 +282,7 @@ namespace Voxelgon.Geometry {
 
             Vector3 edgeNormal1 = Vector3.Cross(vertex2 - vertex1, _normal);
             Vector3 edgeNormal2 = Vector3.Cross(vertex3 - vertex2, _normal);
+            edgeNormal2 *= Mathf.Sqrt(edgeNormal1.sqrMagnitude / edgeNormal2.sqrMagnitude);
 
             return (edgeNormal1 + edgeNormal2).normalized;
         }
