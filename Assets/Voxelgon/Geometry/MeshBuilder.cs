@@ -8,16 +8,7 @@ namespace Voxelgon.Geometry {
 
         //Private Fields
 
-        private readonly string _name;
-
-        private readonly bool _optimize;
-
-        private readonly bool _calcNormals;
-
         private readonly List<Vector3> _vertices;
-
-        private readonly List<Vector3> _normals;
-
         private readonly List<Color32> _colors32;
 
         private readonly List<int> _tris;
@@ -28,18 +19,12 @@ namespace Voxelgon.Geometry {
 
         //Constructors
 
-        public MeshBuilder(string name = "mesh", bool optimize = true, bool calcNormals = true) {
+        public MeshBuilder() {
             _vertices = new List<Vector3>(512);
-            _normals = new List<Vector3>(512);
             _colors32 = new List<Color32>(512);
             _tris = new List<int>(512);
 
             _completedMeshes = new List<Mesh>();
-
-            _name = name;
-            _optimize = optimize;
-            _calcNormals = calcNormals;
-
 #if PRINTDEBUG
             _printDebug = true;
 #endif
@@ -74,7 +59,6 @@ namespace Voxelgon.Geometry {
 
             for (var i = 0; i < size; i++) {
                 _colors32.Add(p.Color);
-                _normals.Add(p.Normal);
             }
             _vertices.AddRange(p.Vertices);
 
@@ -92,52 +76,31 @@ namespace Voxelgon.Geometry {
 
             for (var t = 0; t < 3; t++) {
                 _colors32.Add(color);
-                _normals.Add(Geometry.TriangleNormal(point0, point1, point2));
                 _tris.Add(triOffset + t);
             }
         }
 
-        public int AddVertices(List<Vector3> vertices, List<Vector3> normals, List<Color32> colors) {
+        public int AddVertices(List<Vector3> vertices, List<Color32> colors) {
             int size = vertices.Count;
 
-            if (normals.Count != size || colors.Count != size) {
+            if (colors.Count != size) {
                 throw new InvalidPolygonException();
             }
 
             int offset = CheckSize(size);
 
             _vertices.AddRange(vertices);
-            _normals.AddRange(normals);
             _colors32.AddRange(colors);
 
             return offset;
         }
 
-        public int AddVertices(Vector3[] vertices, Vector3[] normals, Color32 color) {
-            int size = vertices.Length;
-
-            if (normals.Length != size) {
-                throw new InvalidPolygonException();
-            }
-
-            int offset = CheckSize(size);
-
-            _vertices.AddRange(vertices);
-            _normals.AddRange(normals);
-            for (var i = 0; i < size; i++) {
-                _colors32.Add(color);
-            }
-
-            return offset;
-        }
-
-        public int AddVertices(Vector3[] vertices, Vector3 normal, Color32 color) {
+        public int AddVertices(Vector3[] vertices, Color32 color) {
             int size = vertices.Length;
             int offset = CheckSize(size);
 
             _vertices.AddRange(vertices);
             for (var i = 0; i < size; i++) {
-                _normals.Add(normal);
                 _colors32.Add(color);
             }
 
@@ -160,14 +123,15 @@ namespace Voxelgon.Geometry {
                 p2 = p2.Reverse();
             }
 
-            var p2Indices = VertexPairs(p1, p2);
+            var pairs = PolygonPairs(p1, p2);
+            var dirs = PolygonDirs(p1, p2, pairs);
             if (smooth) {
-                int p1Start = AddVertices(p1.Vertices, p1.VertexNormals, color);
-                int p2Start = AddVertices(p2.Vertices, p2.VertexNormals, color);
+                int p1Start = AddVertices(p1.Vertices, color);
+                int p2Start = AddVertices(p2.Vertices, color);
 
-                BridgeSmoothLoop(p1Start, p1.VertexCount, p2Start, p2.VertexCount, p2Indices);
+                BridgeSmoothLoop(p1Start, p1.VertexCount, p2Start, p2.VertexCount, pairs, dirs);
             } else {
-                BridgeTriLoop(p1, p2, p2Indices, color);
+                BridgeTriLoop(p1, p2, pairs, dirs, color);
             }
         }
 
@@ -185,9 +149,17 @@ namespace Voxelgon.Geometry {
                 path.GetVertex(0),
                 Quaternion.FromToRotation(profile.Normal, path.GetTangent(0)),
                 Vector3.one * path.GetScale(0)));
+            int size = profile.VertexCount;
 
             if (cap) {
                 AddPolygon(p2);
+            }
+
+            int p1Start = -1;
+            int p2Start = -1;
+
+            if (smooth && smoothCorners) {
+                p2Start = AddVertices(p2.Vertices, color);
             }
 
             for (var i = 1; i < path.VertexCount; i++) {
@@ -197,10 +169,19 @@ namespace Voxelgon.Geometry {
                     Quaternion.FromToRotation(profile.Normal, path.GetTangent(i)),
                     Vector3.one * path.GetScale(i)));
 
-                if (smoothCorners) {
+                var dirs = PolygonDirs(p1, p2);
 
+                if (smooth) {
+                    if (smoothCorners) {
+                        p1Start = p2Start;
+                        p2Start = AddVertices(p2.Vertices, color);
+                    } else {
+                        p1Start = AddVertices(p1.Vertices, color);
+                        p2Start = AddVertices(p2.Vertices, color);
+                    }
+                    BridgeSmoothLoop(p1Start, p2Start, dirs, size);
                 } else {
-                    BridgePolygons(p1, p2, color, smooth);
+                    BridgeTriLoop(p1, p2, dirs, color);
                 }
             }
 
@@ -247,7 +228,6 @@ namespace Voxelgon.Geometry {
 
         private void ClearBuffer() {
             _vertices.Clear();
-            _normals.Clear();
             _colors32.Clear();
             _tris.Clear();
         }
@@ -266,68 +246,138 @@ namespace Voxelgon.Geometry {
                 var lastMesh = new Mesh();
 
                 lastMesh.SetVertices(_vertices);
-                lastMesh.SetNormals(_normals);
                 lastMesh.SetColors(_colors32);
 
                 lastMesh.SetTriangles(_tris, 0);
                 lastMesh.RecalculateBounds();
 
-                if (_calcNormals) {
-                    //lastMesh.RecalculateNormals();
-                }
-
-                if (_optimize) {
-                    ;
-                }
+                lastMesh.RecalculateNormals();
 
                 _completedMeshes.Add(lastMesh);
                 ClearBuffer();
             }
         }
 
-        private void BridgeSmoothSegment(int p1Index1, int p1Index2, int P2Offset1, int p2Offset2, int p2Start, int p2Size) {
-            _tris.Add(p1Index1);
-            _tris.Add(p1Index2);
-            _tris.Add(p2Start + P2Offset1);
-
-            for (int j = P2Offset1; j != p2Offset2;) {
-                _tris.Add(p2Start + j);
-                _tris.Add(p1Index2);
-                _tris.Add(p2Start + (j = ((j + 1) % p2Size)));
-            }
-        }
-
-        private void BridgeSmoothLoop(int p1Start, int p1Size, int p2Start, int p2Size, int[] p2Indices) {
+        private void BridgeSmoothLoop(int p1Start, int p1Size, int p2Start, int p2Size, int[] pairs, bool[] dirs) {
             for (int i = 0; i < p1Size; i++) {
-                BridgeSmoothSegment(
-                    p1Start + i,
-                    p1Start + (i + 1) % p1Size,
-                    p2Indices[i],
-                    p2Indices[(i + 1) % p1Size],
-                    p2Start, p2Size);
+                int next = (i + 1) % p1Size;
+                if (dirs[i]) {
+                    _tris.Add(p1Start + i);
+                    _tris.Add(p1Start + next);
+                    _tris.Add(p2Start + pairs[i]);
+
+                    for (int j = pairs[i]; j != pairs[next];) {
+                        _tris.Add(p2Start + j);
+                        _tris.Add(p1Start + next);
+                        _tris.Add(p2Start + (j = ((j + 1) % p2Size)));
+                    }
+                } else {
+                    _tris.Add(p1Start + i);
+                    _tris.Add(p1Start + next);
+                    _tris.Add(p2Start + pairs[next]);
+
+                    for (int j = pairs[i]; j != pairs[next];) {
+                        _tris.Add(p2Start + j);
+                        _tris.Add(p1Start + i);
+                        _tris.Add(p2Start + (j = ((j + 1) % p2Size)));
+                    }
+                }
             }
         }
 
-        private void BridgeTriLoop(Polygon p1, Polygon p2, int[] p2Indices, Color32 color) {
+        private void BridgeSmoothLoop(int p1Start, int p2Start, bool[] dirs, int size) {
+            for (int i = 0; i < size; i++) {
+                int next = (i + 1) % size;
+                if (dirs[i]) {
+                    _tris.Add(p2Start + i);
+                    _tris.Add(p1Start + i);
+                    _tris.Add(p1Start + next);
+
+                    _tris.Add(p1Start + next);
+                    _tris.Add(p2Start + next);
+                    _tris.Add(p2Start + i);
+                } else {
+                    _tris.Add(p2Start + next);
+                    _tris.Add(p1Start + i);
+                    _tris.Add(p1Start + next);
+
+                    _tris.Add(p1Start + i);
+                    _tris.Add(p2Start + next);
+                    _tris.Add(p2Start + i);
+                }
+            }
+        }
+
+        private void BridgeTriLoop(Polygon p1, Polygon p2, int[] pairs, bool[] dirs, Color32 color) {
             var p1Size = p1.VertexCount;
             var p2Size = p2.VertexCount;
             for (int i = 0; i < p1Size; i++) {
-                AddTriangle(
-                    p1.GetVertex(i),
-                    p1.GetVertex((i + 1) % p1Size),
-                    p2.GetVertex(p2Indices[i]),
-                    color);
-                for (int j = p2Indices[i]; j != p2Indices[(i + 1) % p1Size]; j = (j + 1) % p2Size) {
+                int next = (i + 1) % p1Size;
+                if (dirs[i]) {
                     AddTriangle(
-                        p1.GetVertex((i + 1) % p1Size),
-                        p2.GetVertex((j + 1) % p2Size),
-                        p2.GetVertex(j),
+                        p2.GetVertex(pairs[i]),
+                        p1.GetVertex(i),
+                        p1.GetVertex(next),
+                        color);
+                    for (int j = pairs[i]; j != pairs[next];) {
+                        AddTriangle(
+                            p2.GetVertex(j),
+                            p1.GetVertex(next),
+                            p2.GetVertex(j = (j + 1) % p2Size),
+                            color);
+                    }
+                } else {
+                    AddTriangle(
+                        p2.GetVertex(pairs[next]),
+                        p1.GetVertex(i),
+                        p1.GetVertex(next),
+                        color);
+                    for (int j = pairs[i]; j != pairs[next];) {
+                        AddTriangle(
+                            p2.GetVertex(j),
+                            p1.GetVertex(i),
+                            p2.GetVertex(j = (j + 1) % p2Size),
+                            color);
+                    }
+                }
+            }
+        }
+
+        private void BridgeTriLoop(Polygon p1, Polygon p2, bool[] dirs, Color32 color) {
+            if (p1.VertexCount != p2.VertexCount) {
+                throw new InvalidPolygonException();
+            }
+
+            var size = p1.VertexCount;
+            for (int i = 0; i < size; i++) {
+                int next = (i + 1) % size;
+                if (dirs[i]) {
+                    AddTriangle(
+                        p2.GetVertex(i),
+                        p1.GetVertex(i),
+                        p1.GetVertex(next),
+                        color);
+                    AddTriangle(
+                        p1.GetVertex(next),
+                        p2.GetVertex(next),
+                        p2.GetVertex(i),
+                        color);
+                } else {
+                    AddTriangle(
+                        p2.GetVertex(next),
+                        p1.GetVertex(i),
+                        p1.GetVertex(next),
+                        color);
+                    AddTriangle(
+                        p1.GetVertex(i),
+                        p2.GetVertex(next),
+                        p2.GetVertex(i),
                         color);
                 }
             }
         }
 
-        private static int[] VertexPairs(Polygon p1, Polygon p2) {
+        private static int[] PolygonPairs(Polygon p1, Polygon p2) {
             if (p1.VertexCount > p2.VertexCount) {
                 throw new System.ArgumentException();
             }
@@ -341,41 +391,75 @@ namespace Voxelgon.Geometry {
 
             var p2Indices = new int[p1Size];
 
-            if (p1Size == p2Size) {
-                var smallest = 0;
-                var smallestDist = float.MaxValue;
+            var smallest = 0;
+            var smallestDist = float.MaxValue;
 
-                for (var i = 0; i < p2Size; i++) {
-                    var dist = (p1Flat[0] - p2Flat[i]).SqrMagnitude();
-                    if (dist < 0.01f) break;
-                    if (dist < smallestDist) {
-                        smallestDist = dist;
-                        smallest = i;
-                    }
+            for (var i = 0; i < p2Size; i++) {
+                var dist = (p1Flat[0] - p2Flat[i]).SqrMagnitude();
+                if (dist < 0.01f) break;
+                if (dist < smallestDist) {
+                    smallestDist = dist;
+                    smallest = i;
                 }
+            }
+
+            if (p1Size == p2Size) {
+                for (var i = 0; i < p1Size; i++) {
+                    p2Indices[i] = (smallest + i) % p2Size;
+                }
+                return p2Indices;
+            } else {
+                int avg = (p2Size / p1Size);
+                float err = (p2Size / p2Size) - avg;
+                float acc = 0;
+                int j = smallest;
 
                 for (var i = 0; i < p1Size; i++) {
-                    p2Indices[i] = smallest;
-                    smallest = (smallest + 1) % p2Size;
+                    p2Indices[i] = (smallest + j) % p2Size;
+                    j += avg;
+                    acc += err;
+                    if (acc > 1) {
+                        acc--;
+                        j++;
+                    }
                 }
                 return p2Indices;
             }
+        }
 
-            for (int i = 0; i < p1Size; i++) {
-                Vector3 p1Vertex = (p1.GetVertex(i) + p1.GetVertex((i + 1) % p1Size)) / 2;
-                float angle = 100;
-                int index = -1;
-                for (int j = 0; j < p2Size; j++) {
-                    float thisAngle = Mathf.Abs(Geometry.VectorAngle(p1Vertex - p1.Center, p2.GetVertex(j) - p2.Center, offset));
-                    if (thisAngle > 0 && thisAngle < angle) {
-                        index = j;
-                        angle = thisAngle;
-                    }
-                }
-                p2Indices[i] = index;
+        private static bool[] PolygonDirs(Polygon p1, Polygon p2) {
+            if (p1.VertexCount != p2.VertexCount) {
+                throw new System.ArgumentException();
+            }
+            var offset = p1.Center - p2.Center;
+            var size = p1.VertexCount;
+
+            var p2dirs = new bool[size];
+
+            for (var i = 0; i < size; i++) {
+                var edge1 = p1.GetEdge(i);
+                var edge2 = p2.GetEdge(i);
+                var cross = Vector3.Cross(edge1, edge2);
+                p2dirs[i] = (Vector3.Dot(cross, offset) < 0);
             }
 
-            return p2Indices;
+            return p2dirs;
+        }
+
+        private static bool[] PolygonDirs(Polygon p1, Polygon p2, int[] pairs) {
+            var offset = p1.Center - p2.Center;
+            var size = p1.VertexCount;
+
+            var p2dirs = new bool[size];
+
+            for (var i = 0; i < size; i++) {
+                var edge1 = p1.GetEdge(i);
+                var edge2 = p2.GetEdge(pairs[i]);
+                var cross = Vector3.Cross(edge1, edge2);
+                p2dirs[i] = (Vector3.Dot(cross, offset) < 0);
+            }
+
+            return p2dirs;
         }
     }
 }

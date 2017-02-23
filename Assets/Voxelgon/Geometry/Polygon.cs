@@ -288,12 +288,12 @@ namespace Voxelgon.Geometry {
         }
 
         //returns the edge vector at index `index`
-        //normalized vector from a vertex to the following vertex
+        //vector from a vertex to the following vertex
         public Vector3 GetEdge(int index) {
             Vector3 vertex1 = _vertices[index];
             Vector3 vertex2 = _vertices[(index + 1) % VertexCount];
 
-            return (vertex2 - vertex1).normalized;
+            return (vertex2 - vertex1);
         }
 
         //returns the edge normal at index `index`
