@@ -8,42 +8,59 @@ namespace Voxelgon.Geometry {
 
         // PUBLIC STATIC METHODS
 
+        // returns the winding order of a triangle in 3D space around `normal`
         public static int TriangleWindingOrder(Vector3 p0, Vector3 p1, Vector3 p2, Vector3 normal) {
             Vector3 vectorA = (p1 - p0);
             Vector3 vectorB = (p2 - p0);
             return VectorWindingOrder(vectorA, vectorB, normal);
         }
 
+        // returns the winding order of a triangle in 2D space
         public static int TriangleWindingOrder2D(Vector2 p0, Vector2 p1, Vector2 p2) {
-            var twoArea = TriangleDoubleArea2D(p0, p1, p2);
-            if (twoArea > 0.001f) return 1;
-            if (twoArea < -0.001f) return -1;
+            var doubleArea = TriangleDoubleArea2D(p0, p1, p2);
+
+            if (doubleArea > 0.001f) return 1;
+            if (doubleArea < -0.001f) return -1;
             return 0;
         }
 
-        public static float TriangleDoubleArea2D(Vector2 p0, Vector2 p1, Vector2 p2) {
-            return (-p1.y * p2.x + p0.y * (-p1.x + p2.x) + p0.x * (p1.y - p2.y) + p1.x * p2.y);
-        }
-
-        public static float TriangleArea2D(Vector2 p0, Vector2 p1, Vector2 p2) {
-            return TriangleDoubleArea2D(p0, p1, p2) / 2;
-        }
-
+        // returns the winding order of two vectors in 3D space around `normal`
         public static int VectorWindingOrder(Vector3 vectorA, Vector3 vectorB, Vector3 normal) {
-            var binormal = Vector3.Cross(vectorA, normal);
-            var linearity = Vector3.Dot(binormal, vectorB);
-            if (Mathf.Abs(linearity) < 0.00001f) {
-                return 0;
-            }
-            var resultNormal = Vector3.Cross(vectorA, vectorB);
-            return (Vector3.Dot(normal, resultNormal) >= 0) ? 1 : -1;
+            var cross = Vector3.Cross(vectorA, normal);
+            var dot = Vector3.Dot(cross, vectorB);
+
+            if (dot > 0.0001f) return 1;
+            if (dot < -0.0001f) return -1;
+            return 0;
         }
 
+        // returns the winding order of two vectors in 2D space
         public static int VectorWindingOrder2D(Vector2 VectorA, Vector2 VectorB) {
             float cross = (VectorA.x * VectorB.y) - (VectorB.x * VectorA.y);
             return (cross > 0) ? 1 : -1;
         }
 
+        // returns the area of a triangle in 3D space
+        public static float TriangleArea(Vector3 p0, Vector3 p1, Vector3 p2) {
+            var vectorA = new Vector3(p1.x - p0.x, p1.y - p0.y, p1.z - p0.z); //unity's vector ops are slow???
+            var vectorB = new Vector3(p2.x - p0.x, p2.y - p0.y, p2.z - p0.z);
+            var crossed = Vector3.Cross(vectorA, vectorB);
+
+            return crossed.magnitude / 2;
+        }
+
+        // returns the area of a triangle in 2D space
+        public static float TriangleArea2D(Vector2 p0, Vector2 p1, Vector2 p2) {
+            return TriangleDoubleArea2D(p0, p1, p2) / 2;
+        }
+
+        // returns 2 times the area of a triangle in 2D space
+        public static float TriangleDoubleArea2D(Vector2 p0, Vector2 p1, Vector2 p2) {
+            return (-p1.y * p2.x + p0.y * (-p1.x + p2.x) + p0.x * (p1.y - p2.y) + p1.x * p2.y);
+        }
+
+        // returns if a triangle in 3D space contains a given point
+        // the point is projected onto the plane of the triangle
         public static bool TriangleContains(Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p, Vector3 normal) {
             bool contains = (TriangleWindingOrder(p0, p1, p, normal) != -1
             && TriangleWindingOrder(p1, p2, p, normal) != -1
@@ -51,7 +68,9 @@ namespace Voxelgon.Geometry {
             return contains;
         }
 
-        public static bool TriangleContains(Vector2 p0, Vector2 p1, Vector2 p2, Vector2 p) {
+        // returns if a triangle in 2D space contains a given point
+        // using barycentric coordinates
+        public static bool TriangleContains2D(Vector2 p0, Vector2 p1, Vector2 p2, Vector2 p) {
             var s = p0.y * p2.x - p0.x * p2.y + (p2.y - p0.y) * p.x + (p0.x - p2.x) * p.y;
             var t = p0.x * p1.y - p0.y * p1.x + (p0.y - p1.y) * p.x + (p1.x - p0.x) * p.y;
 
@@ -66,6 +85,7 @@ namespace Voxelgon.Geometry {
 
         }
 
+        // returns the normal vector of a triangle
         public static Vector3 TriangleNormal(Vector3 p0, Vector3 p1, Vector3 p2) {
             var vectorA = new Vector3(p1.x - p0.x, p1.y - p0.y, p1.z - p0.z); //unity's vector ops are slow???
             var vectorB = new Vector3(p2.x - p0.x, p2.y - p0.y, p2.z - p0.z);
@@ -74,10 +94,7 @@ namespace Voxelgon.Geometry {
             return crossed.normalized;
         }
 
-        public static Vector3 TriangleNormal(Vector3[] points) {
-            return TriangleNormal(points[0], points[1], points[2]);
-        }
-
+        // returns the angle of the first vertex of a triangle
         public static float TriangleAngle(Vector3 p0, Vector3 p1, Vector3 p2, Vector3 normal) {
             Vector3 vectorA = (p1 - p0);
             Vector3 vectorB = (p2 - p0);
@@ -85,6 +102,7 @@ namespace Voxelgon.Geometry {
             return VectorAngle(vectorA, vectorB, normal);
         }
 
+        // returns the angle between two vectors
         public static float VectorAngle(Vector3 vectorA, Vector3 vectorB, Vector3 normal) {
             Vector3 cross = Vector3.Cross(vectorA, vectorB);
             float cos = Vector3.Dot(vectorA, vectorB) / (vectorA.magnitude * vectorB.magnitude);
@@ -94,14 +112,22 @@ namespace Voxelgon.Geometry {
             return angle;
         }
 
+        // returns the average of several points
         public static Vector3 VectorAvg(Vector3[] points) {
-            var sum = new Vector3();
+            float sumX = 0;
+            float sumY = 0;
+            float sumZ = 0;
             foreach (Vector3 v in points) {
-                sum += v;
+                sumX += v.x;
+                sumY += v.y;
+                sumZ += v.z;
             }
-            return sum / points.Length;
+
+            float mult = 1 / points.Length;
+            return new Vector3(sumX * mult, sumY * mult, sumZ * mult);
         }
 
+        // flattens `vertices` onto a plane through `center` with the normal `normal`
         public static Vector2[] FlattenPoints(Vector3 center, Vector3[] vertices, Vector3 normal) {
             Vector2[] flattened = new Vector2[vertices.Length];
             Matrix4x4 matrix = Matrix4x4.TRS(
@@ -115,12 +141,12 @@ namespace Voxelgon.Geometry {
             return flattened;
         }
 
+        // flattens `vertices` onto a plane through the origin with the normal `normal`
         public static Vector2[] FlattenPoints(Vector3[] vertices, Vector3 normal) {
             return FlattenPoints(Vector3.zero, vertices, normal);
         }
 
-
-        //uses the shoelace algorithm on `vertices`, is 2*Area, and negative if clockwise
+        // uses the shoelace algorithm on `vertices`, is 2*Area, and negative if clockwise
         public static float Shoelace(Vector2[] vertices) {
             float sum = 0;
             Vector2 p1 = vertices[vertices.Length - 1];
@@ -133,6 +159,7 @@ namespace Voxelgon.Geometry {
             return sum;
         }
 
+        // returns the first normal found for a set of vertices in 3D 
         public static Vector3 PointsNormal(Vector3[] vertices) {
             if (vertices.Length <= 3) {
                 return Vector3.zero;
@@ -154,7 +181,9 @@ namespace Voxelgon.Geometry {
 
         }
 
-        public static int PolygonSegment(Vector2[] vertices, List<int> tris, int index1, int index2) {
+        // adds triangle indices for `vertices` to `tris`, and calls itself recursively to handle concave polygons
+        // `index1` and `index2` should be 0 and 1 for the top level call
+        public static int TriangulateSegment(Vector2[] vertices, List<int> tris, int index1, int index2) {
             int index3 = index2 + 1;
 
             while (index3 < vertices.Length && index3 >= 0) {
@@ -162,7 +191,7 @@ namespace Voxelgon.Geometry {
 
                 if (Geometry.TriangleWindingOrder2D(vertices[index1], vertices[index2], vertices[index3]) == 1) {
                     for (int i = index3 + 1; i < vertices.Length && validTri; i++) {
-                        validTri &= !Geometry.TriangleContains(vertices[index1], vertices[index2], vertices[index3], vertices[i]);
+                        validTri &= !Geometry.TriangleContains2D(vertices[index1], vertices[index2], vertices[index3], vertices[i]);
                     }
                 } else {
                     validTri = false;
@@ -180,12 +209,10 @@ namespace Voxelgon.Geometry {
                     index2 = index3;
                     index3++;
                 } else {
-                    index3 = PolygonSegment(vertices, tris, index2, index3);
+                    index3 = TriangulateSegment(vertices, tris, index2, index3);
                 }
             }
             return -1;
         }
-
-
     }
 }
