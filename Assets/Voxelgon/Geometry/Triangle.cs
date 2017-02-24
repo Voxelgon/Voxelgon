@@ -4,50 +4,58 @@ using UnityEngine;
 
 namespace Voxelgon.Geometry {
 
-    public class Triangle : Polygon {
+    public struct Triangle {
+        // FIELDS
+
+        private readonly Vector3 _vertex0;
+        private readonly Vector3 _vertex1;
+        private readonly Vector3 _vertex2;
+        private readonly Vector3 _normal;
+        private readonly Color32 _color;
 
         // CONSTRUCTORS
 
         //create a triangle from the three given points and a color
-        public Triangle(Vector3 vertex1, Vector3 vertex2, Vector3 vertex3, Color32 color) :
-            this(new[] { vertex1, vertex2, vertex3 }, color) { }
-
-        public Triangle(Vector3[] vertices, Color32 color) :
-            base(
-                vertices,
-                Geometry.TriangleNormal(vertices[0], vertices[1], vertices[2]),
-                Geometry.VectorAvg(vertices),
-                color) { }
+        public Triangle(Vector3 vertex0, Vector3 vertex1, Vector3 vertex2, Color32 color) {
+            _vertex0 = vertex0;
+            _vertex1 = vertex1;
+            _vertex2 = vertex2;
+            _normal = Geometry.TriangleNormal(_vertex0, _vertex1, _vertex2);
+            _color = color;
+        }
 
         // PROPERTIES
 
-        //is the triangle convex?
-        public override bool IsConvex {
-            //triangles are always convex
-            get { return true; }
+        public Vector3 Vertex0 {
+            get { return _vertex0; }
+        }
+
+        public Vector3 Vertex1 {
+            get { return _vertex1; }
+        }
+
+        public Vector3 Vertex2 {
+            get { return _vertex2; }
+        }
+
+        public Vector3 Normal {
+            get { return _normal; }
+        }
+
+        public Color32 Color {
+            get { return _color; }
         }
 
         //the area of the triangle 
-        public override float Area {
-            get { return Vector3.Cross(_vertices[1] - _vertices[0], _vertices[2] - _vertices[0]).magnitude / 2; }
+        public float Area {
+            get { return Geometry.TriangleArea(_vertex0, _vertex1, _vertex2); }
         }
-
-        //the number of vertices in the polygon
-        public override int VertexCount {
-            get { return 3; }
-        }
-
-        public override int[] TriangleIndices {
-            get { return new int[] { 0, 1, 2 }; }
-        }
-
 
 
         // METHODS
 
-        //returns and array of triangles that make up the polygon
-        public override Triangle[] ToTriangles() {
-            return new Triangle[] { new Triangle(_vertices, _color) };
+        public bool Contains(Vector3 point) {
+            return Geometry.TriangleContains(_vertex0, _vertex1, _vertex2, point, _normal);
         }
     }
 }

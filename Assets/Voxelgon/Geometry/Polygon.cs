@@ -5,14 +5,14 @@ using System.Collections.Generic;
 
 namespace Voxelgon.Geometry {
 
-    public class Polygon {
+    public struct Polygon {
 
         // FIELDS
 
-        protected readonly Vector3[] _vertices;
-        protected readonly Vector3 _normal;
-        protected readonly Vector3 _center;
-        protected readonly Color32 _color;
+        private readonly Vector3[] _vertices;
+        private readonly Vector3 _normal;
+        private readonly Vector3 _center;
+        private readonly Color32 _color;
 
         // CONSTRUCTORS
 
@@ -77,7 +77,7 @@ namespace Voxelgon.Geometry {
             }
         }
 
-        protected Polygon(Vector3[] vertices, Vector3 normal, Vector3 center, Color32 color) {
+        private Polygon(Vector3[] vertices, Vector3 normal, Vector3 center, Color32 color) {
             _vertices = vertices;
             _normal = normal;
             _center = center;
@@ -89,7 +89,7 @@ namespace Voxelgon.Geometry {
 
 
         //is the polygon convex?
-        public virtual bool IsConvex {
+        public  bool IsConvex {
             get {
                 for (int i = 0; i < VertexCount; i++) {
                     int j = (i + 1) % VertexCount;
@@ -109,32 +109,32 @@ namespace Voxelgon.Geometry {
         }
 
         //the area of the polygon
-        public virtual float Area {
+        public  float Area {
             get { return Mathf.Abs(Geometry.Shoelace(FlatVertices()) / 2); }
         }
 
         //the number of vertices in the polygon
-        public virtual int VertexCount {
+        public  int VertexCount {
             get { return _vertices.Length; }
         }
 
         //the polygon's vertices as an array
-        public virtual Vector3[] Vertices {
+        public  Vector3[] Vertices {
             get { return (Vector3[])_vertices.Clone(); }
         }
 
         //the polygon's normal vector
-        public virtual Vector3 Normal {
+        public  Vector3 Normal {
             get { return _normal; }
         }
 
         //the polygon's colors as a new list
-        public virtual Color32 Color {
+        public  Color32 Color {
             get { return _color; }
         }
 
         //the polygon's vertex normals as a new list
-        public virtual Vector3[] VertexNormals {
+        public  Vector3[] VertexNormals {
             get {
                 var vertexNormals = new Vector3[VertexCount];
                 for (var i = 0; i < VertexCount; i++) {
@@ -146,15 +146,15 @@ namespace Voxelgon.Geometry {
         }
 
         //the polygon's geometric center
-        public virtual Vector3 Center {
+        public  Vector3 Center {
             get { return _center; }
         }
 
-        public virtual int[] TriangleIndices {
+        public  int[] TriangleIndices {
             get {
                 var indices = new List<int>();
                 var vertices2D = Geometry.FlattenPoints(_center, _vertices, _normal);
-                Geometry.PolygonSegment(vertices2D, indices, 0, 1);
+                Geometry.TriangulateSegment(vertices2D, indices, 0, 1);
 
                 return indices.ToArray();
             }
@@ -166,7 +166,7 @@ namespace Voxelgon.Geometry {
         // 1 = clockwise
         //-1 = counter-clockwise
         // 0 = all points are colinear, or polygon is invalid
-        public virtual int WindingOrder(Vector3 normal) {
+        public  int WindingOrder(Vector3 normal) {
             var dot = Vector3.Dot(_normal, normal);
 
             if (dot > 0.0001f) return 1;
@@ -175,13 +175,13 @@ namespace Voxelgon.Geometry {
         }
 
         //if the polygon is counter-clockwise, reverse it so it is clockwise
-        public virtual Polygon EnsureClockwise(Vector3 normal) {
+        public  Polygon EnsureClockwise(Vector3 normal) {
             if (WindingOrder(normal) != 1) return Reverse();
-            return Clone();
+            return this;
         }
 
         //returns whether or not `point` is on or inside the polygon
-        public virtual bool Contains(Vector3 point) {
+        public  bool Contains(Vector3 point) {
             foreach (Triangle t in ToTriangles()) {
                 if (t.Contains(point))
                     return true;
@@ -191,7 +191,7 @@ namespace Voxelgon.Geometry {
         }
 
         //returns an array of triangles that make up the polygon
-        public virtual Triangle[] ToTriangles() {
+        public  Triangle[] ToTriangles() {
             var triangleIndices = TriangleIndices;
             if (triangleIndices.Length % 3 != 0) {
                 throw new InvalidPolygonException("Unknown Error");
@@ -213,7 +213,7 @@ namespace Voxelgon.Geometry {
         }
 
         //returns a polygon truncated starting at Vector3 `point` by vector3 `offset`
-        public virtual Polygon Truncate(Vector3 point, Vector3 offset) {
+        public  Polygon Truncate(Vector3 point, Vector3 offset) {
             var plane = new Plane(offset.normalized, offset + point);
             var verts = new List<Vector3>();
             var trim = new List<int>();
@@ -302,13 +302,8 @@ namespace Voxelgon.Geometry {
             return Vector3.Cross(GetEdge(index), _normal).normalized;
         }
 
-        //returns a clone of this Polygon
-        public Polygon Clone() {
-            return new Polygon(_vertices, _normal, _center, _color);
-        }
-
         //reverses the polygon's winding order
-        public virtual Polygon Reverse() {
+        public  Polygon Reverse() {
             var newVertices = (Vector3[])_vertices.Clone();
             Array.Reverse(newVertices);
 

@@ -144,7 +144,7 @@ namespace Voxelgon.Geometry {
         }
 
         public void Sweep(Polygon profile, Path path, Color32 color, bool cap = false, bool smooth = false, bool smoothCorners = true) {
-            Polygon p1 = null;
+            Polygon p1;
             Polygon p2 = profile.Transform(Matrix4x4.TRS(
                 path.GetVertex(0),
                 Quaternion.FromToRotation(profile.Normal, path.GetTangent(0)),
@@ -152,7 +152,7 @@ namespace Voxelgon.Geometry {
             int size = profile.VertexCount;
 
             if (cap) {
-                AddPolygon(p2);
+                AddPolygon(p2.Reverse());
             }
 
             int p1Start = -1;

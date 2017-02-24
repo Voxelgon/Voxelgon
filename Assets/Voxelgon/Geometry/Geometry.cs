@@ -10,8 +10,8 @@ namespace Voxelgon.Geometry {
 
         // returns the winding order of a triangle in 3D space around `normal`
         public static int TriangleWindingOrder(Vector3 p0, Vector3 p1, Vector3 p2, Vector3 normal) {
-            Vector3 vectorA = (p1 - p0);
-            Vector3 vectorB = (p2 - p0);
+            var vectorA = new Vector3(p1.x - p0.x, p1.y - p0.y, p1.z - p0.z); //unity's vector ops are slow???
+            var vectorB = new Vector3(p2.x - p0.x, p2.y - p0.y, p2.z - p0.z);
             return VectorWindingOrder(vectorA, vectorB, normal);
         }
 
@@ -96,8 +96,8 @@ namespace Voxelgon.Geometry {
 
         // returns the angle of the first vertex of a triangle
         public static float TriangleAngle(Vector3 p0, Vector3 p1, Vector3 p2, Vector3 normal) {
-            Vector3 vectorA = (p1 - p0);
-            Vector3 vectorB = (p2 - p0);
+            var vectorA = new Vector3(p1.x - p0.x, p1.y - p0.y, p1.z - p0.z); //unity's vector ops are slow???
+            var vectorB = new Vector3(p2.x - p0.x, p2.y - p0.y, p2.z - p0.z);
 
             return VectorAngle(vectorA, vectorB, normal);
         }
