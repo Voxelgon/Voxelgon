@@ -5,22 +5,20 @@ using System.Collections.Generic;
 
 namespace Voxelgon.Geometry {
 
-    public struct Polygon {
+    public class Polygon {
 
         // FIELDS
 
         private readonly Vector3[] _vertices;
         private readonly Vector3 _normal;
         private readonly Vector3 _center;
-        private readonly Color32 _color;
 
         // CONSTRUCTORS
 
-        public Polygon(Vector3[] vertices, Color32 color) {
+        public Polygon(Vector3[] vertices) {
             _vertices = (Vector3[])vertices.Clone();
-            _color = color;
 
-            if (_vertices.Length < 3) {
+            if (VertexCount < 3) {
                 throw new InvalidPolygonException("Less than 3 vertices");
             }
 
@@ -35,7 +33,7 @@ namespace Voxelgon.Geometry {
 
             //check if coplanar 
             Plane p = new Plane(tmpNormal, _vertices[0]);
-            for (var i = 3; i < _vertices.Length; i++) {
+            for (var i = 3; i < VertexCount; i++) {
                 if (p.GetDistanceToPoint(_vertices[i]) > 0.01f) {
                     throw new InvalidPolygonException("Not Planar");
                 }
@@ -51,9 +49,8 @@ namespace Voxelgon.Geometry {
             }
         }
 
-        public Polygon(Vector3 center, float radius, int sideCount, Vector3 normal, Color32 color, Vector3 tangent = default(Vector3)) {
+        public Polygon(Vector3 center, float radius, int sideCount, Vector3 normal, Vector3 tangent = default(Vector3)) {
             _vertices = new Vector3[sideCount];
-            _color = color;
             _center = center;
             _normal = normal;
 
@@ -77,11 +74,10 @@ namespace Voxelgon.Geometry {
             }
         }
 
-        private Polygon(Vector3[] vertices, Vector3 normal, Vector3 center, Color32 color) {
+        private Polygon(Vector3[] vertices, Vector3 normal, Vector3 center) {
             _vertices = vertices;
             _normal = normal;
             _center = center;
-            _color = color;
         }
 
 
@@ -89,7 +85,7 @@ namespace Voxelgon.Geometry {
 
 
         //is the polygon convex?
-        public  bool IsConvex {
+        public bool IsConvex {
             get {
                 for (int i = 0; i < VertexCount; i++) {
                     int j = (i + 1) % VertexCount;
@@ -109,32 +105,27 @@ namespace Voxelgon.Geometry {
         }
 
         //the area of the polygon
-        public  float Area {
+        public float Area {
             get { return Mathf.Abs(Geometry.Shoelace(FlatVertices()) / 2); }
         }
 
         //the number of vertices in the polygon
-        public  int VertexCount {
+        public int VertexCount {
             get { return _vertices.Length; }
         }
 
         //the polygon's vertices as an array
-        public  Vector3[] Vertices {
+        public Vector3[] Vertices {
             get { return (Vector3[])_vertices.Clone(); }
         }
 
         //the polygon's normal vector
-        public  Vector3 Normal {
+        public Vector3 Normal {
             get { return _normal; }
         }
 
-        //the polygon's colors as a new list
-        public  Color32 Color {
-            get { return _color; }
-        }
-
         //the polygon's vertex normals as a new list
-        public  Vector3[] VertexNormals {
+        public Vector3[] VertexNormals {
             get {
                 var vertexNormals = new Vector3[VertexCount];
                 for (var i = 0; i < VertexCount; i++) {
@@ -146,13 +137,13 @@ namespace Voxelgon.Geometry {
         }
 
         //the polygon's geometric center
-        public  Vector3 Center {
+        public Vector3 Center {
             get { return _center; }
         }
 
-        public  int[] TriangleIndices {
+        public int[] TriangleIndices {
             get {
-                var indices = new List<int>();
+                var indices = new List<int>(VertexCount * 3);
                 var vertices2D = Geometry.FlattenPoints(_center, _vertices, _normal);
                 Geometry.TriangulateSegment(vertices2D, indices, 0, 1);
 
@@ -166,7 +157,7 @@ namespace Voxelgon.Geometry {
         // 1 = clockwise
         //-1 = counter-clockwise
         // 0 = all points are colinear, or polygon is invalid
-        public  int WindingOrder(Vector3 normal) {
+        public int WindingOrder(Vector3 normal) {
             var dot = Vector3.Dot(_normal, normal);
 
             if (dot > 0.0001f) return 1;
@@ -175,45 +166,30 @@ namespace Voxelgon.Geometry {
         }
 
         //if the polygon is counter-clockwise, reverse it so it is clockwise
-        public  Polygon EnsureClockwise(Vector3 normal) {
+        public Polygon EnsureClockwise(Vector3 normal) {
             if (WindingOrder(normal) != 1) return Reverse();
             return this;
         }
 
         //returns whether or not `point` is on or inside the polygon
-        public  bool Contains(Vector3 point) {
-            foreach (Triangle t in ToTriangles()) {
-                if (t.Contains(point))
+        public bool Contains(Vector3 point) {
+            var indices = TriangleIndices;
+            for (var i = 0; i < indices.Length; i += 3) {
+                if (Geometry.TriangleContains(
+                        _vertices[indices[i]],
+                        _vertices[indices[i + 1]],
+                        _vertices[indices[i + 2]],
+                        point,
+                        _normal)) {
                     return true;
+                }
             }
 
             return false;
         }
 
-        //returns an array of triangles that make up the polygon
-        public  Triangle[] ToTriangles() {
-            var triangleIndices = TriangleIndices;
-            if (triangleIndices.Length % 3 != 0) {
-                throw new InvalidPolygonException("Unknown Error");
-            }
-            var triCount = triangleIndices.Length / 3;
-            var triangles = new Triangle[triCount];
-
-            var j = 0;
-            for (int i = 0; i < triCount; i++) {
-                triangles[i] = new Triangle(
-                            _vertices[j],
-                            _vertices[j + 1],
-                            _vertices[j + 2],
-                            _color);
-                j += 3;
-            }
-
-            return triangles;
-        }
-
         //returns a polygon truncated starting at Vector3 `point` by vector3 `offset`
-        public  Polygon Truncate(Vector3 point, Vector3 offset) {
+        public Polygon Truncate(Vector3 point, Vector3 offset) {
             var plane = new Plane(offset.normalized, offset + point);
             var verts = new List<Vector3>();
             var trim = new List<int>();
@@ -260,7 +236,7 @@ namespace Voxelgon.Geometry {
 
             var newVertices = verts.ToArray();
 
-            return new Polygon(newVertices, _normal, Geometry.VectorAvg(newVertices), _color);
+            return new Polygon(newVertices, _normal, Geometry.VectorAvg(newVertices));
         }
 
         //returns the vertex at index `index`
@@ -303,11 +279,14 @@ namespace Voxelgon.Geometry {
         }
 
         //reverses the polygon's winding order
-        public  Polygon Reverse() {
-            var newVertices = (Vector3[])_vertices.Clone();
-            Array.Reverse(newVertices);
+        public Polygon Reverse() {
+            var size = VertexCount;
+            var newVertices = new Vector3[size];
+            for (var i = 0; i < size; i++) {
+                newVertices[i] = _vertices[size - i - 1];
+            }
 
-            return new Polygon(newVertices, -1 * _normal, _center, _color);
+            return new Polygon(newVertices, -1 * _normal, _center);
         }
 
 
@@ -322,13 +301,13 @@ namespace Voxelgon.Geometry {
 
         //returns a clone of this Polygon scales around its center
         public Polygon Scale(float scaleFactor, Vector3 center) {
-            var newVertices = new Vector3[_vertices.Length];
+            var newVertices = new Vector3[VertexCount];
 
             for (int i = 0; i < newVertices.Length; i++) {
                 newVertices[i] = (_vertices[i] - center) * scaleFactor;
             }
 
-            return new Polygon(newVertices, _normal, _center, _color);
+            return new Polygon(newVertices, _normal, _center);
         }
 
         //returns a clone of this Polygon scales around its center
@@ -338,29 +317,38 @@ namespace Voxelgon.Geometry {
 
         // returns a clone of this Polygon offset by a given vector
         public Polygon Translate(Vector3 translationVector) {
-            var newVertices = new Vector3[_vertices.Length];
+            var newVertices = new Vector3[VertexCount];
             var newCenter = _center + translationVector;
 
             for (int i = 0; i < newVertices.Length; i++) {
                 newVertices[i] = _vertices[i] + translationVector;
             }
 
-            return new Polygon(newVertices, _normal, newCenter, _color);
+            return new Polygon(newVertices, _normal, newCenter);
         }
 
         // returns a clone of this Polygon with each vertex operated on by the 4x4 matrix
         public Polygon Transform(Matrix4x4 matrix) {
-            var newVertices = new Vector3[VertexCount];
+            var size = VertexCount;
+            var newVertices = new Vector3[size];
             var newNormal = matrix.MultiplyVector(_normal);
             var newCenter = matrix.MultiplyPoint3x4(_center);
 
-            for (var i = 0; i < VertexCount; i++) {
+            for (var i = 0; i < size; i++) {
                 newVertices[i] = matrix.MultiplyPoint3x4(_vertices[i]);
             }
 
-            return new Polygon(newVertices, newNormal, newCenter, _color);
+            return new Polygon(newVertices, newNormal, newCenter);
         }
 
+        public void CopyVertices(List<Vector3> dest) {
+            dest.AddRange(_vertices);
+        }
+        
+        public void CopyTris(List<int> dest, int offset) {
+            var vertices2D = Geometry.FlattenPoints(_center, _vertices, _normal);
+            Geometry.TriangulateSegment(vertices2D, dest, 0, 1, offset);
+       }
 
         //draw the polygon in the world for 1 frame
         public void Draw() {

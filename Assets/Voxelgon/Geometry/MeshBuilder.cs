@@ -53,18 +53,9 @@ namespace Voxelgon.Geometry {
             _completedMeshes.Clear();
         }
 
-        public void AddPolygon(Polygon p) {
-            int size = p.VertexCount;
-            int offset = CheckSize(size);
-
-            for (var i = 0; i < size; i++) {
-                _colors32.Add(p.Color);
-            }
-            _vertices.AddRange(p.Vertices);
-
-            foreach (int tri in p.TriangleIndices) {
-                _tris.Add(offset + tri);
-            }
+        public void AddPolygon(Polygon p, Color32 color) {
+            int offset = AddVertices(p, color);
+            p.CopyTris(_tris, offset);
         }
 
         public void AddTriangle(Vector3 point0, Vector3 point1, Vector3 point2, Color32 color) {
@@ -78,6 +69,19 @@ namespace Voxelgon.Geometry {
                 _colors32.Add(color);
                 _tris.Add(triOffset + t);
             }
+        }
+
+        public int AddVertices(Polygon p, Color32 color) {
+            int size = p.VertexCount;
+            int offset = CheckSize(size);
+
+            for (var i = 0; i < size; i++) {
+                _colors32.Add(color);
+            }
+
+            p.CopyVertices(_vertices);
+
+            return offset;
         }
 
         public int AddVertices(List<Vector3> vertices, List<Color32> colors) {
@@ -126,8 +130,8 @@ namespace Voxelgon.Geometry {
             var pairs = PolygonPairs(p1, p2);
             var dirs = PolygonDirs(p1, p2, pairs);
             if (smooth) {
-                int p1Start = AddVertices(p1.Vertices, color);
-                int p2Start = AddVertices(p2.Vertices, color);
+                int p1Start = AddVertices(p1, color);
+                int p2Start = AddVertices(p2, color);
 
                 BridgeSmoothLoop(p1Start, p1.VertexCount, p2Start, p2.VertexCount, pairs, dirs);
             } else {
@@ -152,14 +156,14 @@ namespace Voxelgon.Geometry {
             int size = profile.VertexCount;
 
             if (cap) {
-                AddPolygon(p2.Reverse());
+                AddPolygon(p2.Reverse(), color);
             }
 
             int p1Start = -1;
             int p2Start = -1;
 
             if (smooth && smoothCorners) {
-                p2Start = AddVertices(p2.Vertices, color);
+                p2Start = AddVertices(p2, color);
             }
 
             for (var i = 1; i < path.VertexCount; i++) {
@@ -174,10 +178,10 @@ namespace Voxelgon.Geometry {
                 if (smooth) {
                     if (smoothCorners) {
                         p1Start = p2Start;
-                        p2Start = AddVertices(p2.Vertices, color);
+                        p2Start = AddVertices(p2, color);
                     } else {
-                        p1Start = AddVertices(p1.Vertices, color);
-                        p2Start = AddVertices(p2.Vertices, color);
+                        p1Start = AddVertices(p1, color);
+                        p2Start = AddVertices(p2, color);
                     }
                     BridgeSmoothLoop(p1Start, p2Start, dirs, size);
                 } else {
@@ -186,7 +190,7 @@ namespace Voxelgon.Geometry {
             }
 
             if (cap) {
-                AddPolygon(p2);
+                AddPolygon(p2, color);
             }
         }
 

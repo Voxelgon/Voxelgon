@@ -181,9 +181,22 @@ namespace Voxelgon.Geometry {
 
         }
 
+        public static void TransformPoints(Vector3[] vertices, Matrix4x4 matrix) {
+            for (var i = 0; i < vertices.Length; i++) {
+                vertices[i] = matrix.MultiplyPoint3x4(vertices[i]);
+            }
+        }
+
+        public static Vector2 Miter(Vector2 normalA, Vector2 normalB) {
+            float determinant = normalB.y * normalA.x - normalA.y * normalB.x;
+            float bLength = (normalB.x * (normalA.x - normalB.x) - normalB.y * (normalA.y - normalB.y)) / determinant;
+
+            return new Vector2(normalB.x + (normalB.y * bLength), normalB.y + (normalB.x * bLength));
+        }
+
         // adds triangle indices for `vertices` to `tris`, and calls itself recursively to handle concave polygons
         // `index1` and `index2` should be 0 and 1 for the top level call
-        public static int TriangulateSegment(Vector2[] vertices, List<int> tris, int index1, int index2) {
+        public static int TriangulateSegment(Vector2[] vertices, List<int> tris, int index1, int index2, int offset = 0) {
             int index3 = index2 + 1;
 
             while (index3 < vertices.Length && index3 >= 0) {
@@ -198,9 +211,9 @@ namespace Voxelgon.Geometry {
                 }
 
                 if (validTri) {
-                    tris.Add(index1);
-                    tris.Add(index2);
-                    tris.Add(index3);
+                    tris.Add(offset + index1);
+                    tris.Add(offset + index2);
+                    tris.Add(offset + index3);
 
                     if (index1 != 0 && Geometry.TriangleWindingOrder2D(vertices[0], vertices[index1], vertices[index3]) == 1) {
                         return index3;

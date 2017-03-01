@@ -413,7 +413,7 @@ namespace Voxelgon.ShipEditor {
             } */
 
             var mb = new MeshBuilder();
-            Polygon p1 = new Polygon(new Vector3(0, 0, 0), 0.5f, 20, Vector3.up, Color.blue, Vector3.forward);
+            Polygon p1 = new Polygon(new Vector3(0, 0, 0), 0.5f, 20, Vector3.up, Vector3.forward);
             Path path = new Path(
                 new Vector3[] {Vector3.zero, Vector3.up, Vector3.up + Vector3.left, Vector3.up + 2*Vector3.left},
                 new Vector3[] {Vector3.up, Vector3.up + Vector3.left, Vector3.left, Vector3.left},

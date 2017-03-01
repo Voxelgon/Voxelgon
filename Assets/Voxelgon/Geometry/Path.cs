@@ -17,9 +17,15 @@ namespace Voxelgon.Geometry {
         // CONSTRUCTORS
 
         public Path(Vector3[] vertices, Vector3[] tangents, float[] scales) {
-            _vertices = vertices;
-            _tangents = tangents;
-            _scales = scales;
+            _vertices = (Vector3[])vertices.Clone();
+            _tangents = (Vector3[])tangents.Clone();
+            _scales = (float[])scales.Clone();
+        }
+
+        private Path(int size) {
+            _vertices = new Vector3[size];
+            _tangents = new Vector3[size];
+            _scales = new float[size];
         }
 
 
@@ -27,36 +33,41 @@ namespace Voxelgon.Geometry {
 
 
         //the number of vertices in the path
-        public virtual int VertexCount {
+        public int VertexCount {
             get { return _vertices.Length; }
         }
 
         //the path's vertices as a new list
-        public virtual List<Vector3> Vertices {
-            get { return new List<Vector3>(_vertices); }
+        public Vector3[] Vertices {
+            get { return (Vector3[])_vertices.Clone(); }
         }
 
         //the path's tangents as a new list
-        public virtual List<Vector3> Tangents{
-            get { return new List<Vector3>(_tangents); }
+        public Vector3[] Tangents{
+            get { return (Vector3[])_tangents.Clone(); }
         }
 
         //the path's scale values as a new list
-        public virtual List<float> Scales{
-            get { return new List<float>(_scales); }
+        public float[] Scales{
+            get { return (float[])_scales.Clone(); }
         }
 
         // METHODS
 
         //reverses the path
         public virtual Path Reverse() {
-            var vertices = (Vector3[])_vertices.Clone();
-            var tangents = (Vector3[])_tangents.Clone();
-            var scales = (float[])_scales.Clone();
-            Array.Reverse(vertices);
-            Array.Reverse(tangents);
-            Array.Reverse(scales);
-            return new Path(vertices, tangents, scales);
+            var size = VertexCount;
+
+            var reversed = new Path(size);
+
+            for (var i = 0; i < size; i++) {
+                var j = size - i - 1;
+                reversed._vertices[i] = _vertices[j];
+                reversed._tangents[i] = _tangents[j];
+                reversed._scales[i] = _scales[j];
+            }
+
+            return reversed;
         }
 
         //returns the vertex at index `index`
