@@ -365,6 +365,30 @@ namespace Voxelgon.Geometry {
             return new Polygon(newVertices, _normal, Geometry.VectorAvg(newVertices));
         }
 
+        public Polygon Offset(float[] amounts) {
+            var newVertices = (Vector3[])_vertices.Clone();
+            var rotation = Quaternion.FromToRotation(_normal, Vector3.forward);
+
+            Geometry.TransformPoints(newVertices, Matrix4x4.TRS(Vector3.zero, rotation, Vector3.one));
+
+            Matrix2x2 rotation2D = new Matrix2x2(-Vector2.up, Vector2.right);
+            Vector2 lastNormal = rotation2D * (newVertices[0] - newVertices[VertexCount - 1]).normalized * amounts[VertexCount - 1];
+            Vector2 normalA;
+            Vector2 normalB = lastNormal;
+
+            for (var i = 0; i < VertexCount - 1; i++) {
+                normalA = normalB;
+                normalB = rotation2D * (newVertices[(i + 1) % VertexCount] - newVertices[i]).normalized * amounts[i];
+                newVertices[i] += (Vector3) Geometry.Miter(normalA, normalB);;
+            }
+            newVertices[VertexCount - 1] += (Vector3) Geometry.Miter(normalB, lastNormal);
+
+            rotation = Quaternion.Inverse(rotation);
+            Geometry.TransformPoints(newVertices, Matrix4x4.TRS(Vector3.zero, rotation, Vector3.one));
+
+            return new Polygon(newVertices, _normal, Geometry.VectorAvg(newVertices));
+        }
+
         public void CopyVertices(List<Vector3> dest) {
             dest.AddRange(_vertices);
         }

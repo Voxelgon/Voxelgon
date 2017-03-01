@@ -191,7 +191,7 @@ namespace Voxelgon.Geometry {
             float determinant = normalA.y * normalB.x - normalB.y * normalA.x;
             float bLength = (normalA.x * (normalA.x - normalB.x) + normalA.y * (normalA.y - normalB.y)) / determinant;
 
-            return -Mathf.Sign(determinant) * new Vector2( normalB.y - (normalB.x * bLength), -normalB.x - (normalB.y * bLength));
+            return new Vector2( normalB.x - (normalB.y * bLength), normalB.y + (normalB.x * bLength));
         }
 
         // adds triangle indices for `vertices` to `tris`, and calls itself recursively to handle concave polygons

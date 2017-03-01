@@ -428,7 +428,9 @@ namespace Voxelgon.ShipEditor {
                 new Vector3(2, 0, 1),
                 new Vector3(2, 0, -1)
             });
-            Polygon p4 = p3.Offset(0.5f);
+            Polygon p4 = p3.Offset(new float[6] {
+                0.5f, 0.5f, 0.5f, 0.5f, 0.8f, 0.2f
+            });
             p1.Draw();
             p2.Draw();
             p3.Draw();
