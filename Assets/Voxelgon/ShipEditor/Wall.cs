@@ -419,11 +419,25 @@ namespace Voxelgon.ShipEditor {
                 new Vector3[] {Vector3.up, Vector3.up + Vector3.left, Vector3.left, Vector3.left},
                 new float[] {1, 1, 1, 2});
             //Polygon p2 = new Polygon(new Vector3(-2, 5, 0), 3, 10, Vector3.up + Vector3.left, Color.blue, Vector3.forward);
+            Polygon p2 = p1.Offset(0.2f);
+            Polygon p3 = new Polygon(new Vector3[6] {
+                new Vector3(-1,0,-1),
+                new Vector3(-1,0,2),
+                new Vector3(1,0,2),
+                new Vector3(1,0,1),
+                new Vector3(2, 0, 1),
+                new Vector3(2, 0, -1)
+            });
+            Polygon p4 = p3.Offset(0.5f);
+            p1.Draw();
+            p2.Draw();
+            p3.Draw();
+            p4.Draw();
             //mb.AddPolygon(p1);
             //mb.AddPolygon(p2);
             //mb.BridgePolygons(p1, p2, Color.cyan, true);
-            mb.Sweep(p1, path, Color.red, true, false, false);
-            complexMesh = mb.FirstMesh;
+            //mb.Sweep(p1, path, Color.red, true, false, false);
+            //complexMesh = mb.FirstMesh;
         }
     }
 }

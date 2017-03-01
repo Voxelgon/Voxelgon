@@ -188,10 +188,10 @@ namespace Voxelgon.Geometry {
         }
 
         public static Vector2 Miter(Vector2 normalA, Vector2 normalB) {
-            float determinant = normalB.y * normalA.x - normalA.y * normalB.x;
-            float bLength = (normalB.x * (normalA.x - normalB.x) - normalB.y * (normalA.y - normalB.y)) / determinant;
+            float determinant = normalA.y * normalB.x - normalB.y * normalA.x;
+            float bLength = (normalA.x * (normalA.x - normalB.x) + normalA.y * (normalA.y - normalB.y)) / determinant;
 
-            return new Vector2(normalB.x + (normalB.y * bLength), normalB.y + (normalB.x * bLength));
+            return -Mathf.Sign(determinant) * new Vector2( normalB.y - (normalB.x * bLength), -normalB.x - (normalB.y * bLength));
         }
 
         // adds triangle indices for `vertices` to `tris`, and calls itself recursively to handle concave polygons
