@@ -3,18 +3,16 @@
 /obj
 /library
 *.sw[a-p]
-
-Assembly-UnityScript-firstpass-vs.unityproj
-Assembly-UnityScript-firstpass.unityproj
-Assembly-UnityScript-vs.unityproj
-Assembly-UnityScript.unityproj
-Assembly-CSharp-firstpass.csproj
-
 *.db
 *.git
 *.app
+*.csproj
+*.userprefs
+*.unityproj
+*.sln
 
 voxelgon.sublime-project
 voxelgon.sublime-workspace
 voxelgon.userprefs
 /.vscode*
+omnisharp.json
