@@ -49,6 +49,8 @@ namespace Voxelgon.Geometry {
             }
         }
 
+        public Polygon(List<Vector3> vertices) : this(vertices.ToArray()) {}
+
         public Polygon(Vector3 center, float radius, int sideCount, Vector3 normal, Vector3 tangent = default(Vector3)) {
             _vertices = new Vector3[sideCount];
             _center = center;
@@ -355,9 +357,9 @@ namespace Voxelgon.Geometry {
             for (var i = 0; i < VertexCount - 1; i++) {
                 normalA = normalB;
                 normalB = rotation2D * (newVertices[(i + 1) % VertexCount] - newVertices[i]).normalized * amount;
-                newVertices[i] += (Vector3) Geometry.Miter(normalA, normalB);;
+                newVertices[i] += (Vector3)Geometry.Miter(normalA, normalB); ;
             }
-            newVertices[VertexCount - 1] += (Vector3) Geometry.Miter(normalB, lastNormal);
+            newVertices[VertexCount - 1] += (Vector3)Geometry.Miter(normalB, lastNormal);
 
             rotation = Quaternion.Inverse(rotation);
             Geometry.TransformPoints(newVertices, Matrix4x4.TRS(Vector3.zero, rotation, Vector3.one));
@@ -379,9 +381,9 @@ namespace Voxelgon.Geometry {
             for (var i = 0; i < VertexCount - 1; i++) {
                 normalA = normalB;
                 normalB = rotation2D * (newVertices[(i + 1) % VertexCount] - newVertices[i]).normalized * amounts[i];
-                newVertices[i] += (Vector3) Geometry.Miter(normalA, normalB);;
+                newVertices[i] += (Vector3)Geometry.Miter(normalA, normalB); ;
             }
-            newVertices[VertexCount - 1] += (Vector3) Geometry.Miter(normalB, lastNormal);
+            newVertices[VertexCount - 1] += (Vector3)Geometry.Miter(normalB, lastNormal);
 
             rotation = Quaternion.Inverse(rotation);
             Geometry.TransformPoints(newVertices, Matrix4x4.TRS(Vector3.zero, rotation, Vector3.one));
@@ -392,11 +394,11 @@ namespace Voxelgon.Geometry {
         public void CopyVertices(List<Vector3> dest) {
             dest.AddRange(_vertices);
         }
-        
+
         public void CopyTris(List<int> dest, int offset) {
             var vertices2D = Geometry.FlattenPoints(_center, _vertices, _normal);
             Geometry.TriangulateSegment(vertices2D, dest, 0, 1, offset);
-       }
+        }
 
         //draw the polygon in the world for 1 frame
         public void Draw() {

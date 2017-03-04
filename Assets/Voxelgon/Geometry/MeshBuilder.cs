@@ -41,6 +41,9 @@ namespace Voxelgon.Geometry {
 
         public Mesh FirstMesh {
             get {
+                if (AllMeshes.Count == 0) {
+                    return new Mesh();
+                }
                 return AllMeshes[0];
             }
         }
@@ -69,6 +72,14 @@ namespace Voxelgon.Geometry {
                 _colors32.Add(color);
                 _tris.Add(triOffset + t);
             }
+        }
+
+        public void AddFragment(MeshFragment fragment) {
+            var triOffset = CheckSize(fragment.VertexCount);
+
+            fragment.CopyVertices(_vertices);
+            fragment.CopyColors32(_colors32);
+            fragment.CopyTris(_tris, triOffset);
         }
 
         public int AddVertices(Polygon p, Color32 color) {
@@ -192,6 +203,10 @@ namespace Voxelgon.Geometry {
             if (cap) {
                 AddPolygon(p2, color);
             }
+        }
+
+        public MeshFragment ToFragment() {
+            return new MeshFragment(_vertices, _colors32, _tris);
         }
 
         public static Mesh MergeMeshes(List<Mesh> meshes) {

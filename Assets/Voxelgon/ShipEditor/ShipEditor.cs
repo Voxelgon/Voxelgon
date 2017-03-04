@@ -1,7 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
-using Voxelgon.Math;
 using Voxelgon.Graphics;
 using Voxelgon.Geometry;
 using Voxelgon.EventSystems;
@@ -12,13 +11,13 @@ namespace Voxelgon.ShipEditor {
     public class ShipEditor : MonoBehaviour, IModeChangeHandler {
         //Fields
 
-        private Dictionary<Position, List<Wall>> _wallVertices;
+        private Dictionary<Node, List<Wall>> _wallVertices;
 
         private readonly List<Vector3> _nodes = new List<Vector3>();
 
         private readonly List<GameObject> _nodeObjects = new List<GameObject>();
 
-        private Mesh _simpleHullMesh;
+        private MeshBuilder _hullMeshBuilder = new MeshBuilder();
 
         //Properties
 
@@ -36,12 +35,14 @@ namespace Voxelgon.ShipEditor {
             get {
                 if (WallsChanged && Walls.Count > 0) {
                     var wallMeshes = Walls.Select(w => w.ComplexMesh).ToList();
-                    _simpleHullMesh.Clear();
-                    _simpleHullMesh = MeshBuilder.MergeMeshes(wallMeshes);
+                    _hullMeshBuilder.Clear();
+                    foreach (Wall w in Walls) {
+                        _hullMeshBuilder.AddFragment(w.ComplexMesh);
+                    }
                 }
 
                 WallsChanged = false;
-                return _simpleHullMesh;
+                return _hullMeshBuilder.FirstMesh;
             }
         }
 
@@ -60,9 +61,8 @@ namespace Voxelgon.ShipEditor {
         public void Start() {
             Mode = BuildMode.Polygon;
             TempWall = new Wall(this);
-            _simpleHullMesh = new Mesh();
             Walls = new List<Wall>();
-            _wallVertices = new Dictionary<Position, List<Wall>>();
+            _wallVertices = new Dictionary<Node, List<Wall>>();
         }
 
         public void Update() {
@@ -114,7 +114,7 @@ namespace Voxelgon.ShipEditor {
         }
 
         public void AddWall(Wall wall) {
-            foreach (var p in wall.Vertices.Select(v => (Position) v)) {
+            foreach (var p in wall.Vertices.Select(v => (Node) v)) {
                 if (!_wallVertices.ContainsKey(p)) {
                     _wallVertices.Add(p, new List<Wall>());
                 }
@@ -127,7 +127,7 @@ namespace Voxelgon.ShipEditor {
         public void RemoveWall(Wall wall) {
             foreach (var p in wall
                 .Vertices
-                .Select(v => (Position) v)
+                .Select(v => (Node) v)
                 .Where(p => _wallVertices.ContainsKey(p))) {
                 _wallVertices[p].Remove(wall);
 
@@ -162,11 +162,11 @@ namespace Voxelgon.ShipEditor {
 
 
         public List<Wall> GetWallNeighbors(Wall wall) {
-            var lastList = _wallVertices[(Position)wall.Vertices[wall.VertexCount - 1]];
+            var lastList = _wallVertices[(Node)wall.Vertices[wall.VertexCount - 1]];
             var neighbors = new List<Wall>();
 
             foreach (var v in wall.Vertices) {
-                var p = (Position)v;
+                var p = (Node)v;
 
                 if (_wallVertices.ContainsKey(p)) {
                     foreach (var w in _wallVertices[p]) {
@@ -183,8 +183,8 @@ namespace Voxelgon.ShipEditor {
         public List<Wall> GetWallNeighbors(Wall wall, int edge) {
             var neighbors = new List<Wall>();
 
-            var p1 = (Position)wall.Vertices[edge];
-            var p2 = (Position)wall.Vertices[(edge + 1) % wall.VertexCount];
+            var p1 = (Node)wall.Vertices[edge];
+            var p2 = (Node)wall.Vertices[(edge + 1) % wall.VertexCount];
 
             if (!_wallVertices.ContainsKey(p1) || !_wallVertices.ContainsKey(p2))
                 return neighbors;

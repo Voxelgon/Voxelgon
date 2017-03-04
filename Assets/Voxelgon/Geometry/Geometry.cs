@@ -149,8 +149,8 @@ namespace Voxelgon.Geometry {
         // uses the shoelace algorithm on `vertices`, is 2*Area, and negative if clockwise
         public static float Shoelace(Vector2[] vertices) {
             float sum = 0;
-            Vector2 p1 = vertices[vertices.Length - 1];
-            Vector2 p2 = vertices[0];
+            Vector2 p1 = vertices[vertices.Length - 2];
+            Vector2 p2 = vertices[vertices.Length - 1];
             for (int i = 0; i < vertices.Length; i++) {
                 sum += (p2.x - p1.x) * (p2.y + p1.y);
                 p1 = p2;
@@ -161,7 +161,7 @@ namespace Voxelgon.Geometry {
 
         // returns the first normal found for a set of vertices in 3D 
         public static Vector3 PointsNormal(Vector3[] vertices) {
-            if (vertices.Length <= 3) {
+            if (vertices.Length < 3) {
                 return Vector3.zero;
             }
 
@@ -187,11 +187,21 @@ namespace Voxelgon.Geometry {
             }
         }
 
-        public static Vector2 Miter(Vector2 normalA, Vector2 normalB) {
+        // length along the end of normalB perpendicular to it, 
+        // useful if you dont need the whole vector (e.g. normalB is vertical)
+        public static float MiterLength(Vector2 normalA, Vector2 normalB) {
             float determinant = normalA.y * normalB.x - normalB.y * normalA.x;
-            float bLength = (normalA.x * (normalA.x - normalB.x) + normalA.y * (normalA.y - normalB.y)) / determinant;
+            float length = (normalA.x * (normalA.x - normalB.x) + normalA.y * (normalA.y - normalB.y)) / determinant;
 
-            return new Vector2( normalB.x - (normalB.y * bLength), normalB.y + (normalB.x * bLength));
+            return length;
+        }
+
+        // returns the point at the intersection to the surfaces at the ends of normalA and normalB
+        public static Vector2 Miter(Vector2 normalA, Vector2 normalB) {
+            var length = MiterLength(normalA, normalB);
+            var miter = new Vector2( normalB.x - (normalB.y * length), normalB.y + (normalB.x * length));
+
+            return miter;
         }
 
         // adds triangle indices for `vertices` to `tris`, and calls itself recursively to handle concave polygons
@@ -226,6 +236,40 @@ namespace Voxelgon.Geometry {
                 }
             }
             return -1;
+        }
+
+        public static Matrix4x4 Matrix4x4FromTo(Vector3 from, Vector3 to) {
+            if (from.Approximately(to * -1)) return Matrix4x4.Scale(Vector3.one * -1);
+            
+            var cross = Vector3.Cross(from, to);
+            var matrix = Matrix4x4.identity;
+
+
+
+            return matrix;
+        }
+
+
+        // VECTOR3 EXTENSION METHODS
+
+        public static Vector3 Round(this Vector3 vector) {
+            vector.x = Mathf.RoundToInt(vector.x);
+            vector.y = Mathf.RoundToInt(vector.y);
+            vector.z = Mathf.RoundToInt(vector.z);
+            return vector;
+        }
+
+        public static Vector3 Modulus(this Vector3 vector, float mod) {
+            vector.x %= mod;
+            vector.y %= mod;
+            vector.z %= mod;
+            return vector;
+        }
+
+        public static bool Approximately(this Vector3 vector, Vector3 other) {
+            return (Mathf.Approximately(vector.x, other.x) 
+                 && Mathf.Approximately(vector.y, other.y) 
+                 && Mathf.Approximately(vector.z, other.z));
         }
     }
 }
