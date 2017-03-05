@@ -5,8 +5,7 @@ using Voxelgon.Graphics;
 using Voxelgon.Geometry;
 using Voxelgon.EventSystems;
 
-
-namespace Voxelgon.ShipEditor {
+namespace Voxelgon.Ship.Editor {
 
     public class ShipEditor : MonoBehaviour, IModeChangeHandler {
         //Fields

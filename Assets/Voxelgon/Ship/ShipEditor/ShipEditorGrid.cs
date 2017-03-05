@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using Voxelgon.Geometry;
 
-namespace Voxelgon.ShipEditor {
+namespace Voxelgon.Ship.Editor {
     public class ShipEditorGrid: MonoBehaviour {
 
         private MeshRenderer renderer;

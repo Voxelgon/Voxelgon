@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-namespace Voxelgon.Geometry {
+namespace Voxelgon.Ship {
     public struct NodePair {
         public readonly Node node1;
         public readonly Node node2;

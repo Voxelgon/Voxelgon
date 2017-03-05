@@ -2,9 +2,10 @@ using UnityEngine;
 using System;
 using System.Collections.Generic;
 using Voxelgon.Geometry;
+using Voxelgon.Ship.Editor;
 
 
-namespace Voxelgon.ShipEditor {
+namespace Voxelgon.Ship {
 
     public class Wall {
 
