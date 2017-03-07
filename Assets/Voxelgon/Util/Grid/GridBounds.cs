@@ -126,5 +126,23 @@ namespace Voxelgon.Util.Grid {
                  && p.y >= min.y && p.y <= max.y
                  && p.z >= min.z && p.z <= max.z);
         }
+
+        public override int GetHashCode() {
+            unchecked {
+                int hash = 17;
+                hash = (hash * 23) + min.GetHashCode();
+                hash = (hash * 23) + max.GetHashCode();
+                return hash;
+            }
+        }
+
+        public static bool operator ==(GridBounds a, GridBounds b) {
+            return (a.min == b.min && a.max == b.max);
+        }
+
+        public static bool operator !=(GridBounds a, GridBounds b) {
+            return (a.min != b.min || a.max != b.max);
+        }
+
     }
 }

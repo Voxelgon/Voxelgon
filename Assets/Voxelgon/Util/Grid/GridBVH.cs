@@ -177,7 +177,7 @@ namespace Voxelgon.Util.Grid {
 
             // PRIVATE METHODS
 
-            private void Split() {
+            private bool Split() {
                 if (!IsLeaf) throw new Exception("Tried to split an internal node!");
 
                 _contents.ForEach(o => _bvh._leafMap.Remove(o));
@@ -216,7 +216,15 @@ namespace Voxelgon.Util.Grid {
 
                 _contents = null;
                 var leftNode = new GridBVHNode(_bvh, this, leftItems, _depth + 1);
-                var right = new GridBVHNode(_bvh, this, rightItems, _depth + 1);
+                var rightNode = new GridBVHNode(_bvh, this, rightItems, _depth + 1);
+
+                // if we successfully made the bounds smaller, split
+                if (leftNode._bounds != rightNode._bounds) {
+                    _left = leftNode;
+                    _right = rightNode;
+                    return true;
+                }
+                return false;
             }
 
             private void SetDepth(int depth) {
