@@ -9,7 +9,7 @@ namespace Voxelgon.Util.Grid {
 
         // FIELDS
 
-        private const int MAX_LEAF_SIZE = 8;
+        private const int MAX_LEAF_SIZE = 8; // maximum number of objects in a leaf before we try to split
 
         private GridBVHNode _root; // root node of the tree
 
@@ -21,18 +21,30 @@ namespace Voxelgon.Util.Grid {
 
         // CONSTRUCTORS
 
+        // new empty BVH
         public GridBVH() {
             _root = new GridBVHNode(this);
+        }
+
+        // new populated BVH
+        public GridBVH(List<T> contents) {
+            _root = new GridBVHNode(this, null, contents, 0);
         }
 
 
         // METHODS
 
-        public void AddObject(T newObject) {
-            _root.AddObject(newObject);
+        // adds an object to the BVH
+        public void Add(T newObject) {
+            _root.Add(newObject);
         }
 
+        // removes an object from the BVH
+        public bool Remove(T remObject) {
+            return _leafMap[remObject].Remove(remObject);
+        }
 
+        // returns a string representation of this BVH
         public override string ToString() {
             return "GridBVH<" + typeof(T) + ">";
         }
@@ -43,7 +55,6 @@ namespace Voxelgon.Util.Grid {
         private class GridBVHNode {
 
             // FIELDS
-
 
             // Parent and Children nodes
             private GridBVHNode _parent;
@@ -72,7 +83,7 @@ namespace Voxelgon.Util.Grid {
             }
 
             // new interior node
-            private GridBVHNode(GridBVH<T> bvh, GridBVHNode parent, GridBVHNode left, GridBVHNode right, int depth) {
+            public GridBVHNode(GridBVH<T> bvh, GridBVHNode parent, GridBVHNode left, GridBVHNode right, int depth) {
                 _contents = null;
                 _parent = parent;
                 _left = left;
@@ -85,7 +96,7 @@ namespace Voxelgon.Util.Grid {
             }
 
             // new leaf
-            private GridBVHNode(GridBVH<T> bvh, GridBVHNode parent, List<T> contents, int depth) {
+            public GridBVHNode(GridBVH<T> bvh, GridBVHNode parent, List<T> contents, int depth) {
                 if (contents.Count == 0) throw new ArgumentOutOfRangeException("contents", "contents list is empty");
 
                 _contents = contents;
@@ -99,19 +110,26 @@ namespace Voxelgon.Util.Grid {
                 _contents.ForEach(o => _bvh._leafMap.Add(o, this));
 
                 SetDepth(depth);
+
+                if (_contents.Count > MAX_LEAF_SIZE) {
+                    Split();
+                }
             }
 
 
             // PROPERTIES 
 
+            // is this node the root node?
             public bool IsRoot {
                 get { return _parent == null; }
             }
 
+            // is this node a leaf?
             public bool IsLeaf {
                 get { return _contents != null; }
             }
 
+            // unique ID of this node (for debugging)
             public int ID {
                 get { return _id; }
             }
@@ -119,12 +137,13 @@ namespace Voxelgon.Util.Grid {
 
             // METHODS
 
+            // returns a string representation of this node
             public override string ToString() {
                 return "GridBVHNode<" + typeof(T) + ">:" + _id;
             }
 
             // adds a new object 
-            public void AddObject(T newObject) {
+            public void Add(T newObject) {
                 // 1. first we traverse the tree looking for the best Node
                 if (!IsLeaf) {
                     // find the best way to add this object.. 3 options..
@@ -146,11 +165,14 @@ namespace Voxelgon.Util.Grid {
                     // we are adding the new object to this node or a child, so expand bounds to fit the object
                     _bounds = GridBounds.Combine(_bounds, objBounds);
 
-                    // Doing a merge-and-pushdown can be expensive, so we only do it if it's notably better
-                    const int MERGE_PRICE = 2;
-
-                    if (MERGE_PRICE * mergeSAH < Math.Min(sendLeftSAH, sendRightSAH)) {
+                    if (mergeSAH < Math.Min(sendLeftSAH, sendRightSAH)) {
                         // move children to new node under this one, then add a new leaf under this one
+                        /*      n     *
+                         *     / \    *
+                         *    n   l   *
+                         *   / \      *
+                         *  l   l     */
+
                         _left = new GridBVHNode(_bvh, this, _left, _right, _depth + 1);
                         _right = new GridBVHNode(_bvh, this, new List<T> { newObject }, _depth + 1);
 
@@ -158,10 +180,10 @@ namespace Voxelgon.Util.Grid {
                         return;
                     } else {
                         if (sendLeftSAH < sendRightSAH) {
-                            _left.AddObject(newObject);
+                            _left.Add(newObject);
                             return;
                         } else {
-                            _right.AddObject(newObject);
+                            _right.Add(newObject);
                             return;
                         }
                     }
@@ -169,14 +191,35 @@ namespace Voxelgon.Util.Grid {
 
                 // 2. then we add the object and map it to our leaf
                 _contents.Add(newObject);
+                _bounds = GridBounds.Combine(_bounds, newObject.Bounds);
+
                 _bvh._leafMap.Add(newObject, this);
                 if (_contents.Count > MAX_LEAF_SIZE) {
                     Split();
                 }
             }
 
+            // removes an object 
+            public bool Remove(T remObject) {
+                if (!IsLeaf) throw new InvalidOperationException("Attempt to remove object from non-leaf!");
+                if (!_contents.Remove(remObject)) return false;
+
+                if (_contents.Count > 0) {
+                    RecalculateBounds();
+                } else {
+                    if (IsRoot) {
+                        _bounds = new GridBounds();
+                    } else {
+                        _parent.RemoveLeaf(this);
+                    }
+                }
+
+                return true;
+            }
+
             // PRIVATE METHODS
 
+            // split this node into two halves
             private bool Split() {
                 if (!IsLeaf) throw new Exception("Tried to split an internal node!");
 
@@ -226,9 +269,11 @@ namespace Voxelgon.Util.Grid {
                 return false;
             }
 
+            // set the depth of this node and propogate downwards
             private void SetDepth(int depth) {
                 _depth = depth;
 
+                // propogate downwards until we hit a leaf
                 if (IsLeaf) {
                     if (depth > _bvh._maxDepth) {
                         _bvh._maxDepth = depth;
@@ -236,6 +281,52 @@ namespace Voxelgon.Util.Grid {
                         _left.SetDepth(depth + 1);
                         _right.SetDepth(depth + 1);
                     }
+                }
+            }
+
+            // recalculate this node's bounds and propogate upwards
+            private void RecalculateBounds() {
+                GridBounds newBounds;
+                if (IsLeaf) { // combination of all contents
+                    newBounds = GridBounds.Combine(_contents);
+                } else {      // combination of children nodes
+                    newBounds = GridBounds.Combine(_left._bounds, _right._bounds);
+                }
+
+                // if the new bounds are different, propogate upwards
+                if (_bounds != newBounds) {
+                    _bounds = newBounds;
+                    _parent.RecalculateBounds();
+                }
+            }
+
+            // removes a leaf
+            private void RemoveLeaf(GridBVHNode leaf) {
+                if (IsLeaf) throw new InvalidOperationException("Attempt to remove a child of a leaf!");
+
+                leaf._parent = null;
+
+                GridBVHNode keepNode;
+                if (_left == leaf) {
+                    keepNode = _right;
+                } else if (_right == leaf) {
+                    keepNode = _left;
+                } else {
+                    throw new ArgumentOutOfRangeException("leaf is not present in this node", "leaf");
+                }
+
+                _bounds = keepNode._bounds;
+
+                if (keepNode.IsLeaf) {
+                    _contents = keepNode._contents;
+                    _contents.ForEach(o => _bvh._leafMap[o] = this);
+                    _left = null;
+                    _right = null;
+                } else {
+                    _left = keepNode._left;
+                    _right = keepNode._right;
+                    _left.SetDepth(_depth + 1);
+                    _right.SetDepth(_depth + 1);
                 }
             }
         }
