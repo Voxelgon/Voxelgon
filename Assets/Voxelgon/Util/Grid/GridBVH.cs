@@ -191,11 +191,13 @@ namespace Voxelgon.Util.Grid {
 
                 // 2. then we add the object and map it to our leaf
                 _contents.Add(newObject);
-                _bounds = GridBounds.Combine(_bounds, newObject.Bounds);
-
                 _bvh._leafMap.Add(newObject, this);
-                if (_contents.Count > MAX_LEAF_SIZE) {
-                    Split();
+
+                if (_contents.Count == 1) {
+                    _bounds = newObject.Bounds;
+                } else {
+                    _bounds = GridBounds.Combine(_bounds, newObject.Bounds);
+                    if (_contents.Count > MAX_LEAF_SIZE) Split();
                 }
             }
 
