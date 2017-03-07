@@ -1,8 +1,5 @@
-using UnityEngine;
 using System;
-using System.Linq;
 using System.Collections.Generic;
-using Voxelgon.Geometry;
 
 namespace Voxelgon.Util.Grid {
 
@@ -31,6 +28,10 @@ namespace Voxelgon.Util.Grid {
 
         // METHODS
 
+        public void AddObject(T newObject) {
+            _root.AddObject(newObject);
+        }
+
 
         public override string ToString() {
             return "GridBVH<" + typeof(T) + ">";
@@ -43,40 +44,42 @@ namespace Voxelgon.Util.Grid {
 
             // FIELDS
 
-            // Bounding box for this node
-            public GridBounds bounds;
 
             // Parent and Children nodes
-            public GridBVHNode parent;
-            public GridBVHNode left;
-            public GridBVHNode right;
+            private GridBVHNode _parent;
+            private GridBVHNode _left;
+            private GridBVHNode _right;
 
-            // Items in this node, null if it is not a leaf node
-            public List<T> items;
+            private GridBounds _bounds; // Bounding box for this node
+            private List<T> _contents;  // Items in this node, null if it is not a leaf node
 
-            private readonly GridBVH<T> _bvh;
+            private readonly GridBVH<T> _bvh; // BVH this node belongs to
 
-            public int depth;
-            public int id;
+            private int _depth;
+            private readonly int _id;
 
 
             // CONSTRUCTORS
 
             public GridBVHNode(GridBVH<T> bvh) {
-                items = new List<T>();
-                parent = null;
-                right = null;
-                right = null;
+                _contents = new List<T>();
+                _parent = null;
+                _left = null;
+                _right = null;
                 _bvh = bvh;
-                id = bvh._nodeCounter++;
+                _id = bvh._nodeCounter++;
             }
 
-            private GridBVHNode(GridBVH<T> bvh, GridBVHNode parent, List<T> items, int depth) {
-                this.parent = parent;
-                this.items = items;
-                this.depth = depth;
+            private GridBVHNode(GridBVH<T> bvh, GridBVHNode parent, List<T> contents, int depth) {
+                if (contents.Count == 0) throw new ArgumentOutOfRangeException("contents", "contents list is empty");
+
+                _contents = contents;
+                _parent = parent;
+                _left = null;
+                _right = null;
                 _bvh = bvh;
-                id = bvh._nodeCounter++;
+                _id = bvh._nodeCounter++;
+                _bounds = GridBounds.Combine(contents);
 
                 SetDepth(depth);
             }
@@ -85,21 +88,26 @@ namespace Voxelgon.Util.Grid {
             // PROPERTIES 
 
             public bool IsRoot {
-                get { return parent == null; }
+                get { return _parent == null; }
             }
 
             public bool IsLeaf {
-                get { return items != null; }
+                get { return _contents != null; }
             }
+
+            public int ID {
+                get { return _id; }
+            }
+
 
             // METHODS
 
             public override string ToString() {
-                return "GridBVHNode<" + typeof(T) + ">:" + id;
+                return "GridBVHNode<" + typeof(T) + ">:" + _id;
             }
 
             // adds a new object 
-            private void AddObject(T newObject) {
+            public void AddObject(T newObject) {
                 // 1. first we traverse the tree looking for the best Node
                 if (!IsLeaf) {
                     // find the best way to add this object.. 3 options..
@@ -107,19 +115,19 @@ namespace Voxelgon.Util.Grid {
                     // 2. send to right node (L,R+N)
                     // 3. merge and pushdown left-and-right node (L+R,N)
 
-                    var leftBounds = left.bounds;
-                    var rightBounds = right.bounds;
+                    var leftBounds = _left._bounds;
+                    var rightBounds = _right._bounds;
                     var objBounds = newObject.Bounds;
 
                     int leftSAH = leftBounds.SurfaceArea;
                     int rightSAH = rightBounds.SurfaceArea;
 
-                    int sendLeftSAH = rightSAH + GridBounds.Combine(leftBounds, objBounds).SurfaceArea;       // (L+N,R)
-                    int sendRightSAH = leftSAH + GridBounds.Combine(rightBounds, objBounds).SurfaceArea;      // (L,R+N)
+                    int sendLeftSAH = rightSAH + GridBounds.Combine(leftBounds, objBounds).SurfaceArea;             // (L+N,R)
+                    int sendRightSAH = leftSAH + GridBounds.Combine(rightBounds, objBounds).SurfaceArea;            // (L,R+N)
                     int mergeSAH = objBounds.SurfaceArea + GridBounds.Combine(leftBounds, rightBounds).SurfaceArea; // (L+R,N)
 
                     // we are adding the new object to this node or a child, so expand bounds to fit the object
-                    bounds = GridBounds.Combine(bounds, objBounds);
+                    _bounds = GridBounds.Combine(_bounds, objBounds);
 
                     // Doing a merge-and-pushdown can be expensive, so we only do it if it's notably better
                     const int MERGE_PRICE = 3;
@@ -129,82 +137,82 @@ namespace Voxelgon.Util.Grid {
                         return;
                     } else {
                         if (sendLeftSAH < sendRightSAH) {
-                            left.AddObject(newObject);
+                            _left.AddObject(newObject);
                             return;
                         } else {
-                            right.AddObject(newObject);
+                            _right.AddObject(newObject);
                             return;
                         }
                     }
                 }
 
                 // 2. then we add the object and map it to our leaf
-                items.Add(newObject);
+                _contents.Add(newObject);
                 _bvh._leafMap.Add(newObject, this);
-                if (items.Count > MAX_LEAF_SIZE) {
-                    AttemptSplit();
+                if (_contents.Count > MAX_LEAF_SIZE) {
+                    Split();
                 }
             }
+
+            // PRIVATE METHODS
 
             private void AddObjectAndPushDown(T newObject) {
 
             }
 
+            private void Split() {
+                if (!IsLeaf) throw new Exception("Tried to split an internal node!");
+
+                _contents.ForEach(o => _bvh._leafMap.Remove(o));
+
+                // Choose the longest axis to split on and sort the list
+                if (_bounds.xSize >= _bounds.ySize && _bounds.xSize >= _bounds.zSize) {
+                    // x biggest
+                    _contents.Sort((a, b) => {
+                        // sort by distance between centers on z axis
+                        int delta = (b.Bounds.min.x + b.Bounds.max.x) - (a.Bounds.min.x + a.Bounds.max.x);
+                        if (delta == 0) return b.Bounds.Volume - a.Bounds.Volume; // if the centers are the same, sort by Volume
+                        return delta;
+                    });
+                } else if (_bounds.ySize >= _bounds.zSize) {
+                    // y biggest
+                    _contents.Sort((a, b) => {
+                        // sort by distance between centers on z axis
+                        int delta = (b.Bounds.min.y + b.Bounds.max.y) - (a.Bounds.min.y + a.Bounds.max.y);
+                        if (delta == 0) return b.Bounds.Volume - a.Bounds.Volume; // if the centers are the same, sort by Volume
+                        return delta;
+                    });
+                } else {
+                    // z biggest
+                    _contents.Sort((a, b) => {
+                        // sort by distance between centers on z axis
+                        int delta = (b.Bounds.min.z + b.Bounds.max.z) - (a.Bounds.min.z + a.Bounds.max.z);
+                        if (delta == 0) return b.Bounds.Volume - a.Bounds.Volume; // if the centers are the same, sort by Volume
+                        return delta;
+                    });
+                }
+
+                // split the list of items down the middle
+                int center = _contents.Count / 2;
+                List<T> leftItems = _contents.GetRange(0, center);
+                List<T> rightItems = _contents.GetRange(center, _contents.Count - 1);
+
+                _contents = null;
+                var leftNode = new GridBVHNode(_bvh, this, leftItems, _depth + 1);
+                var right = new GridBVHNode(_bvh, this, rightItems, _depth + 1);
+            }
 
             private void SetDepth(int depth) {
-                this.depth = depth;
+                _depth = depth;
 
                 if (IsLeaf) {
                     if (depth > _bvh._maxDepth) {
                         _bvh._maxDepth = depth;
                     } else {
-                        left.SetDepth(depth + 1);
-                        right.SetDepth(depth + 1);
+                        _left.SetDepth(depth + 1);
+                        _right.SetDepth(depth + 1);
                     }
                 }
-            }
-
-            private bool AttemptSplit() {
-                if (!IsLeaf) throw new Exception("Tried to split an internal node!");
-
-                var xSize = bounds.xSize;
-                var ySize = bounds.ySize;
-                var zSize = bounds.zSize;
-
-                List<T> leftItems = new List<T>();
-                List<T> rightItems = new List<T>();
-
-                Vector3 center = Geometry.Geometry.VectorAvg(
-                    (List<Vector3>)items.Select(e => e.Bounds.Center)
-                );
-
-                if (xSize >= ySize && xSize >= zSize) {
-                    // x biggest
-                    items.ForEach(e => {
-                        if (e.Bounds.Center.x < center.x) leftItems.Add(e);
-                        else rightItems.Add(e);
-                    });
-                } else if (ySize >= zSize) {
-                    // y biggest
-                    items.ForEach(e => {
-                        if (e.Bounds.Center.y < center.y) leftItems.Add(e);
-                        else rightItems.Add(e);
-                    });
-                } else {
-                    // z biggest
-                    items.ForEach(e => {
-                        if (e.Bounds.Center.y < center.y) leftItems.Add(e);
-                        else rightItems.Add(e);
-                    });
-                }
-
-                if (leftItems.Count == 0 || rightItems.Count == 0) return false; // nothing to split!
-
-                items = null;
-                left = new GridBVHNode(_bvh, this, leftItems, depth + 1);
-                right = new GridBVHNode(_bvh, this, rightItems, depth + 1);
-
-                return true;
             }
         }
     }

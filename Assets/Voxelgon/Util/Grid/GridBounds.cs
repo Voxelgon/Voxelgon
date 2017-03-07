@@ -1,5 +1,7 @@
 using UnityEngine;
 using System;
+using System.Linq;
+using System.Collections.Generic;
 
 namespace Voxelgon.Util.Grid {
 
@@ -32,18 +34,15 @@ namespace Voxelgon.Util.Grid {
         public int zSize {
             get { return max.z - min.z; }
         }
-
+        
         public int Volume {
             get {
-                return (max.x - min.x) * (max.y - min.y) * (max.z - min.z);
+                return (xSize) * (ySize) * (zSize);
             }
         }
 
         public int SurfaceArea {
             get {
-                int xSize = max.x - min.x;
-                int ySize = max.y - min.y;
-                int zSize = max.z - min.z;
                 return 2 * ((xSize * ySize) + (ySize * zSize) + (zSize * xSize));
             }
         }
@@ -105,6 +104,21 @@ namespace Voxelgon.Util.Grid {
                             Math.Max(bounds1.max.x, bounds2.max.x),
                             Math.Max(bounds1.max.y, bounds2.max.y),
                             Math.Max(bounds1.max.z, bounds2.max.z)));
+        }
+
+        public static GridBounds Combine<T>(List<T> objects) where T:IGridObject {
+            if (objects.Count == 0) throw new ArgumentOutOfRangeException("objects", "Empty list!");
+            var minX = objects.Min(o => o.Bounds.min.x);
+            var minY = objects.Min(o => o.Bounds.min.y);
+            var minZ = objects.Min(o => o.Bounds.min.z);
+
+            var maxX = objects.Max(o => o.Bounds.max.x);
+            var maxY = objects.Max(o => o.Bounds.max.y);
+            var maxZ = objects.Max(o => o.Bounds.max.z);
+
+            return new GridBounds(
+                        new GridPoint(minX, minY, minZ),
+                        new GridPoint(maxX, maxY, maxZ));
         }
 
         public bool ContainsPoint(GridPoint p) {
