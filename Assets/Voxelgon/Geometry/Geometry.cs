@@ -254,17 +254,6 @@ namespace Voxelgon.Geometry {
             return -1;
         }
 
-        public static Matrix4x4 Matrix4x4FromTo(Vector3 from, Vector3 to) {
-            if (from.Approximately(to * -1)) return Matrix4x4.Scale(Vector3.one * -1);
-
-            var cross = Vector3.Cross(from, to);
-            var matrix = Matrix4x4.identity;
-
-
-
-            return matrix;
-        }
-
 
         // VECTOR3 EXTENSION METHODS
 
