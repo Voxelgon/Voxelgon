@@ -1,4 +1,3 @@
-
 namespace Voxelgon.Util {
 
     public static class MathVG {
