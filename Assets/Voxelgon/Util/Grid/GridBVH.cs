@@ -180,8 +180,6 @@ namespace Voxelgon.Util.Grid {
             private bool Split() {
                 if (!IsLeaf) throw new Exception("Tried to split an internal node!");
 
-                _contents.ForEach(o => _bvh._leafMap.Remove(o));
-
                 // Choose the longest axis to split on and sort the list
                 if (_bounds.xSize >= _bounds.ySize && _bounds.xSize >= _bounds.zSize) {
                     // x biggest
@@ -214,12 +212,13 @@ namespace Voxelgon.Util.Grid {
                 List<T> leftItems = _contents.GetRange(0, center);
                 List<T> rightItems = _contents.GetRange(center, _contents.Count - 1);
 
-                _contents = null;
                 var leftNode = new GridBVHNode(_bvh, this, leftItems, _depth + 1);
                 var rightNode = new GridBVHNode(_bvh, this, rightItems, _depth + 1);
 
                 // if we successfully made the bounds smaller, split
                 if (leftNode._bounds != rightNode._bounds) {
+                    _contents.ForEach(o => _bvh._leafMap.Remove(o));
+                    _contents = null;
                     _left = leftNode;
                     _right = rightNode;
                     return true;
