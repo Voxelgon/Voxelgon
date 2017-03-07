@@ -1,8 +1,9 @@
+using System;
 using UnityEngine;
 
 namespace Voxelgon.Util.Grid {
 
-    public struct GridPoint {
+    public struct GridVector {
 
         // FIELDS
 
@@ -13,19 +14,19 @@ namespace Voxelgon.Util.Grid {
 
         // CONSTRUCTORS
 
-        public GridPoint(short x, short y, short z) {
+        public GridVector(short x, short y, short z) {
             this.x = x;
             this.y = y;
             this.z = z;
         }
 
-        public GridPoint(float x, float y, float z) {
+        public GridVector(float x, float y, float z) {
             this.x = (short)x;
             this.y = (short)y;
             this.z = (short)z;
         }
 
-        public GridPoint(Vector3 v) {
+        public GridVector(Vector3 v) {
             this.x = (short)v.x;
             this.y = (short)v.y;
             this.z = (short)v.z;
@@ -33,6 +34,17 @@ namespace Voxelgon.Util.Grid {
 
 
         //PROPERTIES
+
+        public short this[int i] {
+            get {
+                switch (i) {
+                    case 0: return x;
+                    case 1: return y;
+                    case 2: return z;
+                    default: throw new ArgumentOutOfRangeException("i");
+                }
+            }
+        }
 
         public long MortonCode {
             get {
@@ -47,8 +59,8 @@ namespace Voxelgon.Util.Grid {
         // METHODS
 
         public override bool Equals(object obj) {
-            if (obj.GetType() == typeof(GridPoint)) {
-                return ((GridPoint)obj == this);
+            if (obj is GridVector) {
+                return ((GridVector)obj == this);
             }
             return false;
         }
@@ -75,23 +87,23 @@ namespace Voxelgon.Util.Grid {
             return "<" + x + ", " + y + ", " + z + ">";
         }
 
-        public static explicit operator GridPoint(Vector3 v) {
-            return new GridPoint(v);
+        public static explicit operator GridVector(Vector3 v) {
+            return new GridVector(v);
         }
 
-        public static explicit operator Vector3(GridPoint pos) {
+        public static explicit operator Vector3(GridVector pos) {
             return new Vector3(pos.x, pos.y, pos.z);
         }
 
-        public static Vector3 operator -(GridPoint a, GridPoint b) {
+        public static Vector3 operator -(GridVector a, GridVector b) {
             return new Vector3(b.x - a.x, a.y - b.y, a.z - b.z);
         }
 
-        public static bool operator ==(GridPoint a, GridPoint b) {
+        public static bool operator ==(GridVector a, GridVector b) {
             return (a.x == b.x && a.y == b.y && a.z == b.z);
         }
 
-        public static bool operator !=(GridPoint a, GridPoint b) {
+        public static bool operator !=(GridVector a, GridVector b) {
             return (a.x != b.x || a.y != b.y || a.z != b.z);
         }
 
@@ -101,9 +113,9 @@ namespace Voxelgon.Util.Grid {
             long s = n + short.MaxValue;
             //s = (s | s << 32) & 0x1f00000000ffff;
             s = (s | s << 16) & 0x1f0000ff0000ff;
-            s = (s | s << 8)  & 0x100f00f00f00f00f;
-            s = (s | s << 4)  & 0x10c30c30c30c30c3;
-            s = (s | s << 2)  & 0x1249249249249249;
+            s = (s | s << 8) & 0x100f00f00f00f00f;
+            s = (s | s << 4) & 0x10c30c30c30c30c3;
+            s = (s | s << 2) & 0x1249249249249249;
             return s;
         }
     }

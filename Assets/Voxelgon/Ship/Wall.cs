@@ -139,7 +139,7 @@ namespace Voxelgon.Ship {
 
         public Vector3 GetEdge(Vector3 vertex) {
             for (int i = 0; i < _vertices.Count; i++) {
-                if ((GridPoint)_vertices[i] == (GridPoint)vertex) {
+                if ((GridVector)_vertices[i] == (GridVector)vertex) {
                     return GetEdge(i);
                 }
             }
@@ -148,15 +148,15 @@ namespace Voxelgon.Ship {
 
         public Vector3 GetEdge(Vector3 v1, Vector3 v2) {
             for (int i = 0; i < _vertices.Count; i++) {
-                if ((GridPoint)_vertices[i] == (GridPoint)v1) {
+                if ((GridVector)_vertices[i] == (GridVector)v1) {
                     //if the next vertex is v2 (vertices in correct order)
 
-                    if ((GridPoint)_vertices[(i + 1) % _vertices.Count] == (GridPoint)v2) {
+                    if ((GridVector)_vertices[(i + 1) % _vertices.Count] == (GridVector)v2) {
                         return Vector3.Normalize(v2 - v1);
                     }
 
                     //if the previous vertex is v2 (vertices in reverse order)
-                    if ((GridPoint)_vertices[(i - 1 + _vertices.Count) % _vertices.Count] == (GridPoint)v2) {
+                    if ((GridVector)_vertices[(i - 1 + _vertices.Count) % _vertices.Count] == (GridVector)v2) {
                         return Vector3.Normalize(v1 - v2);
                     }
                     throw new ArgumentException("given vertex is not present in this wall", "v2");

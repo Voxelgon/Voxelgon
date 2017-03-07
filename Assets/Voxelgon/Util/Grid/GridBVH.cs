@@ -1,15 +1,23 @@
 using System;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace Voxelgon.Util.Grid {
 
+    // An interface for any object that can be represented by an AABB
+    public interface IGridObject {
+        GridBounds Bounds { get; }
+        bool Raycast(Ray ray);
+        bool Raycast(Ray ray, float MaxDist);
+    }
+
+    // A Bounded Volume Heirarchy (BVH) restricted to a 3D grid
+    // Useful for quickly raytracing or intersecting a collection of objects that are on a grid
 
     // Loosely derived from here: https://github.com/jeske/SimpleScene/tree/master/SimpleScene/Util/ssBVH
     public class GridBVH<T> where T : IGridObject {
 
         // FIELDS
-
-        private const int MAX_LEAF_SIZE = 8; // maximum number of objects in a leaf before we try to split
 
         private GridBVHNode _root; // root node of the tree
 
@@ -44,6 +52,30 @@ namespace Voxelgon.Util.Grid {
             return _leafMap[remObject].Remove(remObject);
         }
 
+
+        // returns a list of all items that match `itemQuery`, using `boundsQuery` to narrow its results
+        public List<T> Traverse(Func<GridBounds, Boolean> boundsQuery, Func<T, Boolean> itemQuery) {
+            var hitList = new List<T>();
+
+            _root.Traverse(hitList, boundsQuery, itemQuery);
+
+            return hitList;
+        }
+
+        // returns a list of all items whos bounds match `boundsQuery`
+        public List<T> Traverse(Func<GridBounds, Boolean> boundsQuery) {
+            return Traverse(boundsQuery, i => boundsQuery(i.Bounds));
+        }
+
+        public List<T> Traverse(Ray ray) {
+            return Traverse(b => b.Raycast(ray), i => i.Raycast(ray));
+        }
+
+        // draw the BVH's bounds recursively
+        public void DrawDebug(float duration) {
+            _root.DrawDebug(duration);
+        }
+
         // returns a string representation of this BVH
         public override string ToString() {
             return "GridBVH<" + typeof(T) + ">";
@@ -55,6 +87,15 @@ namespace Voxelgon.Util.Grid {
         private class GridBVHNode {
 
             // FIELDS
+            private const int MAX_LEAF_SIZE = 8; // maximum number of objects in a leaf before we try to split
+            private Color[] DEBUG_COLORS = { // colors used for debugging based on depth
+                Color.red,
+                Color.blue,
+                Color.green,
+                Color.yellow,
+                Color.magenta };
+            private Color DEBUG_OBJECT_COLOR = Color.gray;
+
 
             // Parent and Children nodes
             private GridBVHNode _parent;
@@ -142,6 +183,28 @@ namespace Voxelgon.Util.Grid {
                 return "GridBVHNode<" + typeof(T) + ">:" + _id;
             }
 
+            // traverses the tree looking for items that match `itemQuery`, using `boundsQuery` to narrow its results
+            public void Traverse(List<T> hitList, Func<GridBounds, Boolean> boundsQuery, Func<T, Boolean> itemQuery) {
+                if (IsLeaf) {
+                    _contents.ForEach(o => { if (itemQuery(o)) hitList.Add(o); });
+                } else {
+                    // propogate to any child nodes that also match
+                    if (boundsQuery(_left._bounds)) _left.Traverse(hitList, boundsQuery, itemQuery);
+                    if (boundsQuery(_right._bounds)) _right.Traverse(hitList, boundsQuery, itemQuery);
+                }
+            }
+
+            // traverses the tree looking items that intersect `ray`
+            public void Traverse(List<T> hitList, Ray ray) {
+                if (IsLeaf) {
+                    _contents.ForEach(o => { if (o.Raycast(ray)) hitList.Add(o); });
+                } else {
+                    // propogate to any child nodes that also match
+                    if (_left._bounds.Raycast(ray)) _left.Traverse(hitList, ray);
+                    if (_right._bounds.Raycast(ray)) _right.Traverse(hitList, ray);
+                }
+            }
+
             // adds a new object 
             public void Add(T newObject) {
                 // 1. first we traverse the tree looking for the best Node
@@ -165,7 +228,7 @@ namespace Voxelgon.Util.Grid {
                     // we are adding the new object to this node or a child, so expand bounds to fit the object
                     _bounds = GridBounds.Combine(_bounds, objBounds);
 
-                    if (mergeSAH < Math.Min(sendLeftSAH, sendRightSAH)) {
+                    if (mergeSAH < System.Math.Min(sendLeftSAH, sendRightSAH)) {
                         // move children to new node under this one, then add a new leaf under this one
                         /*      n     *
                          *     / \    *
@@ -217,6 +280,17 @@ namespace Voxelgon.Util.Grid {
                 }
 
                 return true;
+            }
+
+            // draw the node's bounds in world and propogate downwards
+            public void DrawDebug(float duration) {
+                _bounds.DrawDebug(DEBUG_COLORS[_depth % DEBUG_COLORS.Length], duration);
+                if (IsLeaf) {
+                    _contents.ForEach(o => o.Bounds.DrawDebug(DEBUG_OBJECT_COLOR, duration));
+                } else {
+                    _left.DrawDebug(duration);
+                    _right.DrawDebug(duration);
+                }
             }
 
             // PRIVATE METHODS
