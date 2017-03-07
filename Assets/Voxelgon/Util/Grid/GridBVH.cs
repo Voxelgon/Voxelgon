@@ -61,6 +61,7 @@ namespace Voxelgon.Util.Grid {
 
             // CONSTRUCTORS
 
+            // new root node
             public GridBVHNode(GridBVH<T> bvh) {
                 _contents = new List<T>();
                 _parent = null;
@@ -70,6 +71,20 @@ namespace Voxelgon.Util.Grid {
                 _id = bvh._nodeCounter++;
             }
 
+            // new interior node
+            private GridBVHNode(GridBVH<T> bvh, GridBVHNode parent, GridBVHNode left, GridBVHNode right, int depth) {
+                _contents = null;
+                _parent = parent;
+                _left = left;
+                _right = right;
+                _bvh = bvh;
+                _id = bvh._nodeCounter++;
+                _bounds = GridBounds.Combine(left._bounds, right._bounds);
+
+                SetDepth(depth);
+            }
+
+            // new leaf
             private GridBVHNode(GridBVH<T> bvh, GridBVHNode parent, List<T> contents, int depth) {
                 if (contents.Count == 0) throw new ArgumentOutOfRangeException("contents", "contents list is empty");
 
@@ -80,6 +95,8 @@ namespace Voxelgon.Util.Grid {
                 _bvh = bvh;
                 _id = bvh._nodeCounter++;
                 _bounds = GridBounds.Combine(contents);
+
+                _contents.ForEach(o => _bvh._leafMap.Add(o, this));
 
                 SetDepth(depth);
             }
@@ -130,10 +147,14 @@ namespace Voxelgon.Util.Grid {
                     _bounds = GridBounds.Combine(_bounds, objBounds);
 
                     // Doing a merge-and-pushdown can be expensive, so we only do it if it's notably better
-                    const int MERGE_PRICE = 3;
+                    const int MERGE_PRICE = 2;
 
                     if (MERGE_PRICE * mergeSAH < Math.Min(sendLeftSAH, sendRightSAH)) {
-                        AddObjectAndPushDown(newObject);
+                        // move children to new node under this one, then add a new leaf under this one
+                        _left = new GridBVHNode(_bvh, this, _left, _right, _depth + 1);
+                        _right = new GridBVHNode(_bvh, this, new List<T> { newObject }, _depth + 1);
+
+                        _contents = null;
                         return;
                     } else {
                         if (sendLeftSAH < sendRightSAH) {
@@ -155,10 +176,6 @@ namespace Voxelgon.Util.Grid {
             }
 
             // PRIVATE METHODS
-
-            private void AddObjectAndPushDown(T newObject) {
-
-            }
 
             private void Split() {
                 if (!IsLeaf) throw new Exception("Tried to split an internal node!");
