@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Voxelgon.Graphics;
 using Voxelgon.Geometry;
+using Voxelgon.Util.Grid;
 using Voxelgon.EventSystems;
 
 namespace Voxelgon.Ship.Editor {
@@ -10,7 +11,7 @@ namespace Voxelgon.Ship.Editor {
     public class ShipEditor : MonoBehaviour, IModeChangeHandler {
         //Fields
 
-        private Dictionary<Node, List<Wall>> _wallVertices;
+        private Dictionary<GridPoint, List<Wall>> _wallVertices;
 
         private readonly List<Vector3> _nodes = new List<Vector3>();
 
@@ -61,7 +62,7 @@ namespace Voxelgon.Ship.Editor {
             Mode = BuildMode.Polygon;
             TempWall = new Wall(this);
             Walls = new List<Wall>();
-            _wallVertices = new Dictionary<Node, List<Wall>>();
+            _wallVertices = new Dictionary<GridPoint, List<Wall>>();
         }
 
         public void Update() {
@@ -113,7 +114,7 @@ namespace Voxelgon.Ship.Editor {
         }
 
         public void AddWall(Wall wall) {
-            foreach (var p in wall.Vertices.Select(v => (Node) v)) {
+            foreach (var p in wall.Vertices.Select(v => (GridPoint) v)) {
                 if (!_wallVertices.ContainsKey(p)) {
                     _wallVertices.Add(p, new List<Wall>());
                 }
@@ -126,7 +127,7 @@ namespace Voxelgon.Ship.Editor {
         public void RemoveWall(Wall wall) {
             foreach (var p in wall
                 .Vertices
-                .Select(v => (Node) v)
+                .Select(v => (GridPoint) v)
                 .Where(p => _wallVertices.ContainsKey(p))) {
                 _wallVertices[p].Remove(wall);
 
@@ -161,11 +162,11 @@ namespace Voxelgon.Ship.Editor {
 
 
         public List<Wall> GetWallNeighbors(Wall wall) {
-            var lastList = _wallVertices[(Node)wall.Vertices[wall.VertexCount - 1]];
+            var lastList = _wallVertices[(GridPoint)wall.Vertices[wall.VertexCount - 1]];
             var neighbors = new List<Wall>();
 
             foreach (var v in wall.Vertices) {
-                var p = (Node)v;
+                var p = (GridPoint)v;
 
                 if (_wallVertices.ContainsKey(p)) {
                     foreach (var w in _wallVertices[p]) {
@@ -182,8 +183,8 @@ namespace Voxelgon.Ship.Editor {
         public List<Wall> GetWallNeighbors(Wall wall, int edge) {
             var neighbors = new List<Wall>();
 
-            var p1 = (Node)wall.Vertices[edge];
-            var p2 = (Node)wall.Vertices[(edge + 1) % wall.VertexCount];
+            var p1 = (GridPoint)wall.Vertices[edge];
+            var p2 = (GridPoint)wall.Vertices[(edge + 1) % wall.VertexCount];
 
             if (!_wallVertices.ContainsKey(p1) || !_wallVertices.ContainsKey(p2))
                 return neighbors;

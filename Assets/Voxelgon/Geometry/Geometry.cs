@@ -127,6 +127,22 @@ namespace Voxelgon.Geometry {
             return new Vector3(sumX * mult, sumY * mult, sumZ * mult);
         }
 
+        // returns the average of several points
+        public static Vector3 VectorAvg(List<Vector3> points) {
+            float sumX = 0;
+            float sumY = 0;
+            float sumZ = 0;
+            
+            points.ForEach(e => {
+                sumX += e.x;
+                sumY += e.y;
+                sumZ += e.z;
+            });
+
+            float mult = 1 / points.Count;
+            return new Vector3(sumX * mult, sumY * mult, sumZ * mult);
+        }
+
         // flattens `vertices` onto a plane through `center` with the normal `normal`
         public static Vector2[] FlattenPoints(Vector3 center, Vector3[] vertices, Vector3 normal) {
             Vector2[] flattened = new Vector2[vertices.Length];
@@ -199,7 +215,7 @@ namespace Voxelgon.Geometry {
         // returns the point at the intersection to the surfaces at the ends of normalA and normalB
         public static Vector2 Miter(Vector2 normalA, Vector2 normalB) {
             var length = MiterLength(normalA, normalB);
-            var miter = new Vector2( normalB.x - (normalB.y * length), normalB.y + (normalB.x * length));
+            var miter = new Vector2(normalB.x - (normalB.y * length), normalB.y + (normalB.x * length));
 
             return miter;
         }
@@ -240,7 +256,7 @@ namespace Voxelgon.Geometry {
 
         public static Matrix4x4 Matrix4x4FromTo(Vector3 from, Vector3 to) {
             if (from.Approximately(to * -1)) return Matrix4x4.Scale(Vector3.one * -1);
-            
+
             var cross = Vector3.Cross(from, to);
             var matrix = Matrix4x4.identity;
 
@@ -267,8 +283,8 @@ namespace Voxelgon.Geometry {
         }
 
         public static bool Approximately(this Vector3 vector, Vector3 other) {
-            return (Mathf.Approximately(vector.x, other.x) 
-                 && Mathf.Approximately(vector.y, other.y) 
+            return (Mathf.Approximately(vector.x, other.x)
+                 && Mathf.Approximately(vector.y, other.y)
                  && Mathf.Approximately(vector.z, other.z));
         }
     }
