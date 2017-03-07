@@ -7,8 +7,7 @@ namespace Voxelgon.Util.Grid {
     // An interface for any object that can be represented by an AABB
     public interface IGridObject {
         GridBounds Bounds { get; }
-        bool Raycast(Ray ray);
-        bool Raycast(Ray ray, float MaxDist);
+        bool Raycast(Ray ray, float maxDist = float.MaxValue);
     }
 
     // A Bounded Volume Heirarchy (BVH) restricted to a 3D grid

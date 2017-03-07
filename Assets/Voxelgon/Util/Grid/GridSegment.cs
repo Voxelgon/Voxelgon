@@ -81,8 +81,7 @@ namespace Voxelgon.Util.Grid {
         // raycast onto this GridSegment
         // lines are infinitely thin, so cant collide with a ray
         // ALWAYS FALSE
-        public bool Raycast(Ray ray) { return false; }
-        public bool Raycast(Ray ray, float maxDist) { return false; }
+        public bool Raycast(Ray ray, float maxDist = float.MaxValue) { return false; }
 
 
         // check if a point is on this line segment

@@ -128,15 +128,14 @@ namespace Voxelgon.Util.Grid {
 
 
         // IGridObject
-        public bool Raycast(Ray ray) {
-            return Raycast(ray, 0, float.MaxValue);
-        }
-
-        // IGridObject
-        public bool Raycast(Ray ray, float maxDist) {
+        // raycast onto this bounding box
+        // uses a minimum distance of 0 and default maximum distance of float.MaxValue
+        // algorithm from http://psgraphics.blogspot.com/2016/02/new-simple-ray-box-test-from-andrew.html
+        public bool Raycast(Ray ray, float maxDist = float.MaxValue) {
             return Raycast(ray, 0, maxDist);
         }
 
+        // raycast onto this bounding box with the given minimum and maximum distances
         public bool Raycast(Ray ray, float minDist, float maxDist) {
             for (int axis = 0; axis < 3; axis++) {
                 float invD = 1.0f / ray.direction[axis];
@@ -157,12 +156,14 @@ namespace Voxelgon.Util.Grid {
             return true;
         }
 
+        // check if given point is in this AABB
         public bool Intersect(GridVector p) {
             return (p.x >= min.x && p.x <= max.x
                  && p.y >= min.y && p.y <= max.y
                  && p.z >= min.z && p.z <= max.z);
         }
 
+        // compute hashcode for hashMaps
         public override int GetHashCode() {
             unchecked {
                 int hash = 17;
@@ -172,6 +173,7 @@ namespace Voxelgon.Util.Grid {
             }
         }
 
+        // check if two GridBounds are equal
         public override bool Equals(object obj) {
             if (obj is GridBounds) {
                 return ((GridBounds)obj == this);
@@ -179,6 +181,7 @@ namespace Voxelgon.Util.Grid {
             return false;
         }
 
+        // draw this GridBounds into the world with given color and duration
         public void DrawDebug(Color color, float duration) {
             Debug.DrawLine(new Vector3(min.x, min.y, min.z), new Vector3(max.x, min.y, min.z), color, duration);
             Debug.DrawLine(new Vector3(min.x, min.y, min.z), new Vector3(min.x, max.y, min.z), color, duration);
