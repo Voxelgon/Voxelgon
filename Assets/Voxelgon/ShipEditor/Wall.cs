@@ -246,7 +246,7 @@ namespace Voxelgon.ShipEditor {
                 simpleMesh.triangles = meshTris;
                 simpleMesh.normals = meshNorms;
                 simpleMesh.colors = meshColors;
-                simpleMesh.Optimize();
+                ;
 
                 verticesChanged = false;
             }
