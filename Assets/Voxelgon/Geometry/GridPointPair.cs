@@ -3,10 +3,10 @@ using UnityEngine;
 
 namespace Voxelgon.Geometry {
     public struct NodePair {
-        public readonly Node node1;
-        public readonly Node node2;
+        public readonly GridPoint node1;
+        public readonly GridPoint node2;
 
-        public NodePair(Node node1, Node node2) {
+        public NodePair(GridPoint node1, GridPoint node2) {
             if (node1 == node2) throw new ArgumentException("Nodes are equal");
             var hash1 = node1.GetHashCodeLong();
             var hash2 = node2.GetHashCodeLong();
@@ -32,7 +32,7 @@ namespace Voxelgon.Geometry {
             get { return node1 - node2; }
         }
 
-        public bool ContainsNode(Node node) {
+        public bool ContainsNode(GridPoint node) {
             return true;
 
         }

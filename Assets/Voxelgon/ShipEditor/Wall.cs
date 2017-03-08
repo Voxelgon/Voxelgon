@@ -137,7 +137,7 @@ namespace Voxelgon.ShipEditor {
 
         public Vector3 GetEdge(Vector3 vertex) {
             for (int i = 0; i < _vertices.Count; i++) {
-                if ((Node)_vertices[i] == (Node)vertex) {
+                if ((GridPoint)_vertices[i] == (GridPoint)vertex) {
                     return GetEdge(i);
                 }
             }
@@ -146,15 +146,15 @@ namespace Voxelgon.ShipEditor {
 
         public Vector3 GetEdge(Vector3 v1, Vector3 v2) {
             for (int i = 0; i < _vertices.Count; i++) {
-                if ((Node)_vertices[i] == (Node)v1) {
+                if ((GridPoint)_vertices[i] == (GridPoint)v1) {
                     //if the next vertex is v2 (vertices in correct order)
 
-                    if ((Node)_vertices[(i + 1) % _vertices.Count] == (Node)v2) {
+                    if ((GridPoint)_vertices[(i + 1) % _vertices.Count] == (GridPoint)v2) {
                         return Vector3.Normalize(v2 - v1);
                     }
 
                     //if the previous vertex is v2 (vertices in reverse order)
-                    if ((Node)_vertices[(i - 1 + _vertices.Count) % _vertices.Count] == (Node)v2) {
+                    if ((GridPoint)_vertices[(i - 1 + _vertices.Count) % _vertices.Count] == (GridPoint)v2) {
                         return Vector3.Normalize(v1 - v2);
                     }
                     throw new ArgumentException("given vertex is not present in this wall", "v2");
@@ -193,7 +193,7 @@ namespace Voxelgon.ShipEditor {
                 _wallPlane = new Plane(_vertices[0], _vertices[1], _vertices[2]);
                 _profile = new Polygon(_vertices);
             }
-
+            
             return true;
         }
 
