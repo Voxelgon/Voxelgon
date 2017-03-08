@@ -21,7 +21,7 @@ GameObject:
   - component: {fileID: 4328924910338078}
   - component: {fileID: 108327836906946254}
   m_Layer: 0
-  m_Name: ShipEditorLight
+  m_Name: EditorLight
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
