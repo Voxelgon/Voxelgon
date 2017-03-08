@@ -1,10 +1,11 @@
 ﻿using UnityEngine;
-using Voxelgon.Math;
+using Voxelgon.Geometry;
 
 namespace Voxelgon.ShipEditor {
     public class ShipEditorGrid: MonoBehaviour {
 
         private MeshRenderer renderer;
+        public GameObject childlight;
 
         public void Start() {
 
@@ -21,6 +22,7 @@ namespace Voxelgon.ShipEditor {
 
             
             transform.position = gridPosition;
+            childlight.transform.localPosition = relativeCursorPosition;
             renderer.material.mainTextureOffset = new Vector2(relativeCursorPosition.x / 10, relativeCursorPosition.z / 10);
         }
     }
