@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.EventSystems;
 using Voxelgon.Graphics;
+using Voxelgon.Util.Grid;
 
 namespace Voxelgon.Ship.Editor {
     public class ShipEditorGridSelected: MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler{
@@ -25,8 +26,8 @@ namespace Voxelgon.Ship.Editor {
 
         public void OnPointerClick(PointerEventData eventData) {
             if (eventData.button == PointerEventData.InputButton.Right) {
-                editor.RemoveNode(transform.localPosition, gameObject);
-                GameObject.Destroy(gameObject,0.0f);
+                //editor.RemoveNode((GridVector) transform.localPosition, gameObject);
+                //GameObject.Destroy(gameObject,0.0f);
             } else if (eventData.button == PointerEventData.InputButton.Left && eventData.clickCount > 1) {
                 editor.FinalizeTempWall();
             }

@@ -1,5 +1,5 @@
 using UnityEngine;
-using System;
+using Voxelgon.Util.Grid;
 using System.Collections.Generic;
 
 
@@ -50,6 +50,8 @@ namespace Voxelgon.Geometry {
         }
 
         public Polygon(List<Vector3> vertices) : this(vertices.ToArray()) {}
+
+        public Polygon(List<GridVector> nodes) : this(nodes.ConvertAll<Vector3>(n => (Vector3) n)) {}
 
         public Polygon(Vector3 center, float radius, int sideCount, Vector3 normal, Vector3 tangent = default(Vector3)) {
             _vertices = new Vector3[sideCount];

@@ -16,7 +16,7 @@ namespace Voxelgon.Ship.Editor {
         // Update is called once per frame
         void Update () {
             editor.UpdateTempWall();
-            filter.mesh = editor.TempWall.ComplexMesh.ToMesh();
+            filter.mesh = editor.TempWall.Mesh.ToMesh();
 
         }
         

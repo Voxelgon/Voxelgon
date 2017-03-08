@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.EventSystems;
 using Voxelgon.Graphics;
+using Voxelgon.Util.Grid;
 
 namespace Voxelgon.Ship.Editor {
     public class ShipEditorGridHover: MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler{
@@ -33,7 +34,7 @@ namespace Voxelgon.Ship.Editor {
         public void OnPointerClick(PointerEventData eventData) {
             Vector3 pos = editor.transform.parent.InverseTransformPoint(transform.position);
 
-            editor.AddNode(pos);
+            editor.AddNode((GridVector) pos);
         }
     }
 }
