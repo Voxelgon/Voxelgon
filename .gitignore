@@ -16,3 +16,5 @@ voxelgon.sublime-workspace
 voxelgon.userprefs
 /.vscode*
 omnisharp.json
+
+Assets/Plugins/Editor/VSCode.cs

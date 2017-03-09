@@ -477,7 +477,7 @@ PlayerSettings:
   vrEditorSettings: {}
   cloudServicesEnabled:
     Build: 1
-    Collab: 1
+    Collab: 0
     UNet: 1
   cloudProjectId: 6a35ba54-5552-435c-aa51-1d4b9a612ae3
   projectName: voxelgon
