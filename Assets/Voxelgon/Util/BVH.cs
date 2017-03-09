@@ -1,12 +1,14 @@
 using UnityEngine;
 using System;
+using System.Linq;
 using System.Collections.Generic;
+using Voxelgon.Util.Geometry;
 
-namespace Voxelgon.Util.Grid {
+namespace Voxelgon.Util {
 
     // An interface for any object that can be represented by an AABB
-    public interface IGridObject {
-        GridBounds Bounds { get; }
+    public interface IBoundable {
+        Bounds Bounds { get; }
         bool Raycast(Ray ray, float maxDist = float.MaxValue);
     }
 
@@ -14,7 +16,7 @@ namespace Voxelgon.Util.Grid {
     // Useful for quickly raytracing or intersecting a collection of objects that are on a grid
 
     // Loosely derived from here: https://github.com/jeske/SimpleScene/tree/master/SimpleScene/Util/ssBVH
-    public class GridBVH<T> where T : IGridObject {
+    public class BVH<T> where T : IBoundable {
 
         // FIELDS
 
@@ -29,12 +31,12 @@ namespace Voxelgon.Util.Grid {
         // CONSTRUCTORS
 
         // new empty BVH
-        public GridBVH() {
+        public BVH() {
             _root = new GridBVHNode(this);
         }
 
         // new populated BVH
-        public GridBVH(List<T> contents) {
+        public BVH(List<T> contents) {
             _root = new GridBVHNode(this, null, contents, 0);
         }
 
@@ -51,9 +53,28 @@ namespace Voxelgon.Util.Grid {
             return _leafMap[remObject].Remove(remObject);
         }
 
+        // Creates a new AABB from two points
+        public static Bounds CalcBounds(Vector3 point1, Vector3 point2) {
+            var min = new Vector3();
+            var max = new Vector3();
+
+            for (int i = 0; i < 3; i++) {
+                if (point1[i] < point2[i]) {
+                    min[i] = point1[i];
+                    max[i] = point2[i];
+                } else {
+                    min[i] = point2[i];
+                    max[i] = point1[i];
+                }
+            }
+
+            var bounds = new Bounds();
+            bounds.SetMinMax(min, max);
+            return bounds;
+        }
 
         // returns a list of all items that match `itemQuery`, using `boundsQuery` to narrow its results
-        public List<T> Traverse(Func<GridBounds, Boolean> boundsQuery, Func<T, Boolean> itemQuery) {
+        public List<T> Traverse(Func<Bounds, Boolean> boundsQuery, Func<T, Boolean> itemQuery) {
             var hitList = new List<T>();
 
             _root.Traverse(hitList, boundsQuery, itemQuery);
@@ -62,12 +83,12 @@ namespace Voxelgon.Util.Grid {
         }
 
         // returns a list of all items whos bounds match `boundsQuery`
-        public List<T> Traverse(Func<GridBounds, Boolean> boundsQuery) {
+        public List<T> Traverse(Func<Bounds, Boolean> boundsQuery) {
             return Traverse(boundsQuery, i => boundsQuery(i.Bounds));
         }
 
         public List<T> Traverse(Ray ray) {
-            return Traverse(b => b.Raycast(ray), i => i.Raycast(ray));
+            return Traverse(b => b.IntersectRay(ray), i => i.Raycast(ray));
         }
 
         // draw the BVH's bounds recursively
@@ -78,6 +99,40 @@ namespace Voxelgon.Util.Grid {
         // returns a string representation of this BVH
         public override string ToString() {
             return "GridBVH<" + typeof(T) + ">";
+        }
+
+        // PRIVATE METHODS
+
+        // Creates a new AABB from two AABBs
+        private static Bounds CalcBounds(Bounds box1, Bounds box2) {
+            var bounds = new Bounds();
+            var min = new Vector3(
+                Mathf.Min(box1.min.x, box2.min.x),
+                Mathf.Min(box1.min.y, box2.min.y),
+                Mathf.Min(box1.min.z, box2.min.z));
+            var max = new Vector3(
+                Mathf.Max(box1.max.x, box2.max.x),
+                Mathf.Max(box1.max.y, box2.max.y),
+                Mathf.Max(box1.max.z, box2.max.z));
+            bounds.SetMinMax(min, max);
+            return bounds;
+        }
+
+        // Creates a new AABB from a list of IBoundables
+        private static Bounds CalcBounds(List<T> objects) {
+            if (objects.Count == 0)
+                throw new ArgumentOutOfRangeException("objects", "Empty list!");
+            var min = new Vector3();
+            var max = new Vector3();
+
+            for (int i = 0; i < 3; i++) {
+                min[i] = objects.Min(o => o.Bounds.min[i]);
+                max[i] = objects.Max(o => o.Bounds.max[i]);
+            }
+
+            var bounds = new Bounds();
+            bounds.SetMinMax(min, max);
+            return bounds;
         }
 
 
@@ -101,10 +156,10 @@ namespace Voxelgon.Util.Grid {
             private GridBVHNode _left;
             private GridBVHNode _right;
 
-            private GridBounds _bounds; // Bounding box for this node
+            private Bounds _bounds; // Bounding box for this node
             private List<T> _contents;  // Items in this node, null if it is not a leaf node
 
-            private readonly GridBVH<T> _bvh; // BVH this node belongs to
+            private readonly BVH<T> _bvh; // BVH this node belongs to
 
             private int _depth;
             private readonly int _id;
@@ -113,7 +168,7 @@ namespace Voxelgon.Util.Grid {
             // CONSTRUCTORS
 
             // new root node
-            public GridBVHNode(GridBVH<T> bvh) {
+            public GridBVHNode(BVH<T> bvh) {
                 _contents = new List<T>();
                 _parent = null;
                 _left = null;
@@ -123,20 +178,20 @@ namespace Voxelgon.Util.Grid {
             }
 
             // new interior node
-            public GridBVHNode(GridBVH<T> bvh, GridBVHNode parent, GridBVHNode left, GridBVHNode right, int depth) {
+            public GridBVHNode(BVH<T> bvh, GridBVHNode parent, GridBVHNode left, GridBVHNode right, int depth) {
                 _contents = null;
                 _parent = parent;
                 _left = left;
                 _right = right;
                 _bvh = bvh;
                 _id = bvh._nodeCounter++;
-                _bounds = GridBounds.Combine(left._bounds, right._bounds);
+                _bounds = CalcBounds(left._bounds, right._bounds);
 
                 SetDepth(depth);
             }
 
             // new leaf
-            public GridBVHNode(GridBVH<T> bvh, GridBVHNode parent, List<T> contents, int depth) {
+            public GridBVHNode(BVH<T> bvh, GridBVHNode parent, List<T> contents, int depth) {
                 if (contents.Count == 0) throw new ArgumentOutOfRangeException("contents", "contents list is empty");
 
                 _contents = contents;
@@ -145,7 +200,7 @@ namespace Voxelgon.Util.Grid {
                 _right = null;
                 _bvh = bvh;
                 _id = bvh._nodeCounter++;
-                _bounds = GridBounds.Combine(contents);
+                _bounds = CalcBounds(contents);
 
                 _contents.ForEach(o => _bvh._leafMap.Add(o, this));
 
@@ -183,7 +238,7 @@ namespace Voxelgon.Util.Grid {
             }
 
             // traverses the tree looking for items that match `itemQuery`, using `boundsQuery` to narrow its results
-            public void Traverse(List<T> hitList, Func<GridBounds, Boolean> boundsQuery, Func<T, Boolean> itemQuery) {
+            public void Traverse(List<T> hitList, Func<Bounds, Boolean> boundsQuery, Func<T, Boolean> itemQuery) {
                 if (IsLeaf) {
                     _contents.ForEach(o => { if (itemQuery(o)) hitList.Add(o); });
                 } else {
@@ -199,8 +254,8 @@ namespace Voxelgon.Util.Grid {
                     _contents.ForEach(o => { if (o.Raycast(ray)) hitList.Add(o); });
                 } else {
                     // propogate to any child nodes that also match
-                    if (_left._bounds.Raycast(ray)) _left.Traverse(hitList, ray);
-                    if (_right._bounds.Raycast(ray)) _right.Traverse(hitList, ray);
+                    if (_left._bounds.IntersectRay(ray)) _left.Traverse(hitList, ray);
+                    if (_right._bounds.IntersectRay(ray)) _right.Traverse(hitList, ray);
                 }
             }
 
@@ -217,15 +272,16 @@ namespace Voxelgon.Util.Grid {
                     var rightBounds = _right._bounds;
                     var objBounds = newObject.Bounds;
 
-                    int leftSAH = leftBounds.SurfaceArea;
-                    int rightSAH = rightBounds.SurfaceArea;
+                    var leftSAH = leftBounds.SurfaceArea();
+                    var rightSAH = rightBounds.SurfaceArea();
 
-                    int sendLeftSAH = rightSAH + GridBounds.Combine(leftBounds, objBounds).SurfaceArea;             // (L+N,R)
-                    int sendRightSAH = leftSAH + GridBounds.Combine(rightBounds, objBounds).SurfaceArea;            // (L,R+N)
-                    int mergeSAH = objBounds.SurfaceArea + GridBounds.Combine(leftBounds, rightBounds).SurfaceArea; // (L+R,N)
+                    var sendLeftSAH = rightSAH + CalcBounds(leftBounds, objBounds).SurfaceArea();   // (L+N,R)
+                    var sendRightSAH = leftSAH + CalcBounds(rightBounds, objBounds).SurfaceArea();  // (L,R+N)
+                    var mergeSAH = objBounds.SurfaceArea()
+                                     + CalcBounds(leftBounds, rightBounds).SurfaceArea();           // (L+R,N)
 
                     // we are adding the new object to this node or a child, so expand bounds to fit the object
-                    _bounds = GridBounds.Combine(_bounds, objBounds);
+                    _bounds = CalcBounds(_bounds, objBounds);
 
                     if (mergeSAH < System.Math.Min(sendLeftSAH, sendRightSAH)) {
                         // move children to new node under this one, then add a new leaf under this one
@@ -258,7 +314,7 @@ namespace Voxelgon.Util.Grid {
                 if (_contents.Count == 1) {
                     _bounds = newObject.Bounds;
                 } else {
-                    _bounds = GridBounds.Combine(_bounds, newObject.Bounds);
+                    _bounds = CalcBounds(_bounds, newObject.Bounds);
                     if (_contents.Count > MAX_LEAF_SIZE) Split();
                 }
             }
@@ -272,7 +328,7 @@ namespace Voxelgon.Util.Grid {
                     RecalculateBounds();
                 } else {
                     if (IsRoot) {
-                        _bounds = new GridBounds();
+                        _bounds = new Bounds();
                     } else {
                         _parent.RemoveLeaf(this);
                     }
@@ -296,34 +352,32 @@ namespace Voxelgon.Util.Grid {
 
             // split this node into two halves
             private bool Split() {
-                if (!IsLeaf) throw new Exception("Tried to split an internal node!");
+                if (!IsLeaf) 
+                    throw new Exception("Tried to split an internal node!");
 
+                int axis = 0;
                 // Choose the longest axis to split on and sort the list
-                if (_bounds.xSize >= _bounds.ySize && _bounds.xSize >= _bounds.zSize) {
+                if (_bounds.size.x >= _bounds.size.y && _bounds.size.x >= _bounds.size.z) {
                     // x biggest
-                    _contents.Sort((a, b) => {
-                        // sort by distance between centers on z axis
-                        int delta = (b.Bounds.min.x + b.Bounds.max.x) - (a.Bounds.min.x + a.Bounds.max.x);
-                        if (delta == 0) return b.Bounds.Volume - a.Bounds.Volume; // if the centers are the same, sort by Volume
-                        return delta;
-                    });
-                } else if (_bounds.ySize >= _bounds.zSize) {
+                    axis = 0;
+                } else if (_bounds.size.y >= _bounds.size.z) {
                     // y biggest
-                    _contents.Sort((a, b) => {
-                        // sort by distance between centers on z axis
-                        int delta = (b.Bounds.min.y + b.Bounds.max.y) - (a.Bounds.min.y + a.Bounds.max.y);
-                        if (delta == 0) return b.Bounds.Volume - a.Bounds.Volume; // if the centers are the same, sort by Volume
-                        return delta;
-                    });
+                    axis = 1;
                 } else {
                     // z biggest
-                    _contents.Sort((a, b) => {
-                        // sort by distance between centers on z axis
-                        int delta = (b.Bounds.min.z + b.Bounds.max.z) - (a.Bounds.min.z + a.Bounds.max.z);
-                        if (delta == 0) return b.Bounds.Volume - a.Bounds.Volume; // if the centers are the same, sort by Volume
-                        return delta;
-                    });
+                    axis = 2;
                 }
+
+                _contents.Sort((a, b) => {
+                    // distance between bounds on our selected axis
+                    float delta = (b.Bounds.min[axis] + b.Bounds.max[axis])
+                                - (a.Bounds.min[axis] + a.Bounds.max[axis]);
+                    if (Mathf.Approximately(delta, 0)) {
+                        // if the centers are the same, sort by Volume
+                        return (b.Bounds.Volume() > a.Bounds.Volume()) ? -1 : 1; 
+                    }
+                    return (delta < 0) ? -1 : 1;
+                });
 
                 // split the list of items down the middle
                 int center = _contents.Count / 2;
@@ -361,11 +415,11 @@ namespace Voxelgon.Util.Grid {
 
             // recalculate this node's bounds and propogate upwards
             private void RecalculateBounds() {
-                GridBounds newBounds;
+                Bounds newBounds;
                 if (IsLeaf) { // combination of all contents
-                    newBounds = GridBounds.Combine(_contents);
+                    newBounds = CalcBounds(_contents);
                 } else {      // combination of children nodes
-                    newBounds = GridBounds.Combine(_left._bounds, _right._bounds);
+                    newBounds = CalcBounds(_left._bounds, _right._bounds);
                 }
 
                 // if the new bounds are different, propogate upwards

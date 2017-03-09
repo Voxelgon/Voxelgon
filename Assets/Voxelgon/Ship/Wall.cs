@@ -1,8 +1,8 @@
 using UnityEngine;
 using System;
 using System.Collections.Generic;
-using Voxelgon.Geometry;
-using Voxelgon.Util.Grid;
+using Voxelgon.Util;
+using Voxelgon.Util.Geometry;
 using Voxelgon.Ship.Editor;
 
 

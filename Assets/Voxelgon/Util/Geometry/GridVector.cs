@@ -1,7 +1,7 @@
 using UnityEngine;
 using System;
 
-namespace Voxelgon.Util.Grid {
+namespace Voxelgon.Util{
 
     public struct GridVector {
 

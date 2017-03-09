@@ -2,8 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Voxelgon.Graphics;
-using Voxelgon.Geometry;
-using Voxelgon.Util.Grid;
+using Voxelgon.Util;
 using Voxelgon.EventSystems;
 
 namespace Voxelgon.Ship.Editor {

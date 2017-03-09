@@ -1,9 +1,10 @@
 using UnityEngine;
 using System;
 using System.Collections.Generic;
+using Voxelgon.Util;
 
 
-namespace Voxelgon.Geometry {
+namespace Voxelgon.Util.Geometry {
 
     public class Polygon {
 
@@ -23,10 +24,10 @@ namespace Voxelgon.Geometry {
             }
 
             //find center
-            _center = Geometry.VectorAvg(_vertices);
+            _center = GeometryVG.VectorAvg(_vertices);
 
             //find temporary normal
-            var tmpNormal = Geometry.PointsNormal(_vertices).normalized;
+            var tmpNormal = GeometryVG.PointsNormal(_vertices).normalized;
             if (tmpNormal.sqrMagnitude < 0.01f) {
                 throw new InvalidPolygonException("Points are Colinear");
             }
@@ -39,7 +40,7 @@ namespace Voxelgon.Geometry {
                 }
             }
             //check for real normal
-            var shoelace = Geometry.Shoelace(Geometry.FlattenPoints(_vertices, tmpNormal));
+            var shoelace = GeometryVG.Shoelace(GeometryVG.FlattenPoints(_vertices, tmpNormal));
             if (shoelace > 0.001f) {
                 _normal = -tmpNormal;
             } else if (shoelace < -0.001f) {
@@ -93,7 +94,7 @@ namespace Voxelgon.Geometry {
                     int j = (i + 1) % VertexCount;
                     int k = (i + 2) % VertexCount;
 
-                    if (Geometry.TriangleWindingOrder(
+                    if (GeometryVG.TriangleWindingOrder(
                             _vertices[i],
                             _vertices[j],
                             _vertices[k],
@@ -108,7 +109,7 @@ namespace Voxelgon.Geometry {
 
         //the area of the polygon
         public float Area {
-            get { return Mathf.Abs(Geometry.Shoelace(FlatVertices()) / 2); }
+            get { return Mathf.Abs(GeometryVG.Shoelace(FlatVertices()) / 2); }
         }
 
         //the number of vertices in the polygon
@@ -146,8 +147,8 @@ namespace Voxelgon.Geometry {
         public int[] TriangleIndices {
             get {
                 var indices = new List<int>(VertexCount * 3);
-                var vertices2D = Geometry.FlattenPoints(_center, _vertices, _normal);
-                Geometry.TriangulateSegment(vertices2D, indices, 0, 1);
+                var vertices2D = GeometryVG.FlattenPoints(_center, _vertices, _normal);
+                GeometryVG.TriangulateSegment(vertices2D, indices, 0, 1);
 
                 return indices.ToArray();
             }
@@ -177,7 +178,7 @@ namespace Voxelgon.Geometry {
         public bool Contains(Vector3 point) {
             var indices = TriangleIndices;
             for (var i = 0; i < indices.Length; i += 3) {
-                if (Geometry.TriangleContains(
+                if (GeometryVG.TriangleContains(
                         _vertices[indices[i]],
                         _vertices[indices[i + 1]],
                         _vertices[indices[i + 2]],
@@ -238,7 +239,7 @@ namespace Voxelgon.Geometry {
 
             var newVertices = verts.ToArray();
 
-            return new Polygon(newVertices, _normal, Geometry.VectorAvg(newVertices));
+            return new Polygon(newVertices, _normal, GeometryVG.VectorAvg(newVertices));
         }
 
         //returns the vertex at index `index`
@@ -293,7 +294,7 @@ namespace Voxelgon.Geometry {
 
 
         public Vector2[] FlatVertices(Vector3 normal) {
-            return Geometry.FlattenPoints(_center, _vertices, normal);
+            return GeometryVG.FlattenPoints(_center, _vertices, normal);
         }
 
         public Vector2[] FlatVertices() {
@@ -347,7 +348,7 @@ namespace Voxelgon.Geometry {
             var newVertices = (Vector3[])_vertices.Clone();
             var rotation = Quaternion.FromToRotation(_normal, Vector3.forward);
 
-            Geometry.TransformPoints(newVertices, Matrix4x4.TRS(Vector3.zero, rotation, Vector3.one));
+            GeometryVG.TransformPoints(newVertices, Matrix4x4.TRS(Vector3.zero, rotation, Vector3.one));
 
             Matrix2x2 rotation2D = new Matrix2x2(-Vector2.up, Vector2.right);
             Vector2 lastNormal = rotation2D * (newVertices[0] - newVertices[VertexCount - 1]).normalized * amount;
@@ -357,21 +358,21 @@ namespace Voxelgon.Geometry {
             for (var i = 0; i < VertexCount - 1; i++) {
                 normalA = normalB;
                 normalB = rotation2D * (newVertices[(i + 1) % VertexCount] - newVertices[i]).normalized * amount;
-                newVertices[i] += (Vector3)Geometry.Miter(normalA, normalB); ;
+                newVertices[i] += (Vector3)GeometryVG.Miter(normalA, normalB); ;
             }
-            newVertices[VertexCount - 1] += (Vector3)Geometry.Miter(normalB, lastNormal);
+            newVertices[VertexCount - 1] += (Vector3)GeometryVG.Miter(normalB, lastNormal);
 
             rotation = Quaternion.Inverse(rotation);
-            Geometry.TransformPoints(newVertices, Matrix4x4.TRS(Vector3.zero, rotation, Vector3.one));
+            GeometryVG.TransformPoints(newVertices, Matrix4x4.TRS(Vector3.zero, rotation, Vector3.one));
 
-            return new Polygon(newVertices, _normal, Geometry.VectorAvg(newVertices));
+            return new Polygon(newVertices, _normal, GeometryVG.VectorAvg(newVertices));
         }
 
         public Polygon Offset(float[] amounts) {
             var newVertices = (Vector3[])_vertices.Clone();
             var rotation = Quaternion.FromToRotation(_normal, Vector3.forward);
 
-            Geometry.TransformPoints(newVertices, Matrix4x4.TRS(Vector3.zero, rotation, Vector3.one));
+            GeometryVG.TransformPoints(newVertices, Matrix4x4.TRS(Vector3.zero, rotation, Vector3.one));
 
             Matrix2x2 rotation2D = new Matrix2x2(-Vector2.up, Vector2.right);
             Vector2 lastNormal = rotation2D * (newVertices[0] - newVertices[VertexCount - 1]).normalized * amounts[VertexCount - 1];
@@ -381,14 +382,14 @@ namespace Voxelgon.Geometry {
             for (var i = 0; i < VertexCount - 1; i++) {
                 normalA = normalB;
                 normalB = rotation2D * (newVertices[(i + 1) % VertexCount] - newVertices[i]).normalized * amounts[i];
-                newVertices[i] += (Vector3)Geometry.Miter(normalA, normalB); ;
+                newVertices[i] += (Vector3)GeometryVG.Miter(normalA, normalB); ;
             }
-            newVertices[VertexCount - 1] += (Vector3)Geometry.Miter(normalB, lastNormal);
+            newVertices[VertexCount - 1] += (Vector3)GeometryVG.Miter(normalB, lastNormal);
 
             rotation = Quaternion.Inverse(rotation);
-            Geometry.TransformPoints(newVertices, Matrix4x4.TRS(Vector3.zero, rotation, Vector3.one));
+            GeometryVG.TransformPoints(newVertices, Matrix4x4.TRS(Vector3.zero, rotation, Vector3.one));
 
-            return new Polygon(newVertices, _normal, Geometry.VectorAvg(newVertices));
+            return new Polygon(newVertices, _normal, GeometryVG.VectorAvg(newVertices));
         }
 
         public void CopyVertices(List<Vector3> dest) {
@@ -396,8 +397,8 @@ namespace Voxelgon.Geometry {
         }
 
         public void CopyTris(List<int> dest, int offset) {
-            var vertices2D = Geometry.FlattenPoints(_center, _vertices, _normal);
-            Geometry.TriangulateSegment(vertices2D, dest, 0, 1, offset);
+            var vertices2D = GeometryVG.FlattenPoints(_center, _vertices, _normal);
+            GeometryVG.TriangulateSegment(vertices2D, dest, 0, 1, offset);
         }
 
         //draw the polygon in the world for 1 frame

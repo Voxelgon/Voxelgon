@@ -1,10 +1,12 @@
 using UnityEngine;
+using System;
+using System.Linq;
 using System.Collections.Generic;
 
 
-namespace Voxelgon.Geometry {
+namespace Voxelgon.Util.Geometry {
 
-    public static class Geometry {
+    public static class GeometryVG {
 
         // PUBLIC STATIC METHODS
 
@@ -132,7 +134,7 @@ namespace Voxelgon.Geometry {
             float sumX = 0;
             float sumY = 0;
             float sumZ = 0;
-            
+
             points.ForEach(e => {
                 sumX += e.x;
                 sumY += e.y;
@@ -186,7 +188,7 @@ namespace Voxelgon.Geometry {
             Vector3 p3 = vertices[0];
             Vector3 normal = Vector3.zero;
             for (var i = 0; i < vertices.Length; i++) {
-                normal = Geometry.TriangleNormal(p1, p2, p3);
+                normal = GeometryVG.TriangleNormal(p1, p2, p3);
                 p1 = p2;
                 p2 = p3;
                 p3 = vertices[i];
@@ -228,9 +230,9 @@ namespace Voxelgon.Geometry {
             while (index3 < vertices.Length && index3 >= 0) {
                 bool validTri = true;
 
-                if (Geometry.TriangleWindingOrder2D(vertices[index1], vertices[index2], vertices[index3]) == 1) {
+                if (GeometryVG.TriangleWindingOrder2D(vertices[index1], vertices[index2], vertices[index3]) == 1) {
                     for (int i = index3 + 1; i < vertices.Length && validTri; i++) {
-                        validTri &= !Geometry.TriangleContains2D(vertices[index1], vertices[index2], vertices[index3], vertices[i]);
+                        validTri &= !GeometryVG.TriangleContains2D(vertices[index1], vertices[index2], vertices[index3], vertices[i]);
                     }
                 } else {
                     validTri = false;
@@ -241,7 +243,7 @@ namespace Voxelgon.Geometry {
                     tris.Add(offset + index2);
                     tris.Add(offset + index3);
 
-                    if (index1 != 0 && Geometry.TriangleWindingOrder2D(vertices[0], vertices[index1], vertices[index3]) == 1) {
+                    if (index1 != 0 && GeometryVG.TriangleWindingOrder2D(vertices[0], vertices[index1], vertices[index3]) == 1) {
                         return index3;
                     }
 
@@ -253,7 +255,6 @@ namespace Voxelgon.Geometry {
             }
             return -1;
         }
-
 
         // VECTOR3 EXTENSION METHODS
 

@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-namespace Voxelgon.Geometry {
+namespace Voxelgon.Util.Geometry {
     public struct Matrix2x2 {
         private float _m00;
         private float _m01;
