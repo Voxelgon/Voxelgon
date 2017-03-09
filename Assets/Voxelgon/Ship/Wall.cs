@@ -2,8 +2,8 @@ using UnityEngine;
 using System;
 using System.Linq;
 using System.Collections.Generic;
-using Voxelgon.Geometry;
-using Voxelgon.Util.Grid;
+using Voxelgon.Util;
+using Voxelgon.Util.Geometry;
 using Voxelgon.Ship.Editor;
 
 
@@ -156,7 +156,7 @@ namespace Voxelgon.Ship {
         private void CalcPlane() {
             if (VertexCount > 2 && !_isPolygon) {
                 for (int i = 0; i < _nodes.Count - 2; i++) {
-                    var normal = Geometry.Geometry.TriangleNormal((Vector3)_nodes[0], (Vector3)_nodes[1], (Vector3)_nodes[2]);
+                    var normal = GeometryVG.TriangleNormal((Vector3)_nodes[0], (Vector3)_nodes[1], (Vector3)_nodes[2]);
                     if (normal.sqrMagnitude > 0.001f) {
                         _wallPlane = new Plane(normal, (Vector3)_nodes[0]);
                         _isPolygon = true;
@@ -173,7 +173,7 @@ namespace Voxelgon.Ship {
                 _nodes.ForEach(o => {
                     node1 = node2;
                     node2 = o;
-                    _edges.Add(new GridSegment(node1, node2));
+                    //_edges.Add(new GridSegment(node1, node2));
                 });
             }
         }

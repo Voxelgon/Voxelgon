@@ -1,9 +1,6 @@
 using UnityEngine;
-using System;
-using System.Collections.Generic;
 
-
-namespace Voxelgon.Geometry {
+namespace Voxelgon.Util.Geometry {
 
     public class Path {
 

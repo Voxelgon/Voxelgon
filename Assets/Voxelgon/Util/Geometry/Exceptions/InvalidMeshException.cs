@@ -1,7 +1,7 @@
 using System;
 
 
-namespace Voxelgon.Geometry {
+namespace Voxelgon.Util.Geometry {
 
     public class InvalidMeshException: Exception {
 

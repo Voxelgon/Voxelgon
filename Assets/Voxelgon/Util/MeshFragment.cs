@@ -1,8 +1,8 @@
 using UnityEngine;
 using System.Collections.Generic;
+using Voxelgon.Util.Geometry;
 
-
-namespace Voxelgon.Geometry {
+namespace Voxelgon.Util {
 
     public class MeshFragment {
 

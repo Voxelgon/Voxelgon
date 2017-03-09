@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using Voxelgon.Graphics;
-using Voxelgon.Geometry;
-using Voxelgon.Util.Grid;
+using Voxelgon.Util;
+using Voxelgon.Util.Geometry;
 using Voxelgon.EventSystems;
 
 namespace Voxelgon.Ship.Editor {
@@ -19,7 +19,7 @@ namespace Voxelgon.Ship.Editor {
         public float cursorHitbox = 0.1f;
 
         private Dictionary<GridSegment, List<Wall>> _edgeDictionary;
-        private GridBVH<GridSegment> _edgeBVH;
+        private BVH<GridSegment> _edgeBVH;
 
         private Dictionary<GridVector, GameObject> _selectedNodes;
 
@@ -205,12 +205,14 @@ namespace Voxelgon.Ship.Editor {
         public List<Wall> GetWallNeighbors(Wall wall) {
             var neighbors = new List<Wall>();
             // TODO
+
             return neighbors;
         }
 
         public List<Wall> GetWallNeighbors(Wall wall, int edge) {
             var neighbors = new List<Wall>();
             // TODO
+
             return neighbors;
         }
 

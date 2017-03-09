@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.EventSystems;
 using Voxelgon.Graphics;
-using Voxelgon.Util.Grid;
+using Voxelgon.Util;
 
 namespace Voxelgon.Ship.Editor {
     public class ShipEditorGridSelected: MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler{
