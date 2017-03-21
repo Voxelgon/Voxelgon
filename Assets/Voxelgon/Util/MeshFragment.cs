@@ -8,41 +8,31 @@ namespace Voxelgon.Util {
 
         // FIELDS
 
-        private readonly Vector3[] _vertices;
-        private readonly Color32[] _colors32;
-        private readonly int[] _tris;
+        private readonly List<Vector3> _vertices;
+        private readonly List<Color32> _colors32;
+        private readonly List<int> _tris;
+        private Bounds _bounds;
 
 
         // CONSTRUCTORS
 
-        public MeshFragment(Vector3[] vertices, Color32[] colors32, int[] tris) : this(vertices, colors32, tris, true) { }
+        public MeshFragment(IEnumerable<Vector3> vertices, IEnumerable<Color32> colors32, IEnumerable<int> tris) {
+            _vertices = new List<Vector3>(vertices);
+            _colors32 = new List<Color32>(colors32);
+            _tris = new List<int>(tris);
+            if (_vertices.Count != _colors32.Count) throw new InvalidMeshException("array sizes do not match");
 
-        public MeshFragment(List<Vector3> vertices, List<Color32> colors32, List<int> tris) {
-            if (vertices.Count != colors32.Count) throw new InvalidMeshException("array sizes do not match");
-            _vertices = vertices.ToArray();
-            _colors32 = colors32.ToArray();
-            _tris = tris.ToArray();
+            _bounds = GeometryVG.CalcBounds(_vertices);
         }
-
-        private MeshFragment(Vector3[] vertices, Color32[] colors32, int[] tris, bool clone) {
-            if (vertices.Length != colors32.Length) throw new InvalidMeshException("array sizes do not match");
-
-            if (clone) {
-                _vertices = (Vector3[])vertices.Clone();
-                _colors32 = (Color32[])colors32.Clone();
-                _tris = (int[])tris.Clone();
-            } else {
-                _vertices = vertices;
-                _colors32 = colors32;
-                _tris = tris;
-            }
-        }
-
 
         // PROPERTIES
 
         public int VertexCount {
-            get { return _vertices.Length; }
+            get { return _vertices.Count; }
+        }
+
+        public Bounds Bounds {
+            get { return _bounds; }
         }
 
 
@@ -71,11 +61,42 @@ namespace Voxelgon.Util {
             Color32[] colors32 = new Color32[CUBESIZE];
             for (var i = 0; i < CUBESIZE; i++) colors32[i] = color32;
 
-            return new MeshFragment(vertices, colors32, tris, false);
+            return new MeshFragment(vertices, colors32, tris);
         }
 
         public static MeshFragment Cube(float sideLength, Color32 color32) {
             return Cube(sideLength, color32, Vector3.zero);
+        }
+
+        public static MeshFragment UVSphere(float radius, int resolution, Color32 color32, Vector3 center, Vector3 axis) {
+            axis.Normalize();
+            var builder = new MeshBuilder();
+            var profile = new Polygon(center, radius, resolution, axis);
+            var stepcount = resolution / 4;
+            var profcount = (stepcount * 2) + 1;
+            var points = new Vector3[profcount];
+            var tangents = new Vector3[profcount];
+            var scales = new float[profcount];
+
+            points[stepcount] = center;
+            scales[stepcount] = 1.0f;
+            for (var i = 1; i <= stepcount; i++) {
+                float angle = ((float)i / stepcount) * Mathf.PI / 2;
+                var cos = Mathf.Cos(angle);
+                var sin = Mathf.Sin(angle);
+
+                scales[stepcount + i] = cos;
+                scales[stepcount - i] = cos;
+                tangents[stepcount + i] = axis;
+                tangents[stepcount - i] = axis;
+                points[stepcount + 1] = center + (sin * axis);
+                points[stepcount - i] = center - (sin * axis);
+            }
+
+            var path = new Path(points, tangents, scales);
+
+            builder.Sweep(profile, path, color32, false, true, true);
+            return builder.ToFragment();
         }
 
         public void CopyVertices(List<Vector3> dest) {
@@ -87,16 +108,16 @@ namespace Voxelgon.Util {
         }
 
         public void CopyTris(List<int> dest, int offset) {
-            for (var i = 0; i < _tris.Length; i++) {
+            for (var i = 0; i < _tris.Count; i++) {
                 dest.Add(_tris[i] + offset);
             }
         }
 
         public Mesh ToMesh() {
             Mesh mesh = new Mesh();
-            mesh.vertices = _vertices;
-            mesh.colors32 = _colors32;
-            mesh.triangles = _tris;
+            mesh.SetVertices(_vertices);
+            mesh.SetColors(_colors32);
+            mesh.triangles = _tris.ToArray();
             mesh.RecalculateNormals();
             mesh.RecalculateBounds();
 

@@ -25,33 +25,24 @@ namespace Voxelgon.Util.Geometry {
             //find center
             _center = GeometryVG.VectorAvg(_vertices);
 
-            //find temporary normal
-            var tmpNormal = GeometryVG.PointsNormal(_vertices).normalized;
-            if (tmpNormal.sqrMagnitude < 0.01f) {
-                throw new InvalidPolygonException("Points are Colinear");
-            }
-
-            //check if coplanar 
-            Plane p = new Plane(tmpNormal, _vertices[0]);
-            for (var i = 3; i < VertexCount; i++) {
-                if (p.GetDistanceToPoint(_vertices[i]) > 0.01f) {
-                    throw new InvalidPolygonException("Not Planar");
-                }
-            }
-            //check for real normal
-            var shoelace = GeometryVG.Shoelace(GeometryVG.FlattenPoints(_vertices, tmpNormal));
-            if (shoelace > 0.001f) {
-                _normal = -tmpNormal;
-            } else if (shoelace < -0.001f) {
-                _normal = tmpNormal;
-            } else {
-                throw new InvalidPolygonException("Points are Colinear");
-            }
+            //find normal
+            _normal = CalcNormal(_vertices);
         }
 
-        public Polygon(List<Vector3> vertices) : this(vertices.ToArray()) {}
+        public Polygon(ICollection<Vector3> vertices) {
+            _vertices = new Vector3[vertices.Count];
+            vertices.CopyTo(_vertices, 0);
 
-        public Polygon(List<GridVector> nodes) : this(nodes.ConvertAll<Vector3>(n => (Vector3) n)) {}
+            if (VertexCount < 3) {
+                throw new InvalidPolygonException("Less than 3 vertices");
+            }
+
+            //find center
+            _center = GeometryVG.VectorAvg(_vertices);
+
+            //find normal
+            _normal = CalcNormal(_vertices);
+        }
 
         public Polygon(Vector3 center, float radius, int sideCount, Vector3 normal, Vector3 tangent = default(Vector3)) {
             _vertices = new Vector3[sideCount];
@@ -421,6 +412,30 @@ namespace Voxelgon.Util.Geometry {
             }
 
             return true;
+        }
+
+        private static Vector3 CalcNormal(Vector3[] vertices) {
+            var tmpNormal = GeometryVG.PointsNormal(vertices).normalized;
+            if (tmpNormal.sqrMagnitude < 0.01f) {
+                throw new InvalidPolygonException("Points are Colinear");
+            }
+
+            //check if coplanar 
+            Plane p = new Plane(tmpNormal, vertices[0]);
+            for (var i = 3; i < vertices.Length; i++) {
+                if (p.GetDistanceToPoint(vertices[i]) > 0.01f) {
+                    throw new InvalidPolygonException("Not Planar");
+                }
+            }
+            //check for real normal
+            var shoelace = GeometryVG.Shoelace(GeometryVG.FlattenPoints(vertices, tmpNormal));
+            if (shoelace > 0.001f) {
+                return -tmpNormal;
+            } else if (shoelace < -0.001f) {
+                return tmpNormal;
+            } else {
+                throw new InvalidPolygonException("Points are Colinear");
+            }
         }
     }
 }

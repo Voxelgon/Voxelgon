@@ -256,26 +256,49 @@ namespace Voxelgon.Util.Geometry {
             return -1;
         }
 
-        // VECTOR3 EXTENSION METHODS
-
-        public static Vector3 Round(this Vector3 vector) {
-            vector.x = Mathf.RoundToInt(vector.x);
-            vector.y = Mathf.RoundToInt(vector.y);
-            vector.z = Mathf.RoundToInt(vector.z);
-            return vector;
+        // Creates a new AABB from two AABBs
+        public static Bounds CalcBounds(Bounds box1, Bounds box2) {
+            var bounds = new Bounds();
+            var min = new Vector3(
+                Mathf.Min(box1.min.x, box2.min.x),
+                Mathf.Min(box1.min.y, box2.min.y),
+                Mathf.Min(box1.min.z, box2.min.z));
+            var max = new Vector3(
+                Mathf.Max(box1.max.x, box2.max.x),
+                Mathf.Max(box1.max.y, box2.max.y),
+                Mathf.Max(box1.max.z, box2.max.z));
+            bounds.SetMinMax(min, max);
+            return bounds;
         }
 
-        public static Vector3 Modulus(this Vector3 vector, float mod) {
-            vector.x %= mod;
-            vector.y %= mod;
-            vector.z %= mod;
-            return vector;
+        // Creates a new AABB from a list of IBoundables
+        public static Bounds CalcBounds(IEnumerable<Bounds> collection) {
+            var min = new Vector3();
+            var max = new Vector3();
+
+            for (int i = 0; i < 3; i++) {
+                min[i] = collection.Min(o => o.min[i]);
+                max[i] = collection.Max(o => o.max[i]);
+            }
+
+            var bounds = new Bounds();
+            bounds.SetMinMax(min, max);
+            return bounds;
         }
 
-        public static bool Approximately(this Vector3 vector, Vector3 other) {
-            return (Mathf.Approximately(vector.x, other.x)
-                 && Mathf.Approximately(vector.y, other.y)
-                 && Mathf.Approximately(vector.z, other.z));
+        // Creates a new AABB from a list of vectors 
+        public static Bounds CalcBounds(IEnumerable<Vector3> collection) {
+            var min = new Vector3();
+            var max = new Vector3();
+
+            for (int i = 0; i < 3; i++) {
+                min[i] = collection.Min(o => o[i]);
+                max[i] = collection.Max(o => o[i]);
+            }
+
+            var bounds = new Bounds();
+            bounds.SetMinMax(min, max);
+            return bounds;
         }
     }
 }

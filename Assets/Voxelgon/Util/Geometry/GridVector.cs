@@ -3,6 +3,7 @@ using System;
 
 namespace Voxelgon.Util.Geometry {
 
+    [Serializable]
     public struct GridVector {
 
         // FIELDS

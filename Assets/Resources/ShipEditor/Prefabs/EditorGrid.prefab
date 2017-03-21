@@ -21,7 +21,6 @@ GameObject:
   - component: {fileID: 4739449712613196}
   - component: {fileID: 33938469179019546}
   - component: {fileID: 23330333457335976}
-  - component: {fileID: 114580555364386908}
   m_Layer: 0
   m_Name: EditorGrid
   m_TagString: Untagged
@@ -80,15 +79,3 @@ MeshFilter:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1941022896964108}
   m_Mesh: {fileID: 4300000, guid: bae5cfca28bcf4fb0984e40f49c71be4, type: 3}
---- !u!114 &114580555364386908
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1941022896964108}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bf73483729234480ca125e7d1fa26dc7, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  childlight: {fileID: 0}
