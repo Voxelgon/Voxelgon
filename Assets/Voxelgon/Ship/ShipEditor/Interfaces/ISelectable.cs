@@ -5,9 +5,9 @@ namespace Voxelgon.Ship {
 
     public interface ISelectable : IBoundable {
 
-        void MakeCollider(Transform parent);
-        void DestroyCollider();
+        void MakeSelector(Transform parent);
+        void DestroySelector();
 
-        GameObject Collider { get; }
+        GameObject Selector { get; }
     }
 }

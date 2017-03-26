@@ -93,6 +93,16 @@ namespace Voxelgon.Util.Geometry {
             get { return new Matrix2x2(_m00, _m10, _m01, _m11); }
         }
 
+
+        // METHODS
+
+        // returns a rotation matrix
+        public static Matrix2x2 Rotation(float angle) {
+            var cos = Mathf.Cos(angle);
+            var sin = Mathf.Sin(angle);
+            return new Matrix2x2(cos, sin, -sin, cos);
+        }
+
         // returns a column of the matrix
         public Vector2 GetColumn(int i) {
             if (i < 0 || i > 1) throw new IndexOutOfRangeException();
@@ -115,6 +125,10 @@ namespace Voxelgon.Util.Geometry {
         // solves the matrix for the output `v`
         public Vector2 Solve(Vector2 v) {
             return Inverse * v;
+        }
+
+        public Vector3 Multiply(Vector2 v) {
+            return new Vector2((v.x * _m00) + (v.y * _m01), (v.x * _m10) + (v.y * _m11));
         }
 
         // returns the hash code of the matrix
@@ -141,7 +155,7 @@ namespace Voxelgon.Util.Geometry {
         }
 
         public static Vector2 operator *(Matrix2x2 lhs, Vector2 v) {
-            return new Vector2(Vector2.Dot(v, lhs.GetRow(0)), Vector2.Dot(v, lhs.GetRow(1)));
+            return lhs.Multiply(v);
         }
 
         public static Matrix2x2 operator *(Matrix2x2 lhs, Matrix2x2 rhs) {

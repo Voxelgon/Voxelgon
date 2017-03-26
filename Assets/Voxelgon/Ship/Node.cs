@@ -30,7 +30,7 @@ namespace Voxelgon.Ship {
             get { return new Bounds(Position, Vector3.one * ShipEditor.NODE_RADIUS); }
         }
 
-        public GameObject Collider {
+        public GameObject Selector {
             get { return _collider; }
         }
 
@@ -61,7 +61,7 @@ namespace Voxelgon.Ship {
 
         // ISelectable
 
-        public void MakeCollider(Transform parent) {
+        public void MakeSelector(Transform parent) {
             _collider = GameObject.CreatePrimitive(PrimitiveType.Sphere);
             _collider.name = "selectedNode";
 
@@ -74,7 +74,7 @@ namespace Voxelgon.Ship {
             _collider.transform.localScale = Vector3.one * 0.25f;
         }
 
-        public void DestroyCollider() {
+        public void DestroySelector() {
             GameObject.Destroy(_collider);
             _collider = null;
         }

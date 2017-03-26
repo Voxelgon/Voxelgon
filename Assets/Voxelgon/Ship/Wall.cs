@@ -112,7 +112,7 @@ namespace Voxelgon.Ship {
             get { return _mesh.Bounds; }
         }
 
-        public GameObject Collider {
+        public GameObject Selector {
             get { return _collider; }
         }
 
@@ -153,12 +153,12 @@ namespace Voxelgon.Ship {
 
         // ISelectable
 
-        public void MakeCollider(Transform parent) {
+        public void MakeSelector(Transform parent) {
             //TODO
             throw new NotImplementedException();
         }
 
-        public void DestroyCollider() {
+        public void DestroySelector() {
             GameObject.Destroy(_collider);
             _collider = null;
         }

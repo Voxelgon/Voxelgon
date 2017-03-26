@@ -26,10 +26,12 @@ namespace Voxelgon.Ship.Editor {
         private Vector3 _cursorPosition;
 
         // grid stuff
+        [SerializeField]
         private GameObject _gridObject;
-        private GameObject _cursorObject;
+        [SerializeField]
         private GameObject _lightObject;
-        public Material _gridMaterial;
+
+        private Material _gridMaterial;
 
         //Properties
 
@@ -51,7 +53,7 @@ namespace Voxelgon.Ship.Editor {
         }
 
         public void Start() {
-            BuildGrid();
+            _gridMaterial = _gridObject.GetComponent<MeshRenderer>().material;
         }
 
         public void Update() {
@@ -72,32 +74,9 @@ namespace Voxelgon.Ship.Editor {
 
         }
 
-        /*
-                public bool AddNode(GridVector node) {
-                    if (ValidNode(node)) {
-                        var selectedNode = GameObject.CreatePrimitive(PrimitiveType.Cube);
-                        selectedNode.name = "selectedNode";
 
-                        var nodeRenderer = selectedNode.GetComponent<MeshRenderer>();
-                        nodeRenderer.material.shader = Shader.Find("Unlit/Color");
-                        nodeRenderer.material.color = ColorPallette.gridSelected;
-
-                        selectedNode.transform.parent = transform.parent;
-                        selectedNode.transform.localPosition = (Vector3)node;
-                        selectedNode.transform.localScale = Vector3.one * 0.25f;
-
-                        selectedNode.GetComponent<BoxCollider>().size = Vector3.one * 1.5f;
-                        selectedNode.AddComponent<ShipEditorGridSelected>();
-
-                        _selectedNodes.Add(node, selectedNode);
-                        NodesChanged = true;
-                        return true;
-                    }
-                    return false;
-                }*/
-
-        private Vector3 CalcCursorPosition() {
-            var y = transform.position.y;
+        public static Vector3 CalcCursorPosition() {
+            var y = 0;
             var cursorRay = Camera.main.ScreenPointToRay(Input.mousePosition);
 
             var xySlope = cursorRay.direction.y / cursorRay.direction.x;
@@ -111,24 +90,6 @@ namespace Voxelgon.Ship.Editor {
             var interceptPoint = new Vector3(xIntercept, y, zIntercept);
 
             return interceptPoint;
-        }
-
-        private void BuildGrid() {
-            // load prefabs into memory
-            var gridPrefab = Resources.Load("ShipEditor/Prefabs/EditorGrid", typeof(GameObject));
-            var cursorPrefab = Resources.Load("ShipEditor/Prefabs/EditorCursor", typeof(GameObject));
-            var lightPrefab = Resources.Load("ShipEditor/Prefabs/EditorLight", typeof(GameObject));
-
-            // instantiate prefabs into the world and set them to children of the editor
-            _gridObject = Instantiate(gridPrefab, transform.position, transform.rotation) as GameObject;
-            _gridObject.transform.parent = transform;
-            _cursorObject = Instantiate(cursorPrefab, transform.position, transform.rotation) as GameObject;
-            _cursorObject.transform.parent = _gridObject.transform;
-            _lightObject = Instantiate(lightPrefab, transform.position, transform.rotation) as GameObject;
-            _lightObject.transform.parent = transform;
-
-            // save the material used in the grid for future usage
-            _gridMaterial = _gridObject.GetComponent<MeshRenderer>().material;
         }
 
         private void UpdateGrid() {
