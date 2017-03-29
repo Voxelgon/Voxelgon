@@ -10,6 +10,8 @@ namespace Voxelgon.Ship.Editor {
         private Stack<IAction> _undoStack = new Stack<IAction>();
         private Stack<IAction> _redoStack = new Stack<IAction>();
 
+        
+
 
         
     }

@@ -1,141 +1,193 @@
 ﻿using UnityEngine;
+using Voxelgon.Util;
+using Voxelgon.Util.Geometry;
 using Voxelgon.Ship.Editor;
 
-public class CameraController : MonoBehaviour {
+namespace Voxelgon {
 
-    [HeaderAttribute("Axis Names")]
+    public class CameraController : MonoBehaviour {
 
-    public string panKey = "Pan";
-    public string orbitKey = "Orbit";
-    public string orbitXAxis = "Horizontal";
-    public string orbitYAxis = "Vertical";
-    public string mouseXAxis = "Mouse X";
-    public string mouseYAxis = "Mouse Y";
-    public string zoomAxis = "zoom";
+        [HeaderAttribute("Axis Names")]
 
-    [SpaceAttribute]
-    [HeaderAttribute("Sensitivity")]
+        public string panKey = "Pan";
+        public string orbitKey = "Orbit";
+        public string orbitXAxis = "Horizontal";
+        public string orbitYAxis = "Vertical";
+        public string mouseXAxis = "Mouse X";
+        public string mouseYAxis = "Mouse Y";
+        public string zoomAxis = "zoom";
 
-    [RangeAttribute(10, 50)]
-    public float panSensitivity = 20f;
-    [RangeAttribute(1, 10)]
-    public float panZoomFalloff = 4.0f;
-    public float orbitSensitivity = 0.4f;
-    public float zoomSensativity = 1f;
-    public AnimationCurve zoomCurve;
-    public AnimationCurve elevCurve;
+        [SpaceAttribute]
+        [HeaderAttribute("Settings")]
 
-    [SpaceAttribute]
-    [HeaderAttribute("Limits")]
+        [RangeAttribute(10, 50)]
+        public float panSensitivity = 20f;
+        [RangeAttribute(1, 10)]
+        public float panZoomFalloff = 4.0f;
+        [RangeAttribute(0.1f, 1.0f)]
+        public float orbitSensitivity = 0.8f;
+        [RangeAttribute(0, 20)]
+        public float orbitZoomFalloff = 10;
+        [RangeAttribute(0.5f, 2.0f)]
+        public float zoomSensativity = 1f;
+        [RangeAttribute(1.0f, 10.0f)]
+        public float zoomFalloff = 3;
+        [RangeAttribute(0.0f, 1.0f)]
+        public float keyboardFalloff = 0.05f;
 
+        [RangeAttribute(0, 1)]
+        public float decay = 0.9f;
 
-    public float minZoom = 1;
-    public float maxZoom = 1000;
+        public bool inertia;
 
-    [RangeAttribute(0, 90)]
-    public float minElev = 5;
+        public PanMode panMode = PanMode.DragWorld;
 
-    [RangeAttribute(0, 90)]
-    public float maxElev = 85;
+        [SpaceAttribute]
+        [HeaderAttribute("Limits")]
 
-    [SpaceAttribute]
-    [HeaderAttribute("Current Coordinates")]
+        public float minZoom = 1;
+        public float maxZoom = 100;
 
-    [SerializeField]
-    [RangeAttribute(0, 1)]
-    private float _zoom = 1;
+        [RangeAttribute(0, 90)]
+        public float minElev = 5;
+        [RangeAttribute(0, 90)]
+        public float maxElev = 85;
 
-    [SerializeField]
-    [RangeAttribute(0, 1)]
-    private float _elev = 0.5f;
+        [SpaceAttribute]
+        [HeaderAttribute("Current Coordinates")]
 
-    [SerializeField]
-    [RangeAttribute(0, 1)]
-    private float _azim = 0;
+        [SerializeField]
+        [RangeAttribute(0, 1)]
+        private float _zoom = 0.3f;
 
-    [SerializeField]
-    private Vector3 _gimbal;
+        [SerializeField]
+        [RangeAttribute(0, 1)]
+        private float _elev = 0.5f;
 
-    private Matrix4x4 orthoSpace = new Matrix4x4();
+        [SerializeField]
+        [RangeAttribute(0, 1)]
+        private float _azim = 0;
 
-    void Start() {
-        _gimbal = Vector3.zero;
-    }
+        [SerializeField]
+        private Vector3 _gimbal;
 
-    // Update is called once per frame
-    void Update() {
+        private float _elevKBVel;
+        private float _azimKBVel;
+        private float _elevKB;
+        private float _azimKB;
+        private Vector2 _orbVelKB;
+        private Vector2 _orbVelKB_2;
+        private Vector2 _orbVel;
+        private Vector2 _panVel;
+        private float _zoomVel;
+        private Vector3 _lastCursorPos; //only used in "drag world" mode
 
-        // get orbit values
-        if (Input.GetButton(orbitKey)) {
-            var dElev = 4 * orbitSensitivity * Time.deltaTime * Input.GetAxis(mouseYAxis);
-            var dAzim = orbitSensitivity * Time.deltaTime * Input.GetAxis(mouseXAxis);
-            _elev = Mathf.Clamp01(_elev + dElev);
-            _azim = Mathf.Clamp01(_azim + dAzim);
+        public enum PanMode {
+            DragSelf,
+            DragWorld
         }
 
-        var dElevKey = 4 * orbitSensitivity * Time.deltaTime * Input.GetAxis(orbitYAxis);
-        var dAzimKey = orbitSensitivity * Time.deltaTime * Input.GetAxis(orbitXAxis);
-        _elev = Mathf.Clamp01(_elev + dElevKey);
-        _azim = Mathf.Repeat(_azim + dAzimKey, 1);
-
-        var dZoom = zoomSensativity * Time.deltaTime * Input.GetAxis(zoomAxis);
-        _zoom = Mathf.Clamp01(_zoom + dZoom);
-
-
-        // calc actual values
-        var zoomValue = Mathf.Lerp(minZoom, maxZoom, zoomCurve.Evaluate(_zoom));
-        var elevAngle = Mathf.Lerp(minElev, maxElev, elevCurve.Evaluate(_elev));
-        var azimAngle = Mathf.Lerp(0, 360, _azim);
-
-        // calc trig values
-        var sinAzim = Mathf.Sin(azimAngle * Mathf.Deg2Rad);
-        var cosAzim = Mathf.Cos(azimAngle * Mathf.Deg2Rad);
-        var sinElev = Mathf.Sin(elevAngle * Mathf.Deg2Rad);
-        var cosElev = Mathf.Cos(elevAngle * Mathf.Deg2Rad);
-
-        // move gimbal
-
-        /*
-        // zoom toward cursor
-        // doesnt really work?
-        if (_zoom > 0.0001) {
-            var target = ShipEditor.CalcCursorPosition();
-            _gimbal = Vector3.Lerp(_gimbal, target, 1000 * zoomCurve.Evaluate(-dZoom));
-        }*/
-
-        if (Input.GetButton(panKey)) {
-            var dx = (1 + (_zoom * panZoomFalloff)) * panSensitivity * Time.deltaTime * Input.GetAxis(mouseXAxis);
-            var dy = (1 + (_zoom * panZoomFalloff)) * panSensitivity * Time.deltaTime * Input.GetAxis(mouseYAxis);
-            _gimbal += new Vector3(dy * sinAzim + dx * cosAzim, 0, -dx * sinAzim + dy * cosAzim);
+        void Start() {
+            _gimbal = Vector3.zero;
         }
 
-        // calc polar positions
+        // Update is called once per frame
+        void Update() {
 
-        transform.localPosition = _gimbal + new Vector3(-cosElev * sinAzim, sinElev, -cosElev * cosAzim) * zoomValue;
-        transform.localEulerAngles = new Vector3(elevAngle, azimAngle, 0);
+            // zoom
+            if (inertia) {
+                _zoomVel = MathVG.MaxAbs(_zoomVel, Input.GetAxis(zoomAxis));
 
-        /*
-                //set values of temporary variables
-                elevation = transform.parent.eulerAngles.x;
-                zoom = -transform.localPosition.z;
-                orthoSpace = Matrix4x4.TRS(Vector3.one, Quaternion.Euler(-elevation, 0, 0), Vector3.one);
+                if (Mathf.Abs(_zoomVel) > 0.05f) {
+                    _zoomVel *= decay;
+                } else {
+                    _zoomVel = 0;
+                }
+            } else {
+                _zoomVel = Input.GetAxis(zoomAxis);
+            }
+
+            var dZoom = zoomSensativity * Time.deltaTime * _zoomVel;
+            _zoom = Mathf.Clamp01(_zoom + dZoom);
+            var adjustedZoom = MathVG.Smexperp(_zoom, zoomFalloff);
+            var zoomValue = Mathf.Lerp(minElev, maxZoom, adjustedZoom);
 
 
 
-                //orbit camera (default to MMB)
-                if (Input.GetButton("Orbit")) {
-                    transform.parent.Rotate(Time.deltaTime * Vector3.up * orbitSensitivity * Input.GetAxis("Mouse X"), Space.World);
-                    transform.parent.Rotate(Time.deltaTime * Vector3.right * (Mathf.Clamp(orbitSensitivity * Input.GetAxis("Mouse Y"), minAltitude - elevation, maxAltitude - elevation)));
+            // orbit
+
+            if (inertia) {
+                _orbVelKB.x = Mathf.SmoothDamp(_orbVelKB.x, Input.GetAxis(orbitXAxis), ref _orbVelKB_2.x, keyboardFalloff);
+                _orbVelKB.y = Mathf.SmoothDamp(_orbVelKB.y, Input.GetAxis(orbitYAxis), ref _orbVelKB_2.y, keyboardFalloff);
+            } else {
+                _orbVelKB.x = Input.GetAxis(orbitXAxis);
+                _orbVelKB.y = Input.GetAxis(orbitYAxis);
+            }
+
+            if (Input.GetButton(orbitKey)) {
+                _orbVel.y = -Input.GetAxis(mouseYAxis);
+                _orbVel.x = Input.GetAxis(mouseXAxis);
+            } else if (inertia) {
+                if (Mathf.Abs(_orbVel.x) > 0.05f
+                 || Mathf.Abs(_orbVel.y) > 0.05f) {
+                    _orbVel *= decay;
+                } else {
+                    _orbVel = Vector2.zero;
                 }
 
-                transform.parent.Rotate(Time.deltaTime * Vector3.up * orbitSensitivity * Input.GetAxis("Horizontal"), Space.World);
-                transform.parent.Rotate(Time.deltaTime * Vector3.right * (Mathf.Clamp(orbitSensitivity * Input.GetAxis("Vertical"), minAltitude - elevation, maxAltitude - elevation)));
+            } else {
+                _orbVel = Vector2.zero;
+            }
 
-                //zoom camera (default to Scroll Wheel)
-                transform.Translate(Time.deltaTime * Vector3.back * Mathf.Clamp(
-                                        Input.GetAxis("zoom") * zoomSensativity * Mathf.Pow(zoom / maxZoom, zoomExpo),
-                                    minZoom - zoom,
-                                    maxZoom - zoom));
-        */
+            var dElev = (orbitSensitivity * Time.deltaTime * MathVG.MaxAbs(_orbVel.y, _orbVelKB.y) * 4);
+            var dAzim = (orbitSensitivity * Time.deltaTime * MathVG.MaxAbs(_orbVel.x, _orbVelKB.x));
+
+            dElev /= 1.0f + (adjustedZoom * zoomFalloff);
+            dAzim /= 1.0f + (adjustedZoom * zoomFalloff);
+
+            _elev = Mathf.Clamp01(_elev + dElev);
+            _azim = Mathf.Repeat(_azim + dAzim, 1);
+
+            // calc actual values
+            var elevAngle = Mathf.SmoothStep(minElev, maxElev, _elev);
+            var azimAngle = Mathf.Lerp(0, 360, _azim);
+
+            // calc trig values
+            var sinElev = Mathf.Sin(elevAngle * Mathf.Deg2Rad);
+            var cosElev = Mathf.Cos(elevAngle * Mathf.Deg2Rad);
+
+            var azimMatrix = Matrix2x2.Rotation(azimAngle * Mathf.Deg2Rad);
+
+            // pan
+            var cursorPos = Input.mousePosition.xy();
+            if (Input.GetButton(panKey)) {
+                var worldPos1 = ShipEditor.CalcCursorPosition(cursorPos, _gimbal.y);
+                var worldPos2 = ShipEditor.CalcCursorPosition(_lastCursorPos, _gimbal.y);
+                if (panMode == PanMode.DragSelf) {
+                    _panVel = (worldPos1 - worldPos2).xz();
+                } else {
+                    _panVel = (worldPos2 - worldPos1).xz();
+                }
+            } else {
+                if (inertia) {
+                    if (_panVel.sqrMagnitude > 0.05f) {
+                        _panVel *= decay;
+                    } else {
+                        _panVel = Vector2.zero;
+                    }
+                } else {
+                    _panVel = Vector2.zero;
+                }
+            }
+
+            _lastCursorPos = cursorPos;
+            _gimbal += _panVel.xz();
+
+
+            // calc polar positions
+
+            transform.localPosition = _gimbal + zoomValue * (Vector3.up * sinElev + (-cosElev * (azimMatrix * Vector2.up)).xz());
+            transform.localEulerAngles = new Vector3(elevAngle, azimAngle, 0);
+        }
     }
 }

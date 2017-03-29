@@ -6,6 +6,7 @@ namespace Voxelgon {
 
         public static Mesh ColorMesh(Mesh colorMesh, Texture2D colormap) {
             //colors a meshe's vector-colors to match its UV mapping over a colormap
+            var newMesh = (Mesh)Object.Instantiate(colorMesh);
             Vector2[] uvs = colorMesh.uv;
             Color32[] colors = new Color32[uvs.Length];
             int textureW = colormap.width;
@@ -17,9 +18,8 @@ namespace Voxelgon {
                 Color32 color = colormap.GetPixel(pixelX, pixelY);
                 colors[i] = color;
             }
-            colorMesh.colors32 = colors;
-
-            return colorMesh;
+            newMesh.colors32 = colors;
+            return newMesh;
         }
     }
 }

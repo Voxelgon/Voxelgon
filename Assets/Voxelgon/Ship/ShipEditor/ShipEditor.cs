@@ -31,7 +31,12 @@ namespace Voxelgon.Ship.Editor {
         [SerializeField]
         private GameObject _lightObject;
 
+        [SerializeField]
         private Material _gridMaterial;
+        [SerializeField]
+        private Material _gridFillMaterial;
+        private string _gridOffsetName = "_Offset";
+        private int _gridOffsetID;
 
         //Properties
 
@@ -53,7 +58,7 @@ namespace Voxelgon.Ship.Editor {
         }
 
         public void Start() {
-            _gridMaterial = _gridObject.GetComponent<MeshRenderer>().material;
+            _gridOffsetID = Shader.PropertyToID(_gridOffsetName);
         }
 
         public void Update() {
@@ -75,9 +80,24 @@ namespace Voxelgon.Ship.Editor {
         }
 
 
-        public static Vector3 CalcCursorPosition() {
-            var y = 0;
+        public static Vector3 CalcCursorPosition(float y) {
             var cursorRay = Camera.main.ScreenPointToRay(Input.mousePosition);
+
+            var xySlope = cursorRay.direction.y / cursorRay.direction.x;
+            var zySlope = cursorRay.direction.y / cursorRay.direction.z;
+
+            var deltaY = cursorRay.origin.y - y;
+
+            var xIntercept = cursorRay.origin.x + deltaY / -xySlope;
+            var zIntercept = cursorRay.origin.z + deltaY / -zySlope;
+
+            var interceptPoint = new Vector3(xIntercept, y, zIntercept);
+
+            return interceptPoint;
+        }
+
+        public static Vector3 CalcCursorPosition(Vector2 screenPoint, float y) {
+            var cursorRay = Camera.main.ScreenPointToRay(screenPoint.xy());
 
             var xySlope = cursorRay.direction.y / cursorRay.direction.x;
             var zySlope = cursorRay.direction.y / cursorRay.direction.z;
@@ -94,17 +114,19 @@ namespace Voxelgon.Ship.Editor {
 
         private void UpdateGrid() {
             // calculate values
-            _cursorPosition = CalcCursorPosition();
+            _cursorPosition = CalcCursorPosition(transform.localPosition.y);
             var cursorNodePosition = _cursorPosition.Round();
             _cursorOffset = _cursorPosition - cursorNodePosition; // delta from cursor and nearest node
             _cursorNode = (GridVector)cursorNodePosition; // node currently nearest to
 
             //move the grid and its texture
             _gridObject.transform.localPosition = cursorNodePosition;
-            _gridMaterial.mainTextureOffset = new Vector2(_cursorOffset.x / 10, _cursorOffset.z / 10);
+            _gridMaterial.SetVector(_gridOffsetID, new Vector4(-_cursorOffset.x, _cursorOffset.z, 0, 0));
+            _gridFillMaterial.SetVector(_gridOffsetID, new Vector4(_cursorOffset.x, _cursorOffset.z, 0, 0));
+
 
             // move the light
-            _lightObject.transform.localPosition = _cursorPosition;
+            //_lightObject.transform.localPosition = _cursorPosition;
         }
     }
 }
