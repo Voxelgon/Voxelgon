@@ -1,8 +1,9 @@
 using UnityEngine;
 using System;
 
-namespace Voxelgon.Util{
+namespace Voxelgon.Util.Geometry {
 
+    [Serializable]
     public struct GridVector {
 
         // FIELDS

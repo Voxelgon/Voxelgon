@@ -1,89 +1,59 @@
 using UnityEngine;
 using System;
+using System.Linq;
 using System.Collections.Generic;
+using Voxelgon.Collections;
 using Voxelgon.Util;
 using Voxelgon.Util.Geometry;
-using Voxelgon.Ship.Editor;
-
 
 namespace Voxelgon.Ship {
 
-    public class Wall {
+    public class Wall : ISelectable {
 
         //Fields
 
-        public readonly ShipEditor _editor;
+        private readonly Hull _hull;
 
-        private readonly List<Vector3> _vertices = new List<Vector3>();
+        private LoopList<Node> _nodes = new LoopList<Node>();
 
-        private MeshFragment _complexMesh = null;
+        private MeshFragment _mesh = null;
         private MeshBuilder _meshBuilder = new MeshBuilder();
 
-        private Polygon _profile;
-
         private Plane _wallPlane;
+        private bool _isPolygon = false;
 
         private bool _verticesChanged;
 
         private float _thickness = 0.2f;
         //total thickness of the wall
 
+        private GameObject _collider;
+
+
         //Constructors
 
-        public Wall() {
+        public Wall(Hull hull) {
             _wallPlane = new Plane();
-        }
-
-        public Wall(ShipEditor editor) {
-            _wallPlane = new Plane();
-            _editor = editor;
+            _hull = hull;
         }
 
         //Properties
 
         public int VertexCount {
-            get { return _vertices.Count; }
+            get { return _nodes.Count; }
         }
 
         public bool IsPolygon {
-            get { return _vertices.Count > 2; }
+            get { return _isPolygon && _nodes.Count > 2; }
         }
 
-        public List<Vector3> Vertices {
-            get { return _vertices; }
-        }
-
-        public MeshFragment ComplexMesh {
+        public MeshFragment Mesh {
             get {
-                BuildMesh();
                 if (_verticesChanged) {
-                    //         BuildSimpleMesh();
+                    BuildMesh();
                 }
-                return _complexMesh;
+                return _mesh;
             }
-        }
-
-        public Matrix4x4 WorldToPlaneMatrix {
-            get {
-                var worldToPlaneMatrix = new Matrix4x4();
-
-                var offset = -1 * _vertices[0];
-                var rotation = Quaternion.FromToRotation(_wallPlane.normal, Vector3.up);
-                var scale = Vector3.one;
-
-                worldToPlaneMatrix.SetTRS(offset, rotation, scale);
-                return worldToPlaneMatrix;
-            }
-        }
-
-        public Matrix4x4 PlaneToWorldMatrix {
-            get {
-                return WorldToPlaneMatrix.inverse;
-            }
-        }
-
-        public bool VerticesChanged {
-            get { return _verticesChanged; }
         }
 
         public float Thickness {
@@ -102,260 +72,138 @@ namespace Voxelgon.Ship {
         public Vector3 Normal {
             get {
                 if (IsPolygon) {
-                    return _wallPlane.normal;
+                    return ((Plane)_wallPlane).normal;
                 }
                 return Vector3.zero;
             }
         }
 
+        public IEnumerable<Node> Nodes {
+            get { return _nodes.AsEnumerable(); }
+        }
+
+        public IEnumerable<Edge> Edges {
+            get {
+                if (_nodes.Count < 3) {
+                    throw new InvalidOperationException();
+                }
+
+                var node = _nodes.First;
+                do {
+                    yield return node.GetEdge(node = _nodes.GetNext(node));
+                } while (node != _nodes.First);
+            }
+        }
+
+        public short DeckLevel {
+            get {
+                var min = _nodes.Min(n => n.GridPosition.y);
+                var max = _nodes.Max(n => n.GridPosition.y);
+                if (max > min + 1) throw new InvalidOperationException();
+                return min;
+            }
+        }
+
+        public Hull Hull {
+            get { return _hull; }
+        }
+
+        public Bounds Bounds {
+            get { return _mesh.Bounds; }
+        }
+
+        public GameObject Selector {
+            get { return _collider; }
+        }
+
+
         //Methods
 
-        public bool ValidVertex(Vector3 vertex) {
-            if (ContainsVertex(vertex)) {
-                return false;
-            }
-            if (!IsPolygon) {
-                return true;
-            }
-            return Mathf.Abs(_wallPlane.GetDistanceToPoint(vertex)) < 0.001;
+        public bool ContainsNode(Node vertex) {
+            return _nodes.Contains(vertex);
         }
 
-        private bool ContainsVertex(Vector3 vertex) {
-            return _vertices.Contains(vertex);
-        }
+        public Vector3 GetEdgeNormal(Edge edge) {
+            var p1 = edge.Node1;
+            var p2 = edge.Node2;
 
-        public bool UpdateVertices(List<Vector3> nodes, ShipEditor.BuildMode mode) {
-            if (mode == ShipEditor.BuildMode.Polygon) {
-                _vertices.Clear();
-                foreach (Vector3 node in nodes) {
-                    if (!AddVertex(node)) {
-                        return false;
-                    }
+            if (_nodes.Contains(p1) && _nodes.Contains(p2)) {
+                if (_nodes.GetNext(p1) == p2) {
+                    return Vector3.Cross(edge.Tangent, Normal);
                 }
-                return true;
-            }
-            return false;
-        }
 
-        public Vector3 GetEdge(Vector3 vertex) {
-            for (int i = 0; i < _vertices.Count; i++) {
-                if ((GridVector)_vertices[i] == (GridVector)vertex) {
-                    return GetEdge(i);
+                if (_nodes.GetNext(p2) == p1) {
+                    return Vector3.Cross(edge.Tangent, -Normal);
                 }
             }
-            throw new ArgumentException("given vertex is not present in this wall", "vertex");
+            throw new ArgumentOutOfRangeException("edge", "edge not present in this wall");
         }
 
-        public Vector3 GetEdge(Vector3 v1, Vector3 v2) {
-            for (int i = 0; i < _vertices.Count; i++) {
-                if ((GridVector)_vertices[i] == (GridVector)v1) {
-                    //if the next vertex is v2 (vertices in correct order)
+        // IBoundable
 
-                    if ((GridVector)_vertices[(i + 1) % _vertices.Count] == (GridVector)v2) {
-                        return Vector3.Normalize(v2 - v1);
-                    }
-
-                    //if the previous vertex is v2 (vertices in reverse order)
-                    if ((GridVector)_vertices[(i - 1 + _vertices.Count) % _vertices.Count] == (GridVector)v2) {
-                        return Vector3.Normalize(v1 - v2);
-                    }
-                    throw new ArgumentException("given vertex is not present in this wall", "v2");
-                }
-            }
-            throw new ArgumentException("given vertex is not present in this wall", "v1");
+        public bool Raycast(Ray ray) {
+            //TODO
+            throw new NotImplementedException();
         }
 
-        public Vector3 GetEdge(int index) {
-            if (index >= _vertices.Count) {
-                throw new ArgumentOutOfRangeException("index");
-            }
-            return _profile.GetEdge(index);
+        public bool Raycast(Ray ray, out float distance) {
+            //TODO
+            throw new NotImplementedException();
         }
 
-        private Vector3 VectorP2W(Vector3 local) {
-            return PlaneToWorldMatrix.MultiplyVector(local);
+        // ISelectable
+
+        public void MakeSelector(Transform parent) {
+            //TODO
+            throw new NotImplementedException();
         }
 
-        private Vector3 VectorW2P(Vector3 world) {
-            return WorldToPlaneMatrix.MultiplyVector(world);
+        public void DestroySelector() {
+            GameObject.Destroy(_collider);
+            _collider = null;
         }
 
-        //Private Methods
+        // Private Methods
 
-        private bool AddVertex(Vector3 vertex) {
-            if (!ValidVertex(vertex)) {
-                Debug.Log("Invalid vertex!");
-                return false;
-            }
+        private bool AddNode(Node node) {
+            throw new NotImplementedException();
+        }
 
-            _vertices.Add(vertex);
+        private void Clear() {
             _verticesChanged = true;
+            _nodes.Clear();
+            _isPolygon = false;
+        }
 
-            if (_vertices.Count == 3) {
-                _wallPlane = new Plane(_vertices[0], _vertices[1], _vertices[2]);
-                _profile = new Polygon(_vertices);
+        private void CalcPlane() {
+            if (VertexCount > 2 && !_isPolygon) {
+                Node v1 = _nodes.First;
+                Node v2 = _nodes.GetNext(v1);
+                Node v3 = _nodes.GetNext(v2);
+
+                do {
+                    var normal = GeometryVG.TriangleNormal(v1.Position, v2.Position, v3.Position);
+                    if (normal.sqrMagnitude > 0.001f) {
+                        _wallPlane = new Plane(normal, v1.Position);
+                        _isPolygon = true;
+                        break;
+                    }
+                    v1 = v2;
+                    v2 = v3;
+                    v3 = _nodes.GetNext(v3);
+                } while (v3 != _nodes.First);
             }
-
-            return true;
         }
 
         private void BuildMesh() {
+            _verticesChanged = false;
             _meshBuilder.Clear();
 
             if (IsPolygon) {
-                _profile = new Polygon(_vertices);
-                _meshBuilder.AddPolygon(_profile, Color.green);
-
-                var frontEdgeOffsets = new float[VertexCount];
-                var backEdgeOffsets = new float[VertexCount];
-                var frontVertices = new Vector3[VertexCount];
-                var backVertices = new Vector3[VertexCount];
-                var caps = new List<int>();
-
-                for (int i = 0; i < VertexCount; i++) {
-                    List<Wall> neighbors = _editor.GetWallNeighbors(this, i);
-
-                    if (neighbors.Count != 0) {
-                        Vector3 binormal = Vector3.Cross(GetEdge(i).normalized, Normal);
-
-                        //*
-                        Debug.DrawRay(_vertices[i], Normal, Color.blue);
-                        Debug.DrawRay(_vertices[i], GetEdge(i), Color.yellow);
-                        Debug.DrawRay(_vertices[i], binormal, Color.green);
-                        Debug.DrawRay(_vertices[i], -1 * binormal, Color.cyan);
-                        //*/
-
-                        Matrix4x4 tangentSpace = Matrix4x4.TRS(Vector3.zero, Quaternion.FromToRotation(GetEdge(i), Vector3.up), Vector3.one);
-                        Vector3 tangentSpaceBinormal = tangentSpace.MultiplyVector(binormal);
-
-                        float rootAngle = Mathf.Atan2(-1 * tangentSpaceBinormal.x, -1 * tangentSpaceBinormal.z);
-                        float frontAngle = Mathf.PI * -2;
-                        float backAngle = Mathf.PI * 2;
-
-                        foreach (Wall w in neighbors) {
-                            Vector3 neighborNormal = w.Normal;
-                            Vector3 neighborTangent = w.GetEdge(_vertices[i], _vertices[(i + 1) % VertexCount]);
-
-                            Vector3 wallBinormal = tangentSpace.MultiplyVector(Vector3.Cross(neighborTangent, neighborNormal));
-                            float angle = Mathf.Atan2(wallBinormal.x, wallBinormal.z);
-
-                            //
-                            Debug.DrawRay(_vertices[i], neighborTangent, Color.magenta);
-                            Debug.DrawRay(_vertices[i], Vector3.Cross(neighborTangent, neighborNormal), Color.gray);
-                            //
-
-                            float deltaAngle = Mathf.Repeat(rootAngle - angle, Mathf.PI * 2);
-                            if (deltaAngle > Mathf.PI) deltaAngle = deltaAngle - 2 * Mathf.PI;
-
-                            if (deltaAngle > frontAngle) frontAngle = deltaAngle;
-                            if (deltaAngle < backAngle) backAngle = deltaAngle;
-                        }
-
-                        frontEdgeOffsets[i] = Mathf.Tan(-frontAngle / 2) * _thickness / 2;
-                        backEdgeOffsets[i] = Mathf.Tan(backAngle / 2) * _thickness / 2;
-
-                        if (!Mathf.Approximately(frontAngle, 0) && !Mathf.Approximately(backAngle, 0)) {
-                            caps.Add(i);
-                        }
-                    } else {
-                        frontEdgeOffsets[i] = 0;
-                        backEdgeOffsets[i] = 0;
-                        caps.Add(i);
-                    }
-                }
-                /*
-                                // build frontVertices and BackVertices arrays
-                                for (int i = 0; i < VertexCount; i++) {
-                                    Vector3 tangent = tangents[i];
-                                    Vector3 binormal = Vector3.Cross(tangent, Normal);
-                                    Vector3 localBinormal = VectorW2P(binormal);
-                                    Vector3 lastLocalBinormal = VectorW2P(Vector3.Cross(tangents[(i - 1 + VertexCount) % VertexCount], Normal));
-
-                                    float deltaAngle = Mathf.Atan2(localBinormal.x, localBinormal.z) - Mathf.Atan2(lastLocalBinormal.x, lastLocalBinormal.z);
-
-                                    if (Mathf.Approximately(deltaAngle, 0)){
-                                        frontVertices[i] = vertices[i] + (thickness / 2 * Normal) + (frontEdgeOffsets[i] * binormal);
-                                        backVertices[i] = vertices[i] + (thickness / -2 * Normal) + (backEdgeOffsets[i] * binormal);
-
-                                    } else {
-                                        float frontA = frontEdgeOffsets[i];
-                                        float frontB = frontEdgeOffsets[(i - 1 + VertexCount) % VertexCount];
-                                        float frontC = (Mathf.Cos(deltaAngle) * frontA - frontB) / Mathf.Sin(deltaAngle);
-                                        frontVertices[i] = vertices[i] + (thickness / 2 * Normal) + (frontA * binormal) + (frontC * tangent);
-
-                                        float backA = backEdgeOffsets[i];
-                                        float backB = backEdgeOffsets[(i - 1 + VertexCount) % VertexCount];
-                                        float backC = (Mathf.Cos(deltaAngle) * backA - backB) / Mathf.Sin(deltaAngle);
-                                        backVertices[i] = vertices[i] + (thickness / -2 * Normal) + (backA * binormal) + (backC * tangent);                    
-                                    }
-                                }
-
-                                var complexVertices = new List<Vector3>();
-                                var complexNormals = new List<Vector3>();
-                                var complexColors = new List<Color>();
-                                var complexTriangles = new List<int>();
-
-                                int indexOffset = 0;
-
-                                for (int i = 0; i < VertexCount; i++) {
-                                    complexVertices.Add(frontVertices[i]);
-                                    complexNormals.Add(Normal);
-                                    complexColors.Add(Color.grey);
-                                    if (i >= 2) {
-                                        complexTriangles.Add(0);
-                                        complexTriangles.Add(i - 1);
-                                        complexTriangles.Add(i);
-                                    }
-                                }
-
-                                indexOffset += VertexCount;
-
-                                for (int i = 0; i < VertexCount; i++) {
-                                    complexVertices.Add(backVertices[i]);
-                                    complexNormals.Add(-1 * Normal);
-                                    complexColors.Add(Color.grey);
-                                    if (i >= 2) {
-                                        complexTriangles.Add(indexOffset + i);
-                                        complexTriangles.Add(indexOffset + i - 1);
-                                        complexTriangles.Add(indexOffset + 0);
-                                    }
-                                }
-
-                                indexOffset += VertexCount;
-
-                                foreach (int i in caps) {
-                                    Vector3 normal = Vector3.Cross(tangents[i], Normal);
-                                    complexVertices.Add(frontVertices[i]);
-                                    complexNormals.Add(normal);
-                                    complexVertices.Add(frontVertices[(i + 1) % VertexCount]);
-                                    complexNormals.Add(normal);
-                                    complexVertices.Add(backVertices[i]);
-                                    complexNormals.Add(normal);
-                                    complexVertices.Add(backVertices[(i + 1) % VertexCount]);
-                                    complexNormals.Add(normal);
-
-                                    for (int j = 0; j < 4; j++) {
-                                        complexColors.Add(Color.grey);    
-                                        Debug.DrawRay(frontVertices[i], Vector3.Cross(tangents[i], Normal));
-                                    }
-                                    complexTriangles.Add(indexOffset + 1);
-                                    complexTriangles.Add(indexOffset + 2);
-                                    complexTriangles.Add(indexOffset + 3);
-                                    complexTriangles.Add(indexOffset + 2);
-                                    complexTriangles.Add(indexOffset + 1);
-                                    complexTriangles.Add(indexOffset + 0);
-                                    indexOffset += 4;
-                                }
-
-                                complexMesh.SetVertices(complexVertices);
-                                complexMesh.SetNormals(complexNormals);
-                                complexMesh.SetColors(complexColors);
-                                complexMesh.SetTriangles(complexTriangles, 0);
-                                complexMesh.RecalculateBounds();
-                                //complexMesh.RecalculateNormals();
-                                //complexMesh.Optimize(); */
+                var profile = new Polygon(_nodes.Cast<Vector3>() as ICollection<Vector3>);
+                _meshBuilder.AddPolygon(profile, Color.green);
             }
-            _complexMesh = _meshBuilder.ToFragment();
+            _mesh = _meshBuilder.ToFragment();
         }
     }
 }

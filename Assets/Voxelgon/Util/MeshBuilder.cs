@@ -15,8 +15,6 @@ namespace Voxelgon.Util {
 
         private readonly List<Mesh> _completedMeshes;
 
-        private readonly bool _printDebug = false;
-
         //Constructors
 
         public MeshBuilder() {
@@ -25,9 +23,6 @@ namespace Voxelgon.Util {
             _tris = new List<int>(512);
 
             _completedMeshes = new List<Mesh>();
-#if PRINTDEBUG
-            _printDebug = true;
-#endif
         }
 
         //Properties

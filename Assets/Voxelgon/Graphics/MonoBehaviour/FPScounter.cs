@@ -1,10 +1,11 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
+using TMPro;
 
 public class FPScounter : MonoBehaviour {
 
-    public Text text;
+    public TextMeshProUGUI text;
     public int frameCount;
     public float dt;
     public float fps;
@@ -31,7 +32,7 @@ public class FPScounter : MonoBehaviour {
     }
 
     public void Start() {
-        text = gameObject.GetComponent<Text>();
+        text = gameObject.GetComponent<TextMeshProUGUI>();
         //InvokeRepeating("UpdateFPS", 0.0f, 0.5f);
         //Debug.Log(fps);
     }

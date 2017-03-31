@@ -1,55 +1,55 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
-using System.Linq;
-using Voxelgon.Graphics;
-using Voxelgon.Util;
+using System;
+using Voxelgon.Util.Geometry;
 using Voxelgon.EventSystems;
 
 namespace Voxelgon.Ship.Editor {
 
+    [Serializable]
     public class ShipEditor : MonoBehaviour, IModeChangeHandler {
         //Fields
 
-        private Dictionary<GridVector, List<Wall>> _wallVertices;
+        public const float NODE_RADIUS = 0.3f;
+        public const float EDGE_RADIUS = 0.2f;
 
-        private readonly List<Vector3> _nodes = new List<Vector3>();
+        private BuildMode _mode;
 
-        private readonly List<GameObject> _nodeObjects = new List<GameObject>();
+        private Hull _hull;
 
-        private MeshBuilder _hullMeshBuilder = new MeshBuilder();
+        // selection stuff
+        private ISelectable _hoverObject;
+        private List<ISelectable> _selectedObjects;
+
+        private GridVector _cursorNode;
+        private Vector3 _cursorOffset;
+        private Vector3 _cursorPosition;
+
+        // grid stuff
+        [SerializeField]
+        private GameObject _gridObject;
+        [SerializeField]
+        private GameObject _lightObject;
+
+        [SerializeField]
+        private Material _gridMaterial;
+        [SerializeField]
+        private Material _gridFillMaterial;
+        private string _gridOffsetName = "_Offset";
+        private int _gridOffsetID;
 
         //Properties
 
-        public Wall TempWall { get; private set; }
-
-        public List<Wall> Walls { get; private set; }
-
-        public BuildMode Mode { get; set; }
-
-        public bool NodesChanged { get; private set; }
-
-        public bool WallsChanged { get; private set; }
-
-        public Mesh SimpleHullMesh {
-            get {
-                if (WallsChanged && Walls.Count > 0) {
-                    var wallMeshes = Walls.Select(w => w.ComplexMesh).ToList();
-                    _hullMeshBuilder.Clear();
-                    foreach (Wall w in Walls) {
-                        _hullMeshBuilder.AddFragment(w.ComplexMesh);
-                    }
-                }
-
-                WallsChanged = false;
-                return _hullMeshBuilder.FirstMesh;
-            }
+        public Hull Hull {
+            get { return _hull; }
         }
+
 
         //Enums
 
         public enum BuildMode {
             Polygon,
-            Rectangle
+            Wall
         }
 
         //Methods
@@ -58,145 +58,29 @@ namespace Voxelgon.Ship.Editor {
         }
 
         public void Start() {
-            Mode = BuildMode.Polygon;
-            TempWall = new Wall(this);
-            Walls = new List<Wall>();
-            _wallVertices = new Dictionary<GridVector, List<Wall>>();
+            _gridOffsetID = Shader.PropertyToID(_gridOffsetName);
         }
 
         public void Update() {
+            UpdateGrid();
+
+            //_onNode = Mathf.Abs(_cursorOffset.x) < cursorHitbox && Mathf.Abs(_cursorOffset.z) < cursorHitbox;
+            //_cursorObject.SetActive(_onNode);
+
             if (Input.GetButtonDown("ChangeFloor")) {
                 transform.Translate(Vector3.up * 2 * (int)Input.GetAxis("ChangeFloor"));
             }
-        }
 
-        public bool AddNode(Vector3 node) {
-            if (ValidNode(node)) {
-                var selectedNode = GameObject.CreatePrimitive(PrimitiveType.Cube);
-                selectedNode.name = "selectedNode";
-
-                var nodeRenderer = selectedNode.GetComponent<MeshRenderer>();
-                nodeRenderer.material.shader = Shader.Find("Unlit/Color");
-                nodeRenderer.material.color = ColorPallette.gridSelected;
-
-                selectedNode.transform.parent = transform.parent;
-                selectedNode.transform.localPosition = node;
-                selectedNode.transform.localScale = Vector3.one * 0.25f;
-
-                selectedNode.GetComponent<BoxCollider>().size = Vector3.one * 1.5f;
-                selectedNode.AddComponent<ShipEditorGridSelected>();
-
-                _nodes.Add(node);
-                _nodeObjects.Add(selectedNode);
-                NodesChanged = true;
-                return true;
+            if (Input.GetButtonDown("Mouse0")) {
             }
-            return false;
-        }
 
-        public bool RemoveNode(Vector3 node, GameObject obj) {
-            if (!_nodes.Contains(node))
-                return false;
-
-            _nodes.Remove(node);
-            _nodeObjects.Remove(obj);
-            NodesChanged = true;
-            return true;
-        }
-
-        public bool ValidNode(Vector3 node) {
-            return TempWall.ValidVertex(node) && !ContainsNode(node);
-        }
-
-        public bool ContainsNode(Vector3 node) {
-            return _nodes.Contains(node);
-        }
-
-        public void AddWall(Wall wall) {
-            foreach (var p in wall.Vertices.Select(v => (GridVector) v)) {
-                if (!_wallVertices.ContainsKey(p)) {
-                    _wallVertices.Add(p, new List<Wall>());
-                }
-                _wallVertices[p].Add(wall);
+            if (Input.GetButtonDown("Mouse1")) {
             }
-            Walls.Add(wall);
-            WallsChanged = true;
-        }
 
-        public void RemoveWall(Wall wall) {
-            foreach (var p in wall
-                .Vertices
-                .Select(v => (GridVector) v)
-                .Where(p => _wallVertices.ContainsKey(p))) {
-                _wallVertices[p].Remove(wall);
-
-                if (_wallVertices[p].Count == 0) {
-                    _wallVertices.Remove(p);
-                }
-            }
-            Walls.Remove(wall);
-            WallsChanged = true;
-        }
-
-        public void FinalizeTempWall() {
-            AddWall(TempWall);
-            TempWall = new Wall(this);
-
-            foreach (var g in _nodeObjects) {
-                Destroy(g);
-            }
-            _nodeObjects.Clear();
-            _nodes.Clear();
-
-            NodesChanged = true;
-        }
-
-        public bool UpdateTempWall() {
-            if (!NodesChanged || !TempWall.UpdateVertices(_nodes, Mode))
-                return false;
-
-            NodesChanged = false;
-            return true;
         }
 
 
-        public List<Wall> GetWallNeighbors(Wall wall) {
-            var lastList = _wallVertices[(GridVector)wall.Vertices[wall.VertexCount - 1]];
-            var neighbors = new List<Wall>();
-
-            foreach (var v in wall.Vertices) {
-                var p = (GridVector)v;
-
-                if (_wallVertices.ContainsKey(p)) {
-                    foreach (var w in _wallVertices[p]) {
-                        if (w != wall && lastList.Contains(w)) {
-                            neighbors.Add(w);
-                        }
-                        lastList = _wallVertices[p];
-                    }
-                }
-            }
-            return neighbors;
-        }
-
-        public List<Wall> GetWallNeighbors(Wall wall, int edge) {
-            var neighbors = new List<Wall>();
-
-            var p1 = (GridVector)wall.Vertices[edge];
-            var p2 = (GridVector)wall.Vertices[(edge + 1) % wall.VertexCount];
-
-            if (!_wallVertices.ContainsKey(p1) || !_wallVertices.ContainsKey(p2))
-                return neighbors;
-
-
-            var l1 = _wallVertices[p1];
-            var l2 = _wallVertices[p2];
-
-            neighbors.AddRange(l1.Where(w => w != wall && l2.Contains(w)));
-            return neighbors;
-        }
-
-        public static Vector3 GetEditCursorPos(float y) {
+        public static Vector3 CalcCursorPosition(float y) {
             var cursorRay = Camera.main.ScreenPointToRay(Input.mousePosition);
 
             var xySlope = cursorRay.direction.y / cursorRay.direction.x;
@@ -212,8 +96,37 @@ namespace Voxelgon.Ship.Editor {
             return interceptPoint;
         }
 
-        public static Vector3 GetEditCursorPos() {
-            return GetEditCursorPos(0);
+        public static Vector3 CalcCursorPosition(Vector2 screenPoint, float y) {
+            var cursorRay = Camera.main.ScreenPointToRay(screenPoint.xy());
+
+            var xySlope = cursorRay.direction.y / cursorRay.direction.x;
+            var zySlope = cursorRay.direction.y / cursorRay.direction.z;
+
+            var deltaY = cursorRay.origin.y - y;
+
+            var xIntercept = cursorRay.origin.x + deltaY / -xySlope;
+            var zIntercept = cursorRay.origin.z + deltaY / -zySlope;
+
+            var interceptPoint = new Vector3(xIntercept, y, zIntercept);
+
+            return interceptPoint;
+        }
+
+        private void UpdateGrid() {
+            // calculate values
+            _cursorPosition = CalcCursorPosition(transform.localPosition.y);
+            var cursorNodePosition = _cursorPosition.Round();
+            _cursorOffset = _cursorPosition - cursorNodePosition; // delta from cursor and nearest node
+            _cursorNode = (GridVector)cursorNodePosition; // node currently nearest to
+
+            //move the grid and its texture
+            _gridObject.transform.localPosition = cursorNodePosition;
+            _gridMaterial.SetVector(_gridOffsetID, new Vector4(-_cursorOffset.x, _cursorOffset.z, 0, 0));
+            _gridFillMaterial.SetVector(_gridOffsetID, new Vector4(_cursorOffset.x, _cursorOffset.z, 0, 0));
+
+
+            // move the light
+            //_lightObject.transform.localPosition = _cursorPosition;
         }
     }
 }
