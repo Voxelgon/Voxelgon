@@ -6,8 +6,8 @@ Material:
   m_ObjectHideFlags: 0
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
-  m_Name: EditorGridBillboard
-  m_Shader: {fileID: 4800000, guid: cce198a6691e24a338566d7ae3ed8d9e, type: 3}
+  m_Name: DitherTest
+  m_Shader: {fileID: 46, guid: 0000000000000000f000000000000000, type: 0}
   m_ShaderKeywords: _EMISSION
   m_LightmapFlags: 1
   m_CustomRenderQueue: -1
@@ -48,7 +48,7 @@ Material:
     - first:
         name: _MainTex
       second:
-        m_Texture: {fileID: 2800000, guid: dad86515d9ba74094b9c68039a721706, type: 3}
+        m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - first:
@@ -71,9 +71,6 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Floats:
     - first:
-        name: _Alpha
-      second: 0.1
-    - first:
         name: _BumpScale
       second: 1
     - first:
@@ -86,9 +83,6 @@ Material:
         name: _DstBlend
       second: 0
     - first:
-        name: _FadeCutoff
-      second: 0.8
-    - first:
         name: _GlossMapScale
       second: 1
     - first:
@@ -97,9 +91,6 @@ Material:
     - first:
         name: _GlossyReflections
       second: 1
-    - first:
-        name: _InvFade
-      second: 1.72
     - first:
         name: _Metallic
       second: 0
@@ -110,25 +101,10 @@ Material:
         name: _OcclusionStrength
       second: 1
     - first:
-        name: _Opacity
-      second: 0.37
-    - first:
         name: _Parallax
       second: 0.02
     - first:
-        name: _Radius
-      second: 0.2
-    - first:
-        name: _RadiusOffset
-      second: 0.02
-    - first:
-        name: _Smoothness
-      second: 0.5
-    - first:
         name: _SmoothnessTextureChannel
-      second: 0
-    - first:
-        name: _Specular
       second: 0
     - first:
         name: _SpecularHighlights
@@ -145,13 +121,7 @@ Material:
     m_Colors:
     - first:
         name: _Color
-      second: {r: 0.4862745, g: 1, b: 1, a: 1}
+      second: {r: 1, g: 1, b: 1, a: 1}
     - first:
         name: _EmissionColor
       second: {r: 0, g: 0, b: 0, a: 1}
-    - first:
-        name: _Offset
-      second: {r: -0.30568624, g: -0.27481413, b: 0, a: 0}
-    - first:
-        name: _TintColor
-      second: {r: 0.5, g: 0.5, b: 0.5, a: 0.078}
