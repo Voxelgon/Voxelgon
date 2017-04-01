@@ -89,14 +89,45 @@ namespace Voxelgon.Util {
                 scales[stepcount - i] = cos;
                 tangents[stepcount + i] = axis;
                 tangents[stepcount - i] = axis;
-                points[stepcount + 1] = center + (sin * axis);
-                points[stepcount - i] = center - (sin * axis);
+                points[stepcount + i] = center + (sin * axis * radius);
+                points[stepcount - i] = center - (sin * axis * radius);
             }
 
             var path = new Path(points, tangents, scales);
 
             builder.Sweep(profile, path, color32, false, true, true);
             return builder.ToFragment();
+        }
+
+        public static MeshFragment TruncatedUVSphere(float radius, int resolution, Color32 color32, Vector3 center, Vector3 axis, float percent) {
+            axis.Normalize();
+            var builder = new MeshBuilder();
+            var profile = new Polygon(center, radius, resolution, axis);
+            var stepcount = resolution / 4;
+            var profcount = (stepcount * 2) + 1;
+            var points = new Vector3[profcount];
+            var tangents = new Vector3[profcount];
+            var scales = new float[profcount];
+
+            points[stepcount] = center;
+            scales[stepcount] = 1.0f;
+            for (var i = 1; i <= stepcount; i++) {
+                var sin = ((float)i / stepcount) * percent;
+                var cos = Mathf.Sqrt(1 - (sin * sin));
+
+                scales[stepcount + i] = cos;
+                scales[stepcount - i] = cos;
+                tangents[stepcount + i] = axis;
+                tangents[stepcount - i] = axis;
+                points[stepcount + i] = center + (sin * axis * radius);
+                points[stepcount - i] = center - (sin * axis * radius);
+            }
+
+            var path = new Path(points, tangents, scales);
+
+            builder.Sweep(profile, path, color32, false, true, true);
+            return builder.ToFragment();
+
         }
 
         public void CopyVertices(List<Vector3> dest) {

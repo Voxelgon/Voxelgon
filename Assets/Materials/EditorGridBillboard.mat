@@ -117,7 +117,7 @@ Material:
       second: 0.02
     - first:
         name: _Radius
-      second: 0.2
+      second: 0.15
     - first:
         name: _RadiusOffset
       second: 0.02
@@ -151,7 +151,7 @@ Material:
       second: {r: 0, g: 0, b: 0, a: 1}
     - first:
         name: _Offset
-      second: {r: -0.30568624, g: -0.27481413, b: 0, a: 0}
+      second: {r: 0.15847301, g: 0.4377098, b: 0, a: 0}
     - first:
         name: _TintColor
       second: {r: 0.5, g: 0.5, b: 0.5, a: 0.078}

@@ -1,4 +1,5 @@
 using UnityEngine;
+using System;
 using System.Collections.Generic;
 using Voxelgon.Util.Geometry;
 
@@ -17,13 +18,16 @@ namespace Voxelgon.Util {
 
         //Constructors
 
-        public MeshBuilder() {
-            _vertices = new List<Vector3>(512);
-            _colors32 = new List<Color32>(512);
-            _tris = new List<int>(512);
+        public MeshBuilder(int VertexCount) {
+            _vertices = new List<Vector3>(VertexCount);
+            _colors32 = new List<Color32>(VertexCount);
+            _tris = new List<int>(VertexCount);
 
             _completedMeshes = new List<Mesh>();
         }
+
+
+        public MeshBuilder() : this(512) {}
 
         //Properties
 

@@ -39,11 +39,18 @@ namespace Voxelgon.Util {
         // Smoothstep
 
         public static float SmoothStep(float value) {
+            value = Mathf.Clamp01(value);
             return value * value * (3.0f - (2.0f * value));
         }
 
         public static float SmootherStep(float value) {
             return SmoothStep(SmoothStep(value));
+        }
+
+        // see: "Improving Noise" by Ken Perlin
+        public static float PerlinStep(float value) {
+            value = Mathf.Clamp01(value);
+            return value * value * value * (10 + value * (-15 + value * 6));
         }
 
         public static float Smexperp(float value, float n = e) {

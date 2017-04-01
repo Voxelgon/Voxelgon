@@ -12,7 +12,8 @@
         LOD 200
 
         CGPROGRAM
-        #pragma surface surf Unlit nodirlightmap nolightmap vertex:vert
+        #pragma surface surf Unlit nodirlightmap nolightmap vertex:vert 
+        #include "Tessellation.cginc"
 
         fixed3 _Color;
         half2 _Offset;
@@ -22,7 +23,7 @@
 
         half4 LightingUnlit(SurfaceOutput s, half3 lightDir, half atten) {
             half4 c;
-            c.rgb = _Color.rgb;
+            c.rgb = s.Albedo;
             return c;
         }
 
@@ -31,6 +32,8 @@
         };
  
         void surf(Input IN, inout SurfaceOutput o) {
+            o.Albedo = _Color;
+
         }
 
         void vert (inout appdata_full v) {

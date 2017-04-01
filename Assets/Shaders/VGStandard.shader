@@ -13,21 +13,21 @@
         fixed _Hardness;
         fixed3 _BaseColor;
 
+        struct Input {
+            fixed4 color: Color; // Vertex color
+        };
+
+
         half4 LightingWrapLambert(SurfaceOutput s, half3 lightDir, half atten) {
             half NdotL = dot (s.Normal, lightDir);
             NdotL = (NdotL * _Hardness) + 1.0 - _Hardness; //wrap surface normal
             half4 c;
-            c.rgb = lerp(_BaseColor.rgb, s.Albedo, s.Alpha) * _LightColor0.rgb * (NdotL * atten);
+            c.rgb = s.Albedo * _LightColor0.rgb * (NdotL * atten);
             return c;
         }
 
-        struct Input {
-            fixed4 color: Color; // Vertex color
-        };
- 
         void surf(Input IN, inout SurfaceOutput o) {
-            o.Albedo = IN.color.rgb;
-            o.Alpha = IN.color.a;
+            o.Albedo = lerp(_BaseColor.rgb, IN.color.rgb, IN.color.a);
         }
         ENDCG
     }

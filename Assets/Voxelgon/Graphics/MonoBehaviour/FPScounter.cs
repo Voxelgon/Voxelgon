@@ -9,14 +9,7 @@ public class FPScounter : MonoBehaviour {
     public int frameCount;
     public float dt;
     public float fps;
-    public float updateRate = 1.0f;
-
-    public void UpdateFPS() {
-        //fps = 1.0f / deltatime;
-
-        text.text = (int) fps + " FPS";
-        Debug.Log(fps);
-    }
+    public float updateRate = 0.1f;
 
     public void Update() {
         //deltatime = Time.smoothDeltaTime;
@@ -33,8 +26,6 @@ public class FPScounter : MonoBehaviour {
 
     public void Start() {
         text = gameObject.GetComponent<TextMeshProUGUI>();
-        //InvokeRepeating("UpdateFPS", 0.0f, 0.5f);
-        //Debug.Log(fps);
     }
 
 }

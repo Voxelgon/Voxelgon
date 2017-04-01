@@ -15,21 +15,15 @@ Shader "Voxelgon/Editor Grid Fill"
     {
         Tags { "Queue"="Transparent" "IgnoreProjector"="True" "RenderType"="Transparent" "PreviewType"="Plane" }
         LOD 200
-        //ZTest LEqual
         Blend SrcAlpha One
         Cull Off Lighting Off ZWrite Off
 
- 
         CGPROGRAM
-        #pragma surface surf Unlit vertex:vert alpha:fade 
-        #pragma nodynlightmap nodirlightmap nolightmap noforwardadd
+        #pragma surface surf Unlit vertex:vert alpha:fade nodynlightmap nodirlightmap nolightmap noforwardadd
         #pragma multi_compile _ SOFTPARTICLES_ON
-        #pragma multi_compile_fog
  
-        #pragma target 3.0
- 
-        #include "UnityCG.cginc"
- 
+        #include "../Dither.cginc"
+
         fixed3 _Color;
         fixed _Alpha;
         half2 _Offset;
@@ -39,14 +33,11 @@ Shader "Voxelgon/Editor Grid Fill"
         float _InvFade;
         sampler2D_float _CameraDepthTexture;
 
-        sampler2D _TBlueNoise;
+        SETUP_DITHER//sampler2D _TBlueNoise;
 
- 
         struct Input {
             float3 viewDir;
-            float2 uv_MainTex;
-            UNITY_FOG_COORDS(1)
-            float2 texcoord : TEXCOORD0;
+            float2 texcoord;
             #ifdef SOFTPARTICLES_ON
             float4 projPos : TEXCOORD2;
             #endif
@@ -61,8 +52,6 @@ Shader "Voxelgon/Editor Grid Fill"
         }
 
         void vert(inout appdata_full v, out Input o) {
-            //set custom value
-            o.uv_MainTex = v.texcoord;
             o.texcoord = v.texcoord;
             o.viewDir = WorldSpaceViewDir( v.vertex );
             #ifdef SOFTPARTICLES_ON
@@ -79,9 +68,12 @@ Shader "Voxelgon/Editor Grid Fill"
             float2 delta = (IN.texcoord - 0.5 - (_Offset / 10));
             half radius = _Radius + _SinTime.w * _RadiusOffset;
             half dist =(delta.x * delta.x) + (delta.y * delta.y); 
+
             clip(radius - dist);
+
             c.a *= (smoothstep(radius, 0, dist)- 0.05);
             c.a *= saturate(dot(IN.viewDir, o.Normal));
+            c.a *= 0.9 - (_SinTime.w * -0.2);
 
             #ifdef SOFTPARTICLES_ON
             half sceneZ = LinearEyeDepth(SAMPLE_DEPTH_TEXTURE_PROJ(_CameraDepthTexture, UNITY_PROJ_COORD(IN.projPos)));
@@ -89,10 +81,9 @@ Shader "Voxelgon/Editor Grid Fill"
             half fade = saturate(_InvFade * (sceneZ - partZ - _FadeCutoff));
             c.a *= fade;
             #endif
-
+            c += DITHER(IN.texcoord);
             o.Albedo = c.rgb;
-            o.Alpha = c.a + ((tex2D(_TBlueNoise, IN.texcoord * 21.9 + _Time).a * 2) - 1) / 256;
-            UNITY_APPLY_FOG(IN.fogCoord, c);
+            o.Alpha = c.a;
         }
         ENDCG
     }
