@@ -218,9 +218,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   radius: 30.5
-  circlePerc: 0.2
+  height: 0.15
   distortion: 0.003
-  Skycolor: {r: 0.039215688, g: 0.03137255, b: 0.1254902, a: 1}
+  resolution: 100
+  cloudScale: 10
+  cloudLayerDistance: 100
+  cloudOctaves: 5
 --- !u!23 &71404277
 MeshRenderer:
   m_ObjectHideFlags: 0
