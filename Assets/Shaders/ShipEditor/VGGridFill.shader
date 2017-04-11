@@ -29,7 +29,7 @@ Shader "Voxelgon/Editor Grid Fill"
             #pragma multi_compile_particles
     
             #include "UnityCG.cginc"
-            #include "../Dither.cginc"
+            #include "../Voxelgon-Dither.cginc"
 
             fixed3 _Color;
             fixed _Alpha;
@@ -39,10 +39,6 @@ Shader "Voxelgon/Editor Grid Fill"
             float _FadeCutoff;
             float _InvFade;
             sampler2D_float _CameraDepthTexture;
-
-            SETUP_DITHER//sampler2D _TBlueNoise;
-
-
 
             struct appdata_t {
                 float4 vertex : POSITION;
