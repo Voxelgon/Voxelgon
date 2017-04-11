@@ -1,41 +1,19 @@
-Shader "Voxelgon/Universe/Galaxy Backdrop" {
+Shader "Voxelgon/Galaxy Backdrop" {
     Properties {
         _Alpha ("Alpha", Range(0, 1)) = 0.1 
-        _Color1 ("Color 1", Color) = (1, 1, 1, 1)
-        _Color2 ("Color 2", Color) = (1, 1, 1, 1)
-        _Color3 ("Color 3", Color) = (1, 1, 1, 1)
-        _Color4 ("Color 4", Color) = (1, 1, 1, 1)
-
+        _Clip ("Clip Threshold", Range(0, 0.1)) = 0.001
     }
     SubShader {
-        Tags { "Queue"="Transparent" "IgnoreProjector"="True" "RenderType"="Transparent" }
+        Tags { "Queue"="Transparent"  "RenderType"="Transparent" }
         LOD 200
         Blend SrcAlpha One
-        Cull Off Lighting Off ZWrite Off
+        Cull Off Lighting Off ZWrite Off ZTest Less
 
 
         CGPROGRAM
-        #pragma surface surf Unlit alpha:fade vertex:vert nodirlightmap nolightmap noforwardadd
+        #pragma surface surf Unlit alpha:fade vertex:vert noforwardadd
 
         #include "../Dither.cginc"
-
-        fixed _Alpha;
-        fixed4 _Color1;
-        fixed4 _Color2;
-        fixed4 _Color3;
-        fixed4 _Color4;
-
-        SETUP_DITHER
-
-        struct Input {
-            fixed4 color: Color; // Vertex color
-            fixed2 texcoord;
-        };
-
-        void vert(inout appdata_full v, out Input o) {
-            o.texcoord = v.texcoord;
-            o.color = v.color;
-        }
 
         half4 LightingUnlit(SurfaceOutput s, half3 lightDir, half atten) {
             half4 c;
@@ -44,22 +22,31 @@ Shader "Voxelgon/Universe/Galaxy Backdrop" {
             return c;
         }
 
-        void surf(Input IN, inout SurfaceOutput o) {
-            half4 c;
-            half v1 = saturate(smoothstep(0.5, 0, abs(0.5 - IN.texcoord.y)) -  IN.color.r);
-            half v2 = saturate(smoothstep(0.5, 0, abs(0.5 - IN.texcoord.y)) -  IN.color.g);
-            half v3 = saturate(smoothstep(0.5, 0, abs(0.5 - IN.texcoord.y)) -  IN.color.b);
-            half v4 = saturate(smoothstep(0.5, 0, abs(0.5 - IN.texcoord.y)) -  IN.color.a);
+        fixed _Alpha;
+        half _Clip;
+        sampler2D_float _CameraDepthTexture;
 
-            c.rgb = v1 * _Color1.rgb * _Color1.a;
-            c.rgb += v2 * _Color2.rgb * _Color2.a; 
-            c.rgb += v3 * _Color3.rgb * _Color3.a; 
-            c.rgb += v4 * _Color4.rgb * _Color4.a; 
+        SETUP_DITHER
 
-            c.a = v1 + v2 + v3 + v4;
+        struct Input {
+            fixed4 color: Color; // Vertex color
+            fixed2 texcoord;
+            float4 projPos : TEXCOORD2;
+        };
 
-            c -= DITHER(IN.texcoord);
+        void vert(inout appdata_full v, out Input i) {
+            float4 hpos = UnityObjectToClipPos(v.vertex);
+            i.projPos = ComputeGrabScreenPos(hpos);
 
+            i.texcoord = v.texcoord;
+            i.color = v.color;
+        }
+
+        void surf(Input i, inout SurfaceOutput o) {
+            float depth = _Clip + Linear01Depth(SAMPLE_DEPTH_TEXTURE_PROJ(_CameraDepthTexture, UNITY_PROJ_COORD(i.projPos)));
+            clip(depth - 1);
+            clip(i.color.a - 0.01);
+            half4 c = i.color + DITHER(i.texcoord);
             o.Albedo = c.rgb;
             o.Alpha = c.a * _Alpha;
         }

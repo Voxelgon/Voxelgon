@@ -88,7 +88,7 @@ SubShader {
 
 			vert.xy += (vert.w * 0.5) / _ScreenParams.xy;
 
-			o.vertex = UnityPixelSnap(mul(UNITY_MATRIX_MVP, vert));
+			o.vertex = UnityPixelSnap(UnityObjectToClipPos(vert));
 			o.color = v.color;
 			o.color *= _Color;
 			o.color.rgb *= _DiffusePower;

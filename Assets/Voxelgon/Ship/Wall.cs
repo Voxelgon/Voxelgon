@@ -3,7 +3,7 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 using Voxelgon.Collections;
-using Voxelgon.Util;
+using Voxelgon.Util.MeshGeneration;
 using Voxelgon.Util.Geometry;
 
 namespace Voxelgon.Ship {

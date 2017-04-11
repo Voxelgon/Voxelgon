@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Voxelgon.Util;
+using Voxelgon.Util.MeshGeneration;
 using Voxelgon.Util.Geometry;
 using CoherentNoise.Generation.Fractal;
 
@@ -24,6 +25,8 @@ namespace Voxelgon.Generation {
 
         public int cloudOctaves;
 
+        public Color[] cloudColors;
+
         // Use this for initialization
         void Start() {
             var sphere = MeshFragment.TruncatedUVSphere(radius, resolution, Color.blue, Vector3.zero, Vector3.up, height);
@@ -39,14 +42,19 @@ namespace Voxelgon.Generation {
 
             for (int i = 0; i < size; i++) {
                 var pos2d = (vertices[i] / radius).xz() * cloudScale;
+                vertices[i] = Quaternion.Lerp(Quaternion.identity, UnityEngine.Random.rotation, distortion) * vertices[i];
+                var y = vertices[i].y / (radius * height);
+                y *= Mathf.Abs(y);
+                vertices[i].y = y * (radius * height);
 
-                for (int c = 0; c < 4; c++) {
-                    colors[i][c] = 0.1f + 0.8f * Mathf.Clamp01((clouds.GetValue(pos2d.x, pos2d.y, c * cloudLayerDistance) + 1) * 0.5f);
+                for (int c = 0; c < cloudColors.Length; c++) {
+                    var colorScale = (0.1f + 0.8f * Mathf.Clamp01((clouds.GetValue(pos2d.x, pos2d.y, c * cloudLayerDistance) + 1) * 0.5f));
+                    var colorThickness = Mathf.Sqrt(0.1f + 0.8f * Mathf.Clamp01((clouds.GetValue(pos2d.x, pos2d.y, -c * cloudLayerDistance) + 1) * 0.5f));  
+                    colors[i] += Mathf.Clamp01(1 - Mathf.Abs(y) / colorThickness) * cloudColors[c] * MathVG.SmoothStep(colorScale);
                 }
 
                 var scale = 0.1f + 0.8f * Mathf.Clamp01((clouds.GetValue(pos2d.x, pos2d.y, -3 * cloudLayerDistance) + 1) * 0.5f);
 
-                var y = vertices[i].y / (radius * height);
                 vertices[i].y *= scale - 2;
                 texcoords[i].y = ((y) + 1f) / 2f;
             }

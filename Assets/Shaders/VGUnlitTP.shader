@@ -3,14 +3,15 @@
         _Alpha ("Alpha", Range(0, 1)) = 0.1 
     }
     SubShader {
-        Tags { "Queue"="Transparent" "IgnoreProjector"="True" "RenderType"="Transparent" }
+        Tags { "Queue"="Transparent"  "RenderType"="Transparent" }
         LOD 200
         Blend SrcAlpha One
         Cull Off Lighting Off ZWrite Off
+        //Offset 1000000000000000000000, 10000000000000000000000000
 
 
         CGPROGRAM
-        #pragma surface surf Unlit alpha:fade addshadow nodirlightmap nolightmap noforwardadd
+        #pragma surface surf Unlit alpha:fade noforwardadd
 
         half4 LightingUnlit(SurfaceOutput s, half3 lightDir, half atten) {
             half4 c;

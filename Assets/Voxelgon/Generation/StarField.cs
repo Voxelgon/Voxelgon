@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using Voxelgon.Util;
+using Voxelgon.Util.MeshGeneration;
 using Voxelgon.Util.Geometry;
 
 namespace Voxelgon.Generation {
