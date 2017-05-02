@@ -3,20 +3,42 @@ using UnityEngine;
 using Voxelgon.Collections;
 
 namespace Voxelgon.Geometry {
+
+    /// <summary>
+    /// Class for triangulating planar polygons
+    /// </summary>
     public class Triangulator {
         #region Fields
 
-        private readonly IList<Vector2> _verts;
-        private readonly IList<int> _indices;
-        private readonly VertexData[] _links;
+        private readonly IList<Vector2> _verts; // List of vertex locations, assigned in the constructor
+        private readonly IList<int> _indices;   // Index list which points to the vertex list
+        private readonly VertexData[] _links;   // link data between vertices
 
         #endregion
 
         #region Constructors
 
+        /// <summary>
+        /// Create a triangulator for a simple polygon without holes.
+        /// </summary>
+        /// <remarks>
+        /// currently does not check if the given polygon is simple or not!
+        /// Implementation is undefined for complex or counter-clockwise polygons
+        /// </remarks>
+        /// <param name="verts">vertex list</param>
         public Triangulator(IList<Vector2> verts) : this(verts, new SequencialList(verts.Count)) {
         }
 
+        /// <summary>
+        /// Create a triangulator for a simple polygon using given vertices and indices,
+        /// to allow for triangulating polygons with holes
+        /// </summary>
+        /// <remarks>
+        /// currently does not check if the given polygon is simple or not!
+        /// Implementation is undefined for complex or counter-clockwise polygons
+        /// </remarks>
+        /// <param name="verts">vertex list</param>
+        /// <param name="indices">index list</param>
         public Triangulator(IList<Vector2> verts, IList<int> indices) {
             _verts = verts;
             _indices = indices;
