@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using Voxelgon.Util.Geometry;
+using Voxelgon.Geometry;
 using UnityEngine;
 
 namespace Voxelgon.Ship {

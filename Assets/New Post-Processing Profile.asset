@@ -18,12 +18,12 @@ MonoBehaviour:
       depth:
         scale: 0.023
       motionVectors:
-        sourceOpacity: 1
-        motionImageOpacity: 0.363
+        sourceOpacity: 0.431
+        motionImageOpacity: 1
         motionImageAmplitude: 16
         motionVectorsOpacity: 0
-        motionVectorsResolution: 24
-        motionVectorsAmplitude: 64
+        motionVectorsResolution: 30
+        motionVectorsAmplitude: 149.35
   fog:
     m_Enabled: 1
     m_Settings:
@@ -36,13 +36,13 @@ MonoBehaviour:
         preset: 2
       taaSettings:
         jitterSpread: 0.75
-        sharpen: 0
+        sharpen: 0.2
         stationaryBlending: 0.95
-        motionBlending: 0.85
+        motionBlending: 0.2
   ambientOcclusion:
     m_Enabled: 1
     m_Settings:
-      intensity: 0.48
+      intensity: 0.8
       radius: 0.3
       sampleCount: 10
       downsampling: 1
@@ -71,10 +71,10 @@ MonoBehaviour:
   depthOfField:
     m_Enabled: 0
     m_Settings:
-      focusDistance: 10
-      aperture: 5.6
+      focusDistance: 6.4
+      aperture: 0.1
       focalLength: 50
-      useCameraFov: 0
+      useCameraFov: 1
       kernelSize: 1
   motionBlur:
     m_Enabled: 0

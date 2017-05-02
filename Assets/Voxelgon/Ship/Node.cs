@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
-using Voxelgon.Util.Geometry;
+using Voxelgon.Geometry;
 using Voxelgon.Ship.Editor;
 using Voxelgon.Graphics;
 

@@ -17,6 +17,7 @@ Shader "Voxelgon/Standard" {
             #pragma vertex vert
             #pragma fragment frag_forward
             #pragma multi_compile_fwdbase noshadowmask nodynlightmap nodirlightmap nolightmap
+            #pragma multi_compile_instancing
 
             #define UNITY_PASS_FORWARDBASE
 
@@ -35,6 +36,7 @@ Shader "Voxelgon/Standard" {
             #pragma vertex vert
             #pragma fragment frag_forward
             #pragma multi_compile_fwdadd_fullshadows noshadowmask nodynlightmap nodirlightmap nolightmap
+            #pragma multi_compile_instancing
 
             #define UNITY_PASS_FORWARDADD
 
@@ -52,6 +54,7 @@ Shader "Voxelgon/Standard" {
             #pragma fragment frag_deferred
             #pragma exclude_renderers nomrt //exclude platforms without MRT
             #pragma multi_compile_prepassfinal noshadowmask nodynlightmap nodirlightmap nolightmap
+            #pragma multi_compile_instancing
 
             #define UNITY_PASS_DEFERRED
 

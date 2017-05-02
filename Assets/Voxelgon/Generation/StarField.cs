@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Voxelgon.Util.MeshGeneration;
-using Voxelgon.Util.Geometry;
+using Voxelgon.Geometry;
 
 namespace Voxelgon.Generation {
 

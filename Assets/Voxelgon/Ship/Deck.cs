@@ -11,7 +11,7 @@ namespace Voxelgon.Ship {
         private readonly Hull _hull;
 
         private readonly int _level;
-        private BVH<Wall> _walls;
+        private BVH<Panel> _panels;
 
 
         // PROPERTIES
@@ -29,15 +29,15 @@ namespace Voxelgon.Ship {
         public Deck(Hull hull, int level) {
             _level = level;
             _hull = hull;
-            _walls = new BVH<Wall>();
+            _panels = new BVH<Panel>();
         }
 
 
         // METHODS
 
-        public bool AddWall(Wall wall) {
-            if (wall.DeckLevel == _level) {
-                _walls.Add(wall);
+        public bool AddPanel(Panel panel) {
+            if (panel.DeckLevel == _level) {
+                _panels.Add(panel);
             }
             return false;
         }

@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 using Voxelgon.Util;
-using Voxelgon.Util.Geometry;
+using Voxelgon.Geometry;
 using Voxelgon.Ship.Editor;
 
 namespace Voxelgon {

@@ -7,11 +7,11 @@ Material:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_Name: EditorGrid
-  m_Shader: {fileID: 4800000, guid: 30ac9dff72e2c454293275a951b71ca6, type: 3}
+  m_Shader: {fileID: 4800000, guid: 943d253a3c9904223b089b31fe88c190, type: 3}
   m_ShaderKeywords: _ALPHABLEND_ON _EMISSION _GLOSSYREFLECTIONS_OFF _SPECULARHIGHLIGHTS_OFF
   m_LightmapFlags: 0
-  m_EnableInstancingVariants: 0
-  m_CustomRenderQueue: -1
+  m_EnableInstancingVariants: 1
+  m_CustomRenderQueue: 2000
   stringTagMap: {}
   disabledShaderPasses: []
   m_SavedProperties:
@@ -66,6 +66,7 @@ Material:
     - _GlossMapScale: 1
     - _Glossiness: 0.5
     - _GlossyReflections: 0
+    - _Hardness: 0.5
     - _InvFade: 1
     - _Metallic: 0
     - _MinRadius: 0.05
@@ -88,7 +89,8 @@ Material:
     - _UseUIAlphaClip: 0
     - _ZWrite: 0
     m_Colors:
+    - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
     - _Color: {r: 0.25735295, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0.4862745, g: 1, b: 1, a: 0.434}
-    - _Offset: {r: -0.26125205, g: -0.22349398, b: 0, a: 0}
+    - _Offset: {r: -0.03561783, g: 0.07522249, b: 0, a: 0}
     - _TintColor: {r: 0.5, g: 0.5, b: 0.5, a: 0.153}

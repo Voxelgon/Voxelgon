@@ -60,9 +60,9 @@ namespace Voxelgon.Collections {
         // METHODS
 
         public void Add(T value) {
-            if (_head == null) {
-                var newNode = new Node(value);
-                _dictionary.Add(value, newNode);
+            if (_dictionary.Count == 0 || _head == null) {
+                _head = new Node(value);
+                _dictionary.Add(value, _head);
             } else {
                 var newNode = new Node(value, _head.prev, _head);
                 _head.prev.next = newNode;
@@ -180,7 +180,6 @@ namespace Voxelgon.Collections {
 
             // FIELDS
 
-            private LoopList<T> _list;
             private Node _head;
             private Node _node;
             private T _current;
@@ -189,7 +188,6 @@ namespace Voxelgon.Collections {
             // CONSTRUCTORS
 
             internal Enumerator(LoopList<T> list) {
-                _list = list;
                 _head = list._head;
                 _node = list._head;
                 _current = default(T);

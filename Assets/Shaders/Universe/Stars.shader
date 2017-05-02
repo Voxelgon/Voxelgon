@@ -1,7 +1,6 @@
-Shader "Voxelgon/Stars" {
+Shader "Voxelgon/Universe/Stars" {
     Properties {
         _Alpha ("Alpha", Range(0, 1)) = 0.1 
-        _Clip ("Clip Threshold", Range(0, 0.1)) = 0.001
     }
     SubShader {
         Tags { "Queue"="Transparent"  "RenderType"="Transparent" }
@@ -22,7 +21,6 @@ Shader "Voxelgon/Stars" {
 
         fixed _Alpha;
         half _Clip;
-        sampler2D_float _CameraDepthTexture;
 
 
         struct Input {
@@ -31,9 +29,7 @@ Shader "Voxelgon/Stars" {
         };
 
         void surf(Input i, inout SurfaceOutput o) {
-            float depth = _Clip + Linear01Depth(SAMPLE_DEPTH_TEXTURE_PROJ(_CameraDepthTexture, UNITY_PROJ_COORD(i.projPos)));
-            clip(depth - 1);
-            o.Albedo = i.color.rgb * depth;
+            o.Albedo = i.color.rgb;
             o.Alpha = i.color.a * _Alpha;
         }
 

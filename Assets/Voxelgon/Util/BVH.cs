@@ -2,7 +2,7 @@ using UnityEngine;
 using System;
 using System.Linq;
 using System.Collections.Generic;
-using Voxelgon.Util.Geometry;
+using Voxelgon.Geometry;
 
 namespace Voxelgon.Util {
 

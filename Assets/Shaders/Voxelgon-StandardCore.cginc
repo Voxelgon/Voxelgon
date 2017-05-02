@@ -23,7 +23,7 @@ struct v2f {
 
     #ifdef UNITY_PASS_FORWARD
         half3 worldPos: TEXCOORD1;
-        UNITY_SHADOW_COORDS(2)
+        SHADOW_COORDS(2)
     #endif
 
     #ifdef UNITY_SHOULD_SAMPLE_SH
@@ -103,14 +103,9 @@ void frag_deferred (v2f i,
     data.normalWorld	= i.worldNormal;
     data.hardness       = _Hardness;
 
-    VoxelgonStandardDataToGbuffer(data, outGBuffer0, outGBuffer1, outGBuffer2);
+    half3 ambient = i.color * i.sh;
 
-    half3 emission = i.color * i.sh;
-    #ifdef UNITY_HDR_ON
-        outEmission = half4(emission, 1);
-    #else
-        outEmission = half4(exp2(-emission), 1);
-    #endif
+    VoxelgonFillGBufferLit(data, ambient, outGBuffer0, outGBuffer1, outGBuffer2, outEmission);
 }
 #endif
 

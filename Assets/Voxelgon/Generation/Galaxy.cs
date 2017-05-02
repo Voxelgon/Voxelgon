@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Voxelgon.Util;
 using Voxelgon.Util.MeshGeneration;
-using Voxelgon.Util.Geometry;
+using Voxelgon.Geometry;
 using CoherentNoise.Generation.Fractal;
 
 namespace Voxelgon.Generation {

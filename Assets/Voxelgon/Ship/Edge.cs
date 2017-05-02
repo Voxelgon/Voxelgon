@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using Voxelgon.Collections;
-using Voxelgon.Util.Geometry;
+using Voxelgon.Geometry;
 using Voxelgon.Ship.Editor;
 
 namespace Voxelgon.Ship {
@@ -14,7 +14,7 @@ namespace Voxelgon.Ship {
         private Hull _hull;
         private Node _node1;
         private Node _node2;
-        private SortedLoopList<Wall> _walls;
+        private SortedLoopList<Panel> _panels;
 
         private GameObject _collider;
 
@@ -29,7 +29,7 @@ namespace Voxelgon.Ship {
         }
 
         public Vector3 Tangent {
-            get { return Segment.Tangent; }
+            get { return _node2.GridPosition - _node1.GridPosition; }
         }
 
         public Node Node1 {
@@ -59,11 +59,11 @@ namespace Voxelgon.Ship {
 
         // CONSTRUCTORS
 
-        public Edge(Node node1, Node node2, Wall wall) {
+        public Edge(Node node1, Node node2, Panel panel) {
             _node1 = node1;
             _node2 = node2;
-            _walls = new SortedLoopList<Wall>(new WallComparer(this));
-            _walls.Add(wall);
+            _panels = new SortedLoopList<Panel>(new PanelComparer(this));
+            _panels.Add(panel);
         }
 
 
@@ -96,7 +96,7 @@ namespace Voxelgon.Ship {
 
         // CLASSES
 
-        private struct WallComparer : IComparer<Wall> {
+        private struct PanelComparer : IComparer<Panel> {
 
             // FIELDS
 
@@ -105,18 +105,18 @@ namespace Voxelgon.Ship {
 
             // CONSTRUCTORS
 
-            public WallComparer(Edge edge) {
+            public PanelComparer(Edge edge) {
                 _edge = edge;
             }
 
 
             // METHODS
 
-            public int Compare(Wall wall1, Wall wall2) {
-                var tangent1 = wall1.GetEdgeNormal(_edge);
-                var tangent2 = wall2.GetEdgeNormal(_edge);
+            public int Compare(Panel panel1, Panel panel2) {
+                var tangent1 = panel1.GetEdgeNormal(_edge);
+                var tangent2 = panel2.GetEdgeNormal(_edge);
                 var cross = Vector3.Cross(tangent1, tangent2);
-                var dot = Vector3.Dot(cross, _edge.Segment.Tangent);
+                var dot = Vector3.Dot(cross, _edge.Tangent);
                 return (dot > 0) ? 1 : -1;
             }
         }

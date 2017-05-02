@@ -23,7 +23,7 @@ QualitySettings:
     antiAliasing: 0
     softParticles: 0
     softVegetation: 0
-    realtimeReflectionProbes: 0
+    realtimeReflectionProbes: 1
     billboardsFaceCameraPosition: 0
     vSyncCount: 0
     lodBias: 0.3
@@ -49,7 +49,7 @@ QualitySettings:
     antiAliasing: 0
     softParticles: 0
     softVegetation: 0
-    realtimeReflectionProbes: 0
+    realtimeReflectionProbes: 1
     billboardsFaceCameraPosition: 0
     vSyncCount: 0
     lodBias: 0.4
@@ -75,7 +75,7 @@ QualitySettings:
     antiAliasing: 0
     softParticles: 0
     softVegetation: 0
-    realtimeReflectionProbes: 0
+    realtimeReflectionProbes: 1
     billboardsFaceCameraPosition: 0
     vSyncCount: 0
     lodBias: 0.7
@@ -101,9 +101,9 @@ QualitySettings:
     antiAliasing: 0
     softParticles: 1
     softVegetation: 1
-    realtimeReflectionProbes: 0
-    billboardsFaceCameraPosition: 1
-    vSyncCount: 0
+    realtimeReflectionProbes: 1
+    billboardsFaceCameraPosition: 0
+    vSyncCount: 1
     lodBias: 1
     maximumLODLevel: 0
     particleRaycastBudget: 256
@@ -127,9 +127,9 @@ QualitySettings:
     antiAliasing: 2
     softParticles: 0
     softVegetation: 1
-    realtimeReflectionProbes: 0
+    realtimeReflectionProbes: 1
     billboardsFaceCameraPosition: 1
-    vSyncCount: 1
+    vSyncCount: 0
     lodBias: 1.5
     maximumLODLevel: 0
     particleRaycastBudget: 1024
@@ -155,7 +155,7 @@ QualitySettings:
     softVegetation: 1
     realtimeReflectionProbes: 1
     billboardsFaceCameraPosition: 1
-    vSyncCount: 1
+    vSyncCount: 0
     lodBias: 2
     maximumLODLevel: 0
     particleRaycastBudget: 4096
@@ -189,16 +189,4 @@ QualitySettings:
     asyncUploadBufferSize: 4
     excludedTargetPlatforms: []
   m_PerPlatformDefaultQuality:
-    Android: 2
-    BlackBerry: 2
-    FlashPlayer: 3
-    GLES Emulation: 3
-    PS3: 3
     Standalone: 3
-    Tizen: 2
-    WP8: 3
-    Web: 3
-    Wii: 3
-    Windows Store Apps: 3
-    XBOX360: 3
-    iPhone: 2

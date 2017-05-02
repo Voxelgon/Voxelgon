@@ -15,25 +15,6 @@
     #define LIGHTDIR half3(0,0,0)
 #endif
 
-
-
-#ifdef POINT
-    #define LIGHT_ATTEN _LightTextureB0
-#else
-    #define LIGHT_ATTEN _LightTextureB0
-    #define LIGHT_COOKIE _LightTexture0
-
-    #ifdef DEFERRED 
-        //sampler2D _LightTextureB0;
-
-        #if defined (POINT_COOKIE)
-            //samplerCUBE _LightTexture0;
-        #else
-            //sampler2D _LightTexture0;
-        #endif
-    #endif
-#endif
-
 float4 _LightDir;
 float4 _LightPos;
 float4 _LightColor;
@@ -52,9 +33,14 @@ sampler2D_float _CameraDepthTexture;
 
 
 float4x4 unity_WorldToLight;
-    sampler2D _LightTextureB0;
+sampler2D _LightTextureB0;
 
-sampler2D _LightTexture0;
+#if defined (POINT_COOKIE)
+    samplerCUBE _LightTexture0;
+#else
+    sampler2D _LightTexture0;
+#endif
+
 
 #if defined (SHADOWS_SCREEN)
 sampler2D _ShadowMapTexture;
