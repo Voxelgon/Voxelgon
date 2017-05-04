@@ -27,12 +27,6 @@ namespace Voxelgon.Ship.Editor {
         private Vector3 _cursorPosition;
 
         private List<Vector2> _testVertices =  new List<Vector2> {
-            new Vector2(3, 4),
-            new Vector2(5, 11),
-            new Vector2(12, 8),
-            new Vector2(9, 5),
-            new Vector2(5, 6)
-        };/*
             new Vector2(-1.0f, -5.1f),
             new Vector2(-0.4f, -5.8f),
             new Vector2(0.8f, -6.6f),
@@ -107,7 +101,7 @@ namespace Voxelgon.Ship.Editor {
             new Vector2(1.7f, -4.6f),
             new Vector2(0.7f, -4.0f),
             new Vector2(-0.3f, -4.0f)
-        };*/
+        };
 
         // grid stuff
         [SerializeField]
@@ -144,9 +138,7 @@ namespace Voxelgon.Ship.Editor {
             for (var i = 0; i < _testVertices.Count; i++) {
                 Debug.DrawLine(_testVertices[i].xz(), _testVertices[(i + 1) % _testVertices.Count].xz(), Color.blue, 0, true);
             }
-            var triangulator = new Triangulator(_testVertices);
-            var tris = triangulator.Triangulate().ToList();
-            Debug.Log(tris.Count);
+            var tris = Triangulator.Triangulate(_testVertices).ToList();
             for (var i = 0; i < tris.Count; i += 3) {
                 Debug.DrawLine(_testVertices[tris[i]].xz(), _testVertices[tris[i + 1]].xz(), Color.red, 0, true);
                 Debug.DrawLine(_testVertices[tris[i + 1]].xz(), _testVertices[tris[i + 2]].xz(), Color.red, 0, true);
