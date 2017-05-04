@@ -85,8 +85,7 @@ namespace Voxelgon.Tests.Geometry {
                 new Vector2(-0.3f, -4.0f)
             };
 
-            var triangulator = new Triangulator(verts);
-            var tris = triangulator.Triangulate().ToList();
+            var tris = Triangulator.Triangulate(verts).ToList();
 
             float polyArea = GeometryVG.Shoelace(verts) / 2;
             float triArea = 0;

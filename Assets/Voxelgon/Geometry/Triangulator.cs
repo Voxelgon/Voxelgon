@@ -3,72 +3,45 @@ using UnityEngine;
 using Voxelgon.Collections;
 
 namespace Voxelgon.Geometry {
-
     /// <summary>
     /// Class for triangulating planar polygons
     /// </summary>
     public class Triangulator {
-        #region Fields
-
-        private readonly IList<Vector2> _verts; // List of vertex locations, assigned in the constructor
-        private readonly IList<int> _indices;   // Index list which points to the vertex list
-        private readonly VertexData[] _links;   // link data between vertices
-
-        #endregion
-
-        #region Constructors
-
-        /// <summary>
-        /// Create a triangulator for a simple polygon without holes.
-        /// </summary>
-        /// <remarks>
-        /// currently does not check if the given polygon is simple or not!
-        /// Implementation is undefined for complex or counter-clockwise polygons
-        /// </remarks>
-        /// <param name="verts">vertex list</param>
-        public Triangulator(IList<Vector2> verts) : this(verts, new SequencialList(verts.Count)) {
-        }
-
-        /// <summary>
-        /// Create a triangulator for a simple polygon using given vertices and indices,
-        /// to allow for triangulating polygons with holes
-        /// </summary>
-        /// <remarks>
-        /// currently does not check if the given polygon is simple or not!
-        /// Implementation is undefined for complex or counter-clockwise polygons
-        /// </remarks>
-        /// <param name="verts">vertex list</param>
-        /// <param name="indices">index list</param>
-        public Triangulator(IList<Vector2> verts, IList<int> indices) {
-            _verts = verts;
-            _indices = indices;
-            _links = new VertexData[_indices.Count];
-        }
-
-        #endregion
-
         #region Public Methods
 
         /// <summary>
         /// Triangulates the polygon data using ear clipping
+        /// for a sequencial polygon
         /// </summary>
+        /// <param name="vertices">vertex list</param>
         /// <returns> Enumerable of vertex indices </returns>
-        public IEnumerable<int> Triangulate() {
-            var vertexCount = _indices.Count;
+        public static IEnumerable<int> Triangulate(IList<Vector2> vertices) {
+            return Triangulate(vertices, new SequencialList(vertices.Count));
+        }
+
+        /// <summary>
+        /// Triangulates the polygon data using ear clipping
+        /// </summary>
+        /// <param name="vertices">vertex list</param>
+        /// <param name="indices">index list</param>
+        /// <returns> Enumerable of vertex indices </returns>
+        public static IEnumerable<int> Triangulate(IList<Vector2> vertices, IList<int> indices) {
+            var vertexCount = indices.Count;
+            var links = new VertexData[vertexCount];
             var reflexCount = 0;
 
             // write index data to the indices array and their neighbor links
             for (var i = 0; i < vertexCount; i++) {
-                _links[i].Next = (ushort) ((i + 1) % vertexCount);
-                _links[i].Prev = (ushort) ((i - 1 + vertexCount) % vertexCount);
+                links[i].Next = (ushort) ((i + 1) % vertexCount);
+                links[i].Prev = (ushort) ((i - 1 + vertexCount) % vertexCount);
             }
 
             // decide if each vertex is convex or reflex
             for (var i = 0; i < vertexCount; i++) {
-                if (IsConvex(i)) {
-                    _links[i].Reflex = false;
+                if (IsConvex(i, vertices, indices, links)) {
+                    links[i].Reflex = false;
                 } else {
-                    _links[i].Reflex = true;
+                    links[i].Reflex = true;
                     reflexCount++;
                 }
             }
@@ -76,42 +49,96 @@ namespace Voxelgon.Geometry {
             var vert = 0;
 
             var safety = 10 * vertexCount;
+
             // loop over polygon pruning off ears
             while (reflexCount > 0 && vertexCount > 2 && safety >= 0) {
-                var next = _links[vert].Next;
-                var prev = _links[vert].Prev;
+                var next = links[vert].Next;
+                var prev = links[vert].Prev;
+
+                var i0 = indices[prev];
+                var i1 = indices[vert];
+                var i2 = indices[next];
+
+                var isEar = false;
+
+                // check if the current vertex is a good ear
+                if (!links[vert].Reflex && (links[next].Reflex || links[prev].Reflex)) {
+                    isEar = true;
+                    if (reflexCount != 1) {
+                        // -->   -->   --> last  vert first -->
+                        //                   V    V   V
+                        // Verts: xx••x•x••x•x•xxxO•••xxx•••••xx
+                        // x = reflex • = convex
+
+                        var last = prev;
+                        var first = next;
+
+                        // we dont have to check any chain of reflex vertices that include a neighbor
+                        do {
+                            last = links[last].Prev;
+                        } while (last != first && !links[last].Reflex && links[links[last].Next].Reflex);
+
+                        do {
+                            first = links[first].Next;
+                        } while (first != last && !links[first].Reflex && links[links[first].Prev].Reflex);
+
+                        // now check each reflex vert between first and last for inclusion in the ear
+
+                        while (last != first && isEar) {
+                            var i = indices[first];
+
+                            // test if the point we are testing is inside the potential ear
+                            if (links[first].Reflex) {
+                                // dont test the point if it is at the same location as one in the ear
+                                // otherwise we might get false negatives
+                                if (i != i0 && i != i1 && i != i2) {
+                                    if (GeometryVG.TriangleContains2D(vertices[i0],
+                                        vertices[i1],
+                                        vertices[i2],
+                                        vertices[i])) {
+                                        isEar = false;
+                                    }
+                                }
+                            }
+
+                            // move to next point to test
+                            first = links[first].Next;
+                        }
+                    }
+                }
 
 
-                // check if we are currently at an ear of the polygon
-                if (IsEar(vert, reflexCount)) {
+                // if this is an ear, prune and return it,
+                // otherwise move on to the next vertex
+                if (isEar) {
                     // close the links in the list
-                    _links[next].Prev = prev;
-                    _links[prev].Next = next;
+                    links[next].Prev = prev;
+                    links[prev].Next = next;
+
 
                     // return indices
-                    yield return _indices[vert];
-                    yield return _indices[next];
-                    yield return _indices[prev];
+                    yield return i0;
+                    yield return i1;
+                    yield return i2;
                     vertexCount--;
 
                     // neighbors may have stopped being reflex,
                     // so update them and move the current index
-
-                    if (_links[prev].Reflex && IsConvex(prev)) {
-                        _links[prev].Reflex = false;
+                    if (links[prev].Reflex && IsConvex(prev, vertices, indices, links)) {
+                        links[prev].Reflex = false;
                         reflexCount--;
                     }
 
-                    if (_links[next].Reflex && IsConvex(next)) {
-                        _links[next].Reflex = false;
+                    if (links[next].Reflex && IsConvex(next, vertices, indices, links)) {
+                        links[next].Reflex = false;
                         reflexCount--;
                     }
 
                     vert = prev;
                 } else {
-                    // move on to the next vertex
                     vert = next;
                 }
+
                 safety--;
             }
 
@@ -122,19 +149,19 @@ namespace Voxelgon.Geometry {
             if (vertexCount > 2 && safety > 0) {
                 bool winding = true;
                 var left = vert;
-                var right = _links[vert].Prev;
+                var right = links[vert].Prev;
 
-                while (_links[left].Next != right) {
+                while (links[left].Next != right) {
                     if (winding) {
-                        yield return _indices[right];
-                        yield return _indices[left];
-                        left = _links[left].Next;
-                        yield return _indices[left];
+                        yield return indices[right];
+                        yield return indices[left];
+                        left = links[left].Next;
+                        yield return indices[left];
                     } else {
-                        yield return _indices[right];
-                        yield return _indices[left];
-                        right = _links[right].Prev;
-                        yield return _indices[right];
+                        yield return indices[right];
+                        yield return indices[left];
+                        right = links[right].Prev;
+                        yield return indices[right];
                     }
                     winding = !winding;
                 }
@@ -146,72 +173,19 @@ namespace Voxelgon.Geometry {
         #region Private Methods
 
         /// <summary>
-        /// determines if the given vertex is an ear or not
-        /// </summary>
-        /// <param name="vert"> vertex to check </param>
-        /// <param name="reflexCount"> number of reflex vertices in the polygon </param>
-        /// <returns> true if the vertex is an ear, false otherwise </returns>
-        private bool IsEar(int vert, int reflexCount) {
-            var next = _links[vert].Next;
-            var prev = _links[vert].Prev;
-
-            // ears must be convex vertices, and
-            // any concave polygon has at least one ear adjacent to a reflex vertex
-            if (_links[vert].Reflex || (!_links[next].Reflex && !_links[prev].Reflex)) return false;
-
-            // if theres just one reflex vertex it must be a neighbor,
-            // and a triangle cant contain itself
-            if (reflexCount == 1) return true;
-
-            var last = prev;
-            var first = next;
-
-            // -->   -->   --> last  vert first -->
-            //                   V    V   V
-            // Verts: xx••x•x••x•x•xxxO•••xxx•••••xx
-            // x = reflex • = convex
-
-            // we dont have to check any chain of reflex vertices that include a neighbor
-            do {
-                last = _links[last].Prev;
-            } while (last != first && !_links[last].Reflex && _links[_links[last].Next].Reflex);
-
-            do {
-                first = _links[first].Next;
-            } while (first != last && !_links[first].Reflex && _links[_links[first].Prev].Reflex);
-
-            // now check each reflex vert between first and last for inclusion in the ear
-
-            var v0 = _indices[vert];
-            var v1 = _indices[_links[vert].Next];
-            var v2 = _indices[_links[vert].Prev];
-
-            while (last != first) {
-                if (_links[first].Reflex) {
-                    var contains = GeometryVG.TriangleContains2D(
-                        _verts[v0],
-                        _verts[v1],
-                        _verts[v2],
-                        _verts[_indices[first]]);
-                    if (contains) return false;
-                }
-
-                first = _links[vert].Next;
-            }
-
-            return true;
-        }
-
-        /// <summary>
         /// determines if the given vertex is convex or reflex
         /// </summary>
         /// <param name="vert"> vertex to check </param>
+        /// <param name="vertices">vertex list</param>
+        /// <param name="indices">index list</param>
+        /// <param name="links">links list</param>
         /// <returns> true if the vertex is convex, false if the vertex is reflex </returns>
-        private bool IsConvex(int vert) {
-            var v0 = _indices[vert];
-            var v1 = _indices[_links[vert].Next];
-            var v2 = _indices[_links[vert].Prev];
-            return (GeometryVG.TriangleWindingOrder2D(_verts[v0], _verts[v1], _verts[v2]) != -1);
+        private static bool IsConvex(int vert, IList<Vector2> vertices, IList<int> indices, IList<VertexData> links) {
+            var v0 = indices[vert];
+            var v1 = indices[links[vert].Next];
+
+            var v2 = indices[links[vert].Prev];
+            return (GeometryVG.TriangleWindingOrder2D(vertices[v0], vertices[v1], vertices[v2]) != -1);
         }
 
         #endregion
