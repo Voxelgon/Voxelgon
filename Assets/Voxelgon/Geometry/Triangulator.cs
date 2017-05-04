@@ -93,10 +93,7 @@ namespace Voxelgon.Geometry {
                         var test = indices[first];
                         if (test == i0 || test == i1 || test == i2) continue;
 
-                        if (GeometryVG.TriangleContains2D(vertices[i0],
-                            vertices[i1],
-                            vertices[i2],
-                            vertices[test])) {
+                        if (GeometryVG.TriangleContains2D(vertices[i0], vertices[i1], vertices[i2], vertices[test])) {
                             isEar = false;
                             break;
                         }
