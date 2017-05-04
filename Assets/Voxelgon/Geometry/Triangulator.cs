@@ -64,45 +64,41 @@ namespace Voxelgon.Geometry {
                 // check if the current vertex is a good ear
                 if (!links[vert].Reflex && (links[next].Reflex || links[prev].Reflex)) {
                     isEar = true;
-                    if (reflexCount != 1) {
-                        // -->   -->   --> last  vert first -->
-                        //                   V    V   V
-                        // Verts: xx••x•x••x•x•xxxO•••xxx•••••xx
-                        // x = reflex • = convex
+                    if (reflexCount == 1) break;
 
-                        var last = prev;
-                        var first = next;
+                    // -->   -->   --> last  vert first -->
+                    //                   V    V   V
+                    // Verts: xx••x•x••x•x•xxxO•••xxx•••••xx
+                    // x = reflex • = convex
 
-                        // we dont have to check any chain of reflex vertices that include a neighbor
-                        do {
-                            last = links[last].Prev;
-                        } while (last != first && !links[last].Reflex && links[links[last].Next].Reflex);
+                    var last = prev;
+                    var first = next;
 
-                        do {
-                            first = links[first].Next;
-                        } while (first != last && !links[first].Reflex && links[links[first].Prev].Reflex);
+                    // we dont have to check any chain of reflex vertices that include a neighbor
+                    do {
+                        last = links[last].Prev;
+                    } while (last != first && !links[last].Reflex && links[links[last].Next].Reflex);
 
-                        // now check each reflex vert between first and last for inclusion in the ear
+                    do {
+                        first = links[first].Next;
+                    } while (first != last && !links[first].Reflex && links[links[first].Prev].Reflex);
 
-                        while (last != first && isEar) {
-                            var i = indices[first];
+                    // now check each reflex vert between first and last for inclusion in the ear
 
-                            // test if the point we are testing is inside the potential ear
-                            if (links[first].Reflex) {
-                                // dont test the point if it is at the same location as one in the ear
-                                // otherwise we might get false negatives
-                                if (i != i0 && i != i1 && i != i2) {
-                                    if (GeometryVG.TriangleContains2D(vertices[i0],
-                                        vertices[i1],
-                                        vertices[i2],
-                                        vertices[i])) {
-                                        isEar = false;
-                                    }
-                                }
-                            }
+                    for (; last != first; first = links[first].Next) {
+                        if (!links[first].Reflex) continue;
 
-                            // move to next point to test
-                            first = links[first].Next;
+                        // dont test the point if it is at the same location as one in the ear
+                        // otherwise we might get false negatives
+                        var test = indices[first];
+                        if (test == i0 || test == i1 || test == i2) continue;
+
+                        if (GeometryVG.TriangleContains2D(vertices[i0],
+                            vertices[i1],
+                            vertices[i2],
+                            vertices[test])) {
+                            isEar = false;
+                            break;
                         }
                     }
                 }
