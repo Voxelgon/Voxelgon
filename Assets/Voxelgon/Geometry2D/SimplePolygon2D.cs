@@ -71,7 +71,7 @@ namespace Voxelgon.Geometry2D {
         /// The area of the polygon
         /// </summary>
         public float Area {
-            get { return Mathf.Abs(GeometryVG.Shoelace(_vertices) / 2); }
+            get { return GeometryVG.Shoelace(_vertices) * 0.5f; }
         }
 
         /// <summary>
@@ -100,42 +100,6 @@ namespace Voxelgon.Geometry2D {
         /// </summary>
         public IEnumerable<int> Indices {
             get { return Triangulation.Triangulate(_vertices); }
-        }
-
-        /// <summary>
-        /// Checks if the given point is inside the polygon
-        /// </summary>
-        /// <param name="point">point to check</param>
-        /// <returns>if the point is inside the polygon</returns>
-        public bool Contains(Vector2 point) {
-            var lastVertex = _vertices[VertexCount - 1];
-            var ray = new Ray2D(point, Vector2.right);
-            var counter = 0;
-
-            for (var i = 0; i < VertexCount; i++) {
-                var vertex = _vertices[i];
-                if (Segment2D.RaycastSegment(ray, vertex, lastVertex)) counter++;
-                lastVertex = vertex;
-            }
-
-            return (counter % 2) == 1;
-        }
-
-        /// <summary>
-        ///  Checks if the polygons are equal
-        /// </summary>
-        /// <param name="other">the polygon to compare against</param>
-        /// <returns>if the polygons are equal</returns>
-        public bool Equals(IPolygon2D other) {
-            if (!(other is SimplePolygon2D)) return false;
-            if (other.VertexCount != VertexCount) return false;
-
-            var otherVertices = other.Vertices;
-
-            for (var i = 0; i < VertexCount; i++) {
-                if (otherVertices[i] != _vertices[i]) return false;
-            }
-            return true;
         }
 
         /// <summary>
@@ -182,6 +146,13 @@ namespace Voxelgon.Geometry2D {
         /// </remarks>
         public int WindingOrder {
             get { return GeometryVG.Shoelace(_vertices) > 0 ? 1 : -1; }
+        }
+
+        /// <summary>
+        /// If the winding order is clockwise
+        /// </summary>
+        public bool Clockwise {
+            get { return WindingOrder == 1; }
         }
 
         #endregion
@@ -242,7 +213,7 @@ namespace Voxelgon.Geometry2D {
         /// </summary>
         /// <param name="scaleFactor">amount to scale by</param>
         /// <returns>A clone of this polygon scaled about its center</returns>
-        public IPolygon2D Scale(float scaleFactor) {
+        public SimplePolygon2D Scale(float scaleFactor) {
             return Scale(scaleFactor, Center);
         }
 
@@ -252,7 +223,7 @@ namespace Voxelgon.Geometry2D {
         /// <param name="scaleFactor">amount to scale by</param>
         /// <param name="scaleCenter">point to scale around</param>
         /// <returns>A clone of this polygon scaled about <c>scaleCenter</c></returns>
-        public IPolygon2D Scale(float scaleFactor, Vector2 scaleCenter) {
+        public SimplePolygon2D Scale(float scaleFactor, Vector2 scaleCenter) {
             return new SimplePolygon2D(_vertices.Select(o => scaleCenter + ((o - scaleCenter) * scaleFactor)));
         }
 
@@ -261,7 +232,7 @@ namespace Voxelgon.Geometry2D {
         /// </summary>
         /// <param name="scaleFactor">amount to scale by</param>
         /// <returns>A clone of this polygon scaled about its center</returns>
-        public IPolygon2D Scale(Vector2 scaleFactor) {
+        public SimplePolygon2D Scale(Vector2 scaleFactor) {
             return Scale(scaleFactor, Center);
         }
 
@@ -271,7 +242,7 @@ namespace Voxelgon.Geometry2D {
         /// <param name="scaleFactor">amount to scale by</param>
         /// <param name="scaleCenter">point to scale around</param>
         /// <returns>A clone of this polygon scaled about <c>scaleCenter</c></returns>
-        public IPolygon2D Scale(Vector2 scaleFactor, Vector2 scaleCenter) {
+        public SimplePolygon2D Scale(Vector2 scaleFactor, Vector2 scaleCenter) {
             return new SimplePolygon2D(_vertices.Select(o => {
                 o -= scaleCenter;
                 o.x *= scaleFactor.x;
@@ -286,7 +257,7 @@ namespace Voxelgon.Geometry2D {
         /// </summary>
         /// <param name="translateVector">vector to translate by</param>
         /// <returns>A clone of this polygon translated by <c>translateVector</c></returns>
-        public IPolygon2D Translate(Vector2 translateVector) {
+        public SimplePolygon2D Translate(Vector2 translateVector) {
             return new SimplePolygon2D(_vertices.Select(o => o + translateVector));
         }
 
@@ -295,7 +266,7 @@ namespace Voxelgon.Geometry2D {
         /// </summary>
         /// <param name="angle">angle in radians, counterclockwise</param>
         /// <returns>A clone of this polygon rotated around its center</returns>
-        public IPolygon2D Rotate(float angle) {
+        public SimplePolygon2D Rotate(float angle) {
             return Rotate(angle, Center);
         }
 
@@ -305,7 +276,7 @@ namespace Voxelgon.Geometry2D {
         /// <param name="angle">angle in radians, counterclockwise</param>
         /// <param name="rotateCenter">point to rotate around</param>
         /// <returns>a clone of this polygon rotated around <c>rotateCenter</c></returns>
-        public IPolygon2D Rotate(float angle, Vector2 rotateCenter) {
+        public SimplePolygon2D Rotate(float angle, Vector2 rotateCenter) {
             var matrix = Matrix2x2.Rotation(angle);
             return new SimplePolygon2D(_vertices.Select(o => rotateCenter + matrix * (o - rotateCenter)));
         }
@@ -315,7 +286,7 @@ namespace Voxelgon.Geometry2D {
         /// </summary>
         /// <param name="transformMatrix">transformation matrix</param>
         /// <returns>a clone of this polygon multiplied by the transformation matrix</returns>
-        public IPolygon2D Transform(Matrix2x2 transformMatrix) {
+        public SimplePolygon2D Transform(Matrix2x2 transformMatrix) {
             return new SimplePolygon2D(_vertices.Select(o => transformMatrix * o));
         }
 
@@ -325,7 +296,7 @@ namespace Voxelgon.Geometry2D {
         /// <param name="transformMatrix">transformation matrix</param>
         /// <param name="translateVector">translation vector</param>
         /// <returns>a clone of this polygon multiplied by the transformation matrix and then translated</returns>
-        public IPolygon2D Transform(Matrix2x2 transformMatrix, Vector2 translateVector) {
+        public SimplePolygon2D Transform(Matrix2x2 transformMatrix, Vector2 translateVector) {
             return new SimplePolygon2D(_vertices.Select(o => translateVector + transformMatrix * o));
         }
 
@@ -402,7 +373,7 @@ namespace Voxelgon.Geometry2D {
             return new SimplePolygon2D(verts);
         }
 
-        public IPolygon2D Offset(float thickness) {
+        public SimplePolygon2D Offset(float thickness) {
             var lastNormal = GetEdgeNormal(VertexCount - 1) * thickness;
             var i = 0;
 
@@ -457,20 +428,141 @@ namespace Voxelgon.Geometry2D {
 
         #endregion
 
-        //are the polygons equal?
-        public bool Equals(SimplePolygon2D p) {
-            if (VertexCount != p.VertexCount) {
-                return false;
-            }
+        /// <summary>
+        /// Checks if the given point is inside the polygon
+        /// </summary>
+        /// <param name="point">point to check</param>
+        /// <returns>if the point is inside the polygon</returns>
+        public bool Contains(Vector2 point) {
+            var lastVertex = _vertices[VertexCount - 1];
+            var ray = new Ray2D(point, Vector2.right);
+            var counter = 0;
 
-            for (int i = 0; i < VertexCount; i++) {
-                if (GetVertex(i) != p.GetVertex(i)) {
-                    return false;
+            for (var i = 0; i < VertexCount; i++) {
+                var vertex = _vertices[i];
+                if (Mathf.Approximately(vertex.y, point.y)) {
+                    vertex.y += 0.01f;
                 }
+                if (Segment2D.RaycastSegment(ray, vertex, lastVertex)) counter++;
+                lastVertex = vertex;
             }
 
+            return (counter % 2) == 1;
+        }
+
+        /// <summary>
+        ///  Checks if the polygons are equal
+        /// </summary>
+        /// <param name="other">the polygon to compare against</param>
+        /// <returns>if the polygons are equal</returns>
+        public bool Equals(IPolygon2D other) {
+            if (!(other is SimplePolygon2D)) return false;
+            if (other.VertexCount != VertexCount) return false;
+
+            var otherVertices = other.Vertices;
+
+            for (var i = 0; i < VertexCount; i++) {
+                if (otherVertices[i] != _vertices[i]) return false;
+            }
             return true;
         }
+
+        #region Interface Overrides
+
+        IEnumerable<SimplePolygon2D> IPolygon2D.Contours {
+            get { yield return this; }
+        }
+
+        /// <summary>
+        /// Scales a polygon around its center
+        /// </summary>
+        /// <param name="scaleFactor">amount to scale by</param>
+        /// <returns>A clone of this polygon scaled about its center</returns>
+        IPolygon2D IPolygon2D.Scale(float scaleFactor) {
+            return Scale(scaleFactor);
+        }
+
+        /// <summary>
+        /// Scales a polygon around a point
+        /// </summary>
+        /// <param name="scaleFactor">amount to scale by</param>
+        /// <param name="scaleCenter">point to scale around</param>
+        /// <returns>A clone of this polygon scaled about <c>scaleCenter</c></returns>
+        IPolygon2D IPolygon2D.Scale(float scaleFactor, Vector2 scaleCenter) {
+            return Scale(scaleFactor, scaleCenter);
+        }
+
+        /// <summary>
+        /// Scales a polygon around its center
+        /// </summary>
+        /// <param name="scaleFactor">amount to scale by</param>
+        /// <returns>A clone of this polygon scaled about its center</returns>
+        IPolygon2D IPolygon2D.Scale(Vector2 scaleFactor) {
+            return Scale(scaleFactor);
+        }
+
+        /// <summary>
+        /// Scales a polygon around a point
+        /// </summary>
+        /// <param name="scaleFactor">amount to scale by</param>
+        /// <param name="scaleCenter">point to scale around</param>
+        /// <returns>A clone of this polygon scaled about <c>scaleCenter</c></returns>
+        IPolygon2D IPolygon2D.Scale(Vector2 scaleFactor, Vector2 scaleCenter) {
+            return Scale(scaleFactor, scaleCenter);
+        }
+
+        /// <summary>
+        /// Translates a polygon
+        /// </summary>
+        /// <param name="translateVector">vector to translate by</param>
+        /// <returns>A clone of this polygon translated by <c>translateVector</c></returns>
+        IPolygon2D IPolygon2D.Translate(Vector2 translateVector) {
+            return Translate(translateVector);
+        }
+
+        /// <summary>
+        /// Rotates a polygon around its center
+        /// </summary>
+        /// <param name="angle">angle in radians, counterclockwise</param>
+        /// <returns>A clone of this polygon rotated around its center</returns>
+        IPolygon2D IPolygon2D.Rotate(float angle) {
+            return Rotate(angle);
+        }
+
+        /// <summary>
+        /// Rotates a polygon around a point
+        /// </summary>
+        /// <param name="angle">angle in radians, counterclockwise</param>
+        /// <param name="rotateCenter">point to rotate around</param>
+        /// <returns>a clone of this polygon rotated around <c>rotateCenter</c></returns>
+        IPolygon2D IPolygon2D.Rotate(float angle, Vector2 rotateCenter) {
+            return Rotate(angle, rotateCenter);
+        }
+
+        /// <summary>
+        /// Applies a transformation matrix on a polygon
+        /// </summary>
+        /// <param name="transformMatrix">transformation matrix</param>
+        /// <returns>a clone of this polygon multiplied by the transformation matrix</returns>
+        IPolygon2D IPolygon2D.Transform(Matrix2x2 transformMatrix) {
+            return Transform(transformMatrix);
+        }
+
+        /// <summary>
+        /// Applies a transformation matrix and translates a polygon
+        /// </summary>
+        /// <param name="transformMatrix">transformation matrix</param>
+        /// <param name="translateVector">translation vector</param>
+        /// <returns>a clone of this polygon multiplied by the transformation matrix and then translated</returns>
+        IPolygon2D IPolygon2D.Transform(Matrix2x2 transformMatrix, Vector2 translateVector) {
+            return Transform(transformMatrix, translateVector);
+        }
+
+        IPolygon2D IPolygon2D.Offset(float thickness) {
+            return Offset(thickness);
+        }
+
+        #endregion
 
         #endregion
     }

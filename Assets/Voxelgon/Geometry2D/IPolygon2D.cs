@@ -35,6 +35,8 @@ namespace Voxelgon.Geometry2D {
         /// </summary>
         IEnumerable<int> Indices { get; }
 
+        IEnumerable<SimplePolygon2D> Contours { get; }
+
         #endregion
 
         #region Methods
@@ -111,7 +113,6 @@ namespace Voxelgon.Geometry2D {
         #endregion
 
         IPolygon2D Offset(float thickness);
-        IPolygon2D Offset(IList<float> thicknesses);
 
         #region Debug Methods
 

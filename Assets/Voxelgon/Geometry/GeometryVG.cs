@@ -203,8 +203,8 @@ namespace Voxelgon.Geometry {
         // uses the shoelace algorithm on `vertices`, is 2*Area, and negative if clockwise
         public static float Shoelace(IList<Vector2> vertices) {
             float sum = 0;
-            Vector2 p1 = vertices.Last();
-            Vector2 p2 = vertices[vertices.Count - 1];
+            var p1 = vertices[vertices.Count - 2];
+            var p2 = vertices[vertices.Count - 1];
             foreach (var v in vertices) {
                 sum += (p2.x - p1.x) * (p2.y + p1.y);
                 p1 = p2;
