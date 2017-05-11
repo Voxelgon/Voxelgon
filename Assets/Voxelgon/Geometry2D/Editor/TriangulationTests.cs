@@ -2,10 +2,11 @@
 using NUnit.Framework;
 using UnityEngine;
 using Voxelgon.Geometry;
+using Voxelgon.Geometry2D;
 
-namespace Voxelgon.Tests.Geometry {
+namespace Voxelgon.Geometry2D.Tests {
     [TestFixture]
-    public class TriangulatorTests {
+    public class TriangulationTests {
         [Test]
         public void TriangulateTest() {
             var verts = new[] {
@@ -85,7 +86,7 @@ namespace Voxelgon.Tests.Geometry {
                 new Vector2(-0.3f, -4.0f)
             };
 
-            var tris = Triangulator.Triangulate(verts).ToList();
+            var tris = Triangulation.Triangulate(verts).ToList();
 
             float polyArea = GeometryVG.Shoelace(verts) / 2;
             float triArea = 0;

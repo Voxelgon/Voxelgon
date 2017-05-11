@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 using Voxelgon.Geometry;
+using Voxelgon.Geometry2D;
 
 
 namespace Voxelgon.Geometry {

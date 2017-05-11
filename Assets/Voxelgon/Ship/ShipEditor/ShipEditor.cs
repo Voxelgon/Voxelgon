@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System;
 using System.Linq;
 using Voxelgon.Geometry;
+using Voxelgon.Geometry2D;
 using Voxelgon.EventSystems;
 
 namespace Voxelgon.Ship.Editor {
@@ -138,7 +139,7 @@ namespace Voxelgon.Ship.Editor {
             for (var i = 0; i < _testVertices.Count; i++) {
                 Debug.DrawLine(_testVertices[i].xz(), _testVertices[(i + 1) % _testVertices.Count].xz(), Color.blue, 0, true);
             }
-            var tris = Triangulator.Triangulate(_testVertices).ToList();
+            var tris = Triangulation.Triangulate(_testVertices).ToList();
             for (var i = 0; i < tris.Count; i += 3) {
                 Debug.DrawLine(_testVertices[tris[i]].xz(), _testVertices[tris[i + 1]].xz(), Color.red, 0, true);
                 Debug.DrawLine(_testVertices[tris[i + 1]].xz(), _testVertices[tris[i + 2]].xz(), Color.red, 0, true);

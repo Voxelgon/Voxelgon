@@ -1,12 +1,13 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Voxelgon.Collections;
+using Voxelgon.Geometry;
 
-namespace Voxelgon.Geometry {
+namespace Voxelgon.Geometry2D {
     /// <summary>
     /// Class for triangulating planar polygons
     /// </summary>
-    public class Triangulator {
+    public class Triangulation {
         #region Public Methods
 
         /// <summary>
