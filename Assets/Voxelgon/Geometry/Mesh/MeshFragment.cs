@@ -23,7 +23,7 @@ namespace Voxelgon.Geometry {
             _tris = new List<int>(tris);
             if (_vertices.Count != _colors32.Count) throw new InvalidMeshException("array sizes do not match");
 
-            _bounds = GeometryVG.CalcBounds(_vertices);
+            _bounds = GeoUtil.CalcBounds(_vertices);
         }
 
         protected MeshFragment() { }
@@ -47,7 +47,7 @@ namespace Voxelgon.Geometry {
         }
 
         public virtual Bounds Bounds {
-            get { return GeometryVG.CalcBounds(_vertices); }
+            get { return GeoUtil.CalcBounds(_vertices); }
         }
         
 

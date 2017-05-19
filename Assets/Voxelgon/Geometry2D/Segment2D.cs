@@ -138,7 +138,7 @@ namespace Voxelgon.Geometry2D {
             var t2 = denom * Vector2.Dot(v1, v3);
 
             distance = t1;
-            return (t1 >= 0 && t2 >= 0 && t2 <= 1);
+            return (t1 > 0 && t2 > 0 && t2 < 1);
         }
 
         /// <summary>
@@ -188,7 +188,7 @@ namespace Voxelgon.Geometry2D {
             var t2 = denom * Vector2.Dot(v1, v3);
 
             intersection = b1 + (v2 * t2);
-            return (t1 >= 0 && t1 <= 1 && t2 >= 0 && t2 <= 1);
+            return (t1 > 0 && t1 < 1 && t2 > 0 && t2 < 1);
         }
 
         #endregion

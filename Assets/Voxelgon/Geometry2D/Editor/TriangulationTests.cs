@@ -88,12 +88,12 @@ namespace Voxelgon.Geometry2D.Tests {
 
             var tris = Triangulation.Triangulate(verts).ToList();
 
-            float polyArea = GeometryVG.Shoelace(verts) / 2;
+            float polyArea = GeoUtil.Shoelace(verts) / 2;
             float triArea = 0;
 
             for (var i = 0; i < tris.Count; i += 3) {
-                triArea += GeometryVG.TriangleArea2D(verts[tris[i]], verts[tris[i + 1]], verts[tris[i + 2]]);
-                if (GeometryVG.TriangleWindingOrder2D(verts[tris[i]], verts[tris[i + 1]], verts[tris[i + 2]]) == -1) {
+                triArea += GeoUtil.TriangleArea(verts[tris[i]], verts[tris[i + 1]], verts[tris[i + 2]]);
+                if (GeoUtil.WindingOrder(verts[tris[i]], verts[tris[i + 1]], verts[tris[i + 2]]) == -1) {
                     Assert.Fail("Triangulation gave counter-clockwise triangle at index "
                                 + tris[i] + ": "
                                 + verts[tris[i]] + ", "

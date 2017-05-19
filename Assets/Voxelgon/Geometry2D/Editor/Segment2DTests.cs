@@ -30,6 +30,8 @@ namespace Voxelgon.Geometry2D.Tests {
             var segment2 = new Segment2D(new Vector2(4, 4), new Vector2(10, 10)); //intersects at (6,6)
             var segment3 = new Segment2D(new Vector2(3, 4), new Vector2(4, 5)); //does not intersect, stops short of target
             var segment4 = new Segment2D(new Vector2(3, 2), new Vector2(5, 2)); //does not intersect, does not hit target
+            var segment5 = new Segment2D(Vector2.left, Vector2.right);
+            var segment6 = new Segment2D(Vector2.down, Vector2.up);
 
             Vector2 intersection;
             Assert.IsTrue(segment1.Intersect(segment2, out intersection));
@@ -40,6 +42,9 @@ namespace Voxelgon.Geometry2D.Tests {
 
             Assert.IsFalse(segment1.Intersect(segment3, out intersection));
             Assert.IsFalse(segment1.Intersect(segment4, out intersection));
+
+            Assert.IsTrue(segment5.Intersect(segment6, out intersection));
+            Assert.AreEqual(Vector2.zero, intersection);
         }
 
         [Test]

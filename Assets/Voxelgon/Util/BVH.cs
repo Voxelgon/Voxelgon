@@ -165,7 +165,7 @@ namespace Voxelgon.Util {
                 _right = right;
                 _bvh = bvh;
                 _id = bvh._nodeCounter++;
-                _bounds = GeometryVG.CalcBounds(left._bounds, right._bounds);
+                _bounds = GeoUtil.CalcBounds(left._bounds, right._bounds);
 
                 SetDepth(depth);
             }
@@ -180,7 +180,7 @@ namespace Voxelgon.Util {
                 _right = null;
                 _bvh = bvh;
                 _id = bvh._nodeCounter++;
-                _bounds = GeometryVG.CalcBounds(contents.Select(b => b.Bounds));
+                _bounds = GeoUtil.CalcBounds(contents.Select(b => b.Bounds));
 
                 _contents.ForEach(o => _bvh._leafMap.Add(o, this));
 
@@ -279,13 +279,13 @@ namespace Voxelgon.Util {
                     var leftSAH = leftBounds.SurfaceArea();
                     var rightSAH = rightBounds.SurfaceArea();
 
-                    var sendLeftSAH = rightSAH + GeometryVG.CalcBounds(leftBounds, objBounds).SurfaceArea();   // (L+N,R)
-                    var sendRightSAH = leftSAH + GeometryVG.CalcBounds(rightBounds, objBounds).SurfaceArea();  // (L,R+N)
+                    var sendLeftSAH = rightSAH + GeoUtil.CalcBounds(leftBounds, objBounds).SurfaceArea();   // (L+N,R)
+                    var sendRightSAH = leftSAH + GeoUtil.CalcBounds(rightBounds, objBounds).SurfaceArea();  // (L,R+N)
                     var mergeSAH = objBounds.SurfaceArea()
-                                     + GeometryVG.CalcBounds(leftBounds, rightBounds).SurfaceArea();           // (L+R,N)
+                                     + GeoUtil.CalcBounds(leftBounds, rightBounds).SurfaceArea();           // (L+R,N)
 
                     // we are adding the new object to this node or a child, so expand bounds to fit the object
-                    _bounds = GeometryVG.CalcBounds(_bounds, objBounds);
+                    _bounds = GeoUtil.CalcBounds(_bounds, objBounds);
 
                     if (mergeSAH < System.Math.Min(sendLeftSAH, sendRightSAH)) {
                         // move children to new node under this one, then add a new leaf under this one
@@ -318,7 +318,7 @@ namespace Voxelgon.Util {
                 if (_contents.Count == 1) {
                     _bounds = newObject.Bounds;
                 } else {
-                    _bounds = GeometryVG.CalcBounds(_bounds, newObject.Bounds);
+                    _bounds = GeoUtil.CalcBounds(_bounds, newObject.Bounds);
                     if (_contents.Count > MAX_LEAF_SIZE) Split();
                 }
             }
@@ -388,8 +388,8 @@ namespace Voxelgon.Util {
                 var leftItems = _contents.GetRange(0, center);
                 var rightItems = _contents.GetRange(center, _contents.Count - center);
 
-                var leftBounds = GeometryVG.CalcBounds(leftItems.Select(b => b.Bounds));
-                var rightBounds = GeometryVG.CalcBounds(rightItems.Select(b => b.Bounds));
+                var leftBounds = GeoUtil.CalcBounds(leftItems.Select(b => b.Bounds));
+                var rightBounds = GeoUtil.CalcBounds(rightItems.Select(b => b.Bounds));
 
                 // if we successfully made the bounds smaller, split
                 if (!BoundsApprox(leftBounds, rightBounds)) {
@@ -423,9 +423,9 @@ namespace Voxelgon.Util {
             private void RecalculateBounds() {
                 Bounds newBounds;
                 if (IsLeaf) { // combination of all contents
-                    newBounds = GeometryVG.CalcBounds(_contents.Select(b => b.Bounds));
+                    newBounds = GeoUtil.CalcBounds(_contents.Select(b => b.Bounds));
                 } else {      // combination of children nodes
-                    newBounds = GeometryVG.CalcBounds(_left._bounds, _right._bounds);
+                    newBounds = GeoUtil.CalcBounds(_left._bounds, _right._bounds);
                 }
 
                 // if the new bounds are different, propogate upwards

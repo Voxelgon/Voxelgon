@@ -180,7 +180,7 @@ namespace Voxelgon.Ship {
                 Node v3 = _nodes.GetNext(v2);
 
                 do {
-                    var normal = GeometryVG.TriangleNormal(v1.Position, v2.Position, v3.Position);
+                    var normal = GeoUtil.TriangleNormal(v1.Position, v2.Position, v3.Position);
                     if (normal.sqrMagnitude > 0.001f) {
                         _PanelPlane = new Plane(normal, v1.Position);
                         _isPolygon = true;
