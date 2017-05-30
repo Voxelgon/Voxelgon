@@ -1,6 +1,7 @@
 ﻿using NUnit.Framework;
 using Voxelgon.Geometry;
 using UnityEngine;
+using Voxelgon.Geometry2D;
 
 namespace Voxelgon.Tests.Geometry {
     [TestFixture]
@@ -13,23 +14,23 @@ namespace Voxelgon.Tests.Geometry {
 
             var inside = new Vector2(2.8f, -0.6f);
 
-            Assert.IsTrue(GeoUtil.TriangleContains(v0, v1, v2, inside));
-            Assert.IsTrue(GeoUtil.TriangleContains(v1, v2, v0, inside));
-            Assert.IsTrue(GeoUtil.TriangleContains(v2, v0, v1, inside));
+            Assert.IsTrue(GeoUtil2D.TriangleContains(v0, v1, v2, inside));
+            Assert.IsTrue(GeoUtil2D.TriangleContains(v1, v2, v0, inside));
+            Assert.IsTrue(GeoUtil2D.TriangleContains(v2, v0, v1, inside));
 
-            Assert.IsTrue(GeoUtil.TriangleContains(v1, v0, v2, inside));
-            Assert.IsTrue(GeoUtil.TriangleContains(v2, v1, v0, inside));
-            Assert.IsTrue(GeoUtil.TriangleContains(v0, v2, v1, inside));
+            Assert.IsTrue(GeoUtil2D.TriangleContains(v1, v0, v2, inside));
+            Assert.IsTrue(GeoUtil2D.TriangleContains(v2, v1, v0, inside));
+            Assert.IsTrue(GeoUtil2D.TriangleContains(v0, v2, v1, inside));
 
             var outside = new Vector2(-2.8f, -0.6f);
 
-            Assert.IsFalse(GeoUtil.TriangleContains(v0, v1, v2, outside));
-            Assert.IsFalse(GeoUtil.TriangleContains(v1, v2, v0, outside));
-            Assert.IsFalse(GeoUtil.TriangleContains(v2, v0, v1, outside));
+            Assert.IsFalse(GeoUtil2D.TriangleContains(v0, v1, v2, outside));
+            Assert.IsFalse(GeoUtil2D.TriangleContains(v1, v2, v0, outside));
+            Assert.IsFalse(GeoUtil2D.TriangleContains(v2, v0, v1, outside));
 
-            Assert.IsFalse(GeoUtil.TriangleContains(v1, v0, v2, outside));
-            Assert.IsFalse(GeoUtil.TriangleContains(v2, v1, v0, outside));
-            Assert.IsFalse(GeoUtil.TriangleContains(v0, v2, v1, outside));
+            Assert.IsFalse(GeoUtil2D.TriangleContains(v1, v0, v2, outside));
+            Assert.IsFalse(GeoUtil2D.TriangleContains(v2, v1, v0, outside));
+            Assert.IsFalse(GeoUtil2D.TriangleContains(v0, v2, v1, outside));
         }
 
         [Test]
@@ -38,10 +39,10 @@ namespace Voxelgon.Tests.Geometry {
             var v1 = new Vector2(4.3f, 3.2f);
             var v2 = new Vector2(5.2f, -3.9f);
 
-            Assert.AreEqual(16.705f, GeoUtil.TriangleArea(v0, v1, v2));
-            Assert.AreEqual(16.705f, GeoUtil.TriangleArea(v1, v2, v0));
-            Assert.AreEqual(16.705f, GeoUtil.TriangleArea(v2, v0, v1));
-            Assert.AreEqual(-16.705f, GeoUtil.TriangleArea(v0, v2, v1));
+            Assert.AreEqual(16.705f, GeoUtil2D.TriangleArea(v0, v1, v2));
+            Assert.AreEqual(16.705f, GeoUtil2D.TriangleArea(v1, v2, v0));
+            Assert.AreEqual(16.705f, GeoUtil2D.TriangleArea(v2, v0, v1));
+            Assert.AreEqual(-16.705f, GeoUtil2D.TriangleArea(v0, v2, v1));
         }
 
         [Test]
@@ -54,7 +55,7 @@ namespace Voxelgon.Tests.Geometry {
                 new Vector2(5, 6)
             };
 
-            Assert.AreEqual(60, GeoUtil.Shoelace(verts));
+            Assert.AreEqual(60, GeoUtil2D.Shoelace(verts));
         }
     }
 }

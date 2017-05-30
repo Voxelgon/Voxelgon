@@ -1,22 +1,28 @@
 ﻿using System;
 using System.Collections;
 using System.Linq;
+using System.Runtime.InteropServices;
 using UnityEngine;
 using SCG = System.Collections.Generic;
 using C5;
 using Voxelgon.Geometry;
+using Voxelgon.Util;
 
 namespace Voxelgon.Geometry2D {
     public class BooleanOps {
+        private const float epsilon = 0.0001f;
+
         private readonly HashSet<Vertex> _outContours;
 
         // vertices to process
-        private readonly IntervalHeap<Vertex> _vertexQueue;
+        private readonly TreeSet<Vertex> _vertexQueue;
 
         // edges currently intersected by the sweepline
         private readonly TreeSet<Edge> _edges;
+
         // dictionary to find edges by their left vertex
-        private readonly HashDictionary<Vertex, ArrayList<Edge>> _edgeDict;
+        //private readonly HashDictionary<Vertex, ArrayList<Edge>> _edgeDict;
+        private readonly HashDictionary<Vertex, Edge> _edgeDict;
 
         private readonly IPolygon2D _subject;
         private bool _firstRun;
@@ -30,10 +36,10 @@ namespace Voxelgon.Geometry2D {
 
         public BooleanOps(IPolygon2D subject) {
             _subject = subject;
-            _vertexQueue = new IntervalHeap<Vertex>();
+            _vertexQueue = new TreeSet<Vertex>();
             _outContours = new HashSet<Vertex>();
             _edges = new TreeSet<Edge>();
-            _edgeDict = new HashDictionary<Vertex, ArrayList<Edge>>();
+            _edgeDict = new HashDictionary<Vertex, Edge>();
             _firstRun = true;
         }
 
@@ -55,7 +61,7 @@ namespace Voxelgon.Geometry2D {
         }
 
         public void Operate(Operation op, IPolygon2D clip) {
-            var rightElbows = new HashSet<Vertex>();
+            var rightMaxima = new HashDictionary<Vertex, RightElbowData>();
             var safetyCounter = (clip.VertexCount + _subject.VertexCount) * 10;
 
 
@@ -72,93 +78,81 @@ namespace Voxelgon.Geometry2D {
                 }
             }
 
+
             UnwrapContour(clip, op == Operation.Not || op == Operation.Xor);
+
+            _outContours.Clear();
+            _edges.Clear();
+            _edgeDict.Clear();
 
             while (!_vertexQueue.IsEmpty && safetyCounter > 0) {
                 safetyCounter--;
-                var vert = _vertexQueue.DeleteMin();
+                var currentVertex = _vertexQueue.DeleteMin();
 
-                var prevTop = (vert.CompareTo(vert.Prev) != -1);
-                var nextTop = (vert.CompareTo(vert.Next) != 1);
-                var elbow = (nextTop != prevTop);
+                var prevTop = (currentVertex.CompareTo(currentVertex.Prev) != -1);
+                var nextTop = (currentVertex.CompareTo(currentVertex.Next) != 1);
 
-                if (!elbow) {
-                    RemoveEdge(vert, nextTop);
-                    AddEdge(vert, nextTop, _vertexQueue);
+                if (nextTop == prevTop) {
+                    RemoveEdge(currentVertex, nextTop);
+                    AddEdge(currentVertex, nextTop);
+                }
+                else if (nextTop) {
+                    AddEdge(currentVertex, true);
+                    AddEdge(currentVertex, false);
                 }
                 else {
-                    if (nextTop) {
-                        AddEdge(vert, true, _vertexQueue);
-                        AddEdge(vert, false, _vertexQueue);
+                    var edge1 = RemoveEdge(currentVertex, true);
+                    var edge2 = RemoveEdge(currentVertex, false);
+                    var data = new RightElbowData();
+
+                    if (edge1.CompareTo(edge2) == 1) {
+                        SwapEdges(ref edge1, ref edge2);
                     }
-                    else {
 
-                        var edge1 = RemoveEdge(vert, true);
-                        var edge2 = RemoveEdge(vert, false);
-                        
-                        SortEdges(ref edge1, ref edge2);
-                        
-                        bool clockwise = edge1.Top;
-                        var upperEdges = _edges.RangeTo(edge1);
-                        var windingNumber = upperEdges.Sum(o => o.Top ? 1 : -1) + (clockwise ? 1 : -1);
+                    data.Clockwise = edge1.Top;
+                    data.WindingNumber = op == Operation.Xor
+                        ? _edges.CountTo(edge1) + 1
+                        : _edges.RangeTo(edge1).Sum(o => o.Top ? 1 : -1) + (data.Clockwise ? 1 : -1);
 
+                    rightMaxima.Add(currentVertex, data);
 
-                        Debug.Log(windingNumber + " " + vert);
-
-                        switch (op) {
-                            default:
-                            case Operation.Not:
-                            case Operation.Or:
-                                if ((clockwise && windingNumber == 1) ||
-                                    (!clockwise && windingNumber == 0)) rightElbows.Add(vert);
-                                break;
-                            case Operation.And:
-                                if ((clockwise && windingNumber == 2) ||
-                                    (!clockwise && windingNumber == 1)) rightElbows.Add(vert);
-                                break;
-                            case Operation.Xor:
-                                rightElbows.Add(vert);
-                                break;
-                        }
-
-                        if (edge1 == null || edge2 == null) throw new InvalidOperationException("Unknown error");
-
-                        Edge nextEdge;
-                        Edge prevEdge;
-                        if (_edges.TrySuccessor(edge2, out nextEdge) && _edges.TryPredecessor(edge1, out prevEdge)) {
-                            Intersect(prevEdge, nextEdge);
-                        }
+                    Edge nextEdge;
+                    Edge prevEdge;
+                    if (_edges.TrySuccessor(edge2, out nextEdge) && _edges.TryPredecessor(edge1, out prevEdge)) {
+                        Intersect(prevEdge, nextEdge);
                     }
                 }
             }
 
-            while (rightElbows.Count != 0 && safetyCounter > 0) {
+            while (rightMaxima.Count != 0 && safetyCounter > 0) {
                 safetyCounter--;
-                var c = rightElbows.First();
-                var current = c;
-                //Debug.Log(current);
+                var pair = rightMaxima.Choose();
+                var vertex = pair.Key;
+                var data = pair.Value;
 
-                do {
-                    safetyCounter--;
-                    rightElbows.Remove(current);
-                    current = current.Next;
-                } while (current != c && safetyCounter > 0);
+                rightMaxima.Remove(vertex);
 
-                _outContours.Add(c);
-            }
+                if (data.InResult(op) && vertex.Next != vertex.Prev) {
+                    _outContours.Add(vertex);
 
-            if (op == Operation.Xor) {
-                foreach (var c in _outContours) {
-                    var winding = GeoUtil.WindingOrder(c.Prev.Position, c.Position, c.Next.Position);
-                    if (winding == -1) {
-                        var current = c;
+                    var current = vertex;
+
+                    do {
+                        safetyCounter--;
+                        rightMaxima.Remove(current);
+
+
+                        current = current.Next;
+                    } while (current != vertex && safetyCounter > 0);
+
+                    if ((op == Operation.Xor) && data.XorInvert()) {
                         do {
-                            safetyCounter--;
-                            var lastNext = current.Next;
+                            var temp = current.Next;
                             current.Next = current.Prev;
-                            current.Prev = lastNext;
-                            current = lastNext;
-                        } while (current != c && safetyCounter > 0);
+                            current.Prev = temp;
+
+                            current = current.Prev;
+                        } while (current != vertex && safetyCounter > 0);
                     }
                 }
             }
@@ -172,15 +166,13 @@ namespace Voxelgon.Geometry2D {
             return new MultiPolygon2D(_outContours.Select(o => new SimplePolygon2D(EnumerateContour(o))));
         }
 
-        private bool SortEdges(ref Edge edge1, ref Edge edge2) {
-            if (edge1.CompareTo(edge2) == 1) {
-                var temp = edge1;
-                edge1 = edge2;
-                edge2 = temp;
-                return false;
-            }
-            return true;
+
+        private static void SwapEdges(ref Edge edge1, ref Edge edge2) {
+            var temp = edge1;
+            edge1 = edge2;
+            edge2 = temp;
         }
+
 
         private void UnwrapContour(IPolygon2D polygon, bool reverse = false) {
             foreach (var c in polygon.Contours.Select(o => o.Vertices)) {
@@ -193,8 +185,8 @@ namespace Voxelgon.Geometry2D {
                     if (position != prev.Position) {
                         var vert = new Vertex(position);
 
-                        vert.Prev = prev;
                         prev.Next = vert;
+                        vert.Prev = prev;
 
                         _vertexQueue.Add(vert);
 
@@ -214,15 +206,18 @@ namespace Voxelgon.Geometry2D {
                 current = current.Next;
             } while (current != start);
         }
-        
-        private void AddEdge(Vertex left, bool top, IntervalHeap<Vertex> heap) {
+
+        private void AddEdge(Vertex left, bool top) {
             var edge = new Edge(left, top);
             _edges.Add(edge);
 
-            if (!_edgeDict.Contains(left)) {
-                _edgeDict.Add(left, new ArrayList<Edge>());
+            if (_edgeDict.Contains(left)) {
+                edge.Other = _edgeDict[left];
+                edge.Other.Other = edge;
             }
-            _edgeDict[left].Add(edge);
+            else {
+                _edgeDict.Add(left, edge);
+            }
 
             Edge nextEdge;
             Edge prevEdge;
@@ -232,126 +227,236 @@ namespace Voxelgon.Geometry2D {
 
         private Edge RemoveEdge(Vertex right, bool top) {
             var left = top ? right.Prev : right.Next;
-            var edge = GetEdge(left, right, top);
-                
-            if (edge != null) {
-                _edges.Remove(edge);
-                _edgeDict[left].Remove(edge);
+
+            var edge = _edgeDict[left];
+
+            if (edge.Other != null) {
+                if (edge.Top == top) {
+                    _edgeDict[left] = edge.Other;
+                }
+                else {
+                    edge = edge.Other;
+                }
+
+                edge.Other = edge.Other.Other = null;
             }
-            
+            else {
+                _edgeDict.Remove(left);
+            }
+            _edges.Remove(edge);
+
+
             return edge;
         }
 
-        private  Edge GetEdge(Vertex left, Vertex right, bool top) {
-            if (!_edgeDict.Contains(left)) return null;
-            if (_edgeDict[left].Count == 0) {
-                _edgeDict.Remove(left);
-                return null;
+        private void Intersect(Edge edge1, Edge edge2) {
+            if (edge1.Left == edge2.Left || edge1.Right == edge2.Right) return;
+            if (edge1.MinY - edge2.MaxY > epsilon) return;
+            if (edge2.MinY - edge2.MaxY > epsilon) return;
+
+            // save these variables so we dont have to type them all out each time
+            var left1 = edge1.Left.Position;
+            var left2 = edge2.Left.Position;
+            var right1 = edge1.Right.Position;
+            var right2 = edge2.Right.Position;
+
+            if (GeoUtil2D.SqrDistance(left1, right2) < epsilon) return;
+            if (GeoUtil2D.SqrDistance(left2, right1) < epsilon) return;
+
+            _edges.Remove(edge1);
+            _edges.Remove(edge2);
+
+            bool intersect= false;
+            int intersectCount = -1;
+            Vector2 intersectPoint;
+            Vertex vert1 = null, vert2 = null;
+            Edge splitEdge = null;
+
+            if (GeoUtil2D.SqrDistance(left1, left2) < epsilon) {
+                intersect = true;
+                vert1 = edge1.Left;
+                vert2 = edge2.Left;
+                intersect = (vert1.InArc(vert2.Prev) != vert1.InArc(vert2.Next));
             }
-            return _edgeDict[left].First(o => o.RightVert == right);
-        }
-        
-        private void Intersect(Edge node1, Edge node2) {
-            if (node1.LeftVert == node2.LeftVert ||
-                node1.RightVert == node2.RightVert) return;
-
-            Vector2 vertPos;
-
-            // we never change anything about the left vert of the nodes, so use that as an anchor
-
-            if (Vector3.SqrMagnitude(node1.LeftVert.Position - node2.LeftVert.Position) < 0.0001) {
-                var vert1 = node1.LeftVert;
-                var vert2 = node2.LeftVert;
-
-                var c1 = Vertex.Clockwise(vert1.Prev, vert1, vert2.Next);
-                var c2 = Vertex.Clockwise(vert1.Next, vert1, vert2.Next);
-                var c3 = Vertex.Clockwise(vert1.Prev, vert1, vert2.Prev);
-                var c4 = Vertex.Clockwise(vert1.Next, vert1, vert2.Prev);
-
-                if ((c1 == c2) != (c3 == c4)) {
-                    Debug.Log("Left end intersection at " + vert1);
-                    // the triangles formed by these two ears overlap
-                    // swap the next verts for them
-
-                    var tempNext = vert1.Next;
-                    vert1.Next = vert2.Next;
-                    vert2.Next = tempNext;
-
-                    vert1.Next.Prev = vert1;
-                    vert2.Next.Prev = vert2;
-                    _edges.Remove(node1);
-                    _edges.Remove(node2);
-                    _edges.Add(node1);
-                    _edges.Add(node2);
+            else if (GeoUtil2D.SqrDistance(right1, right2) < epsilon) {
+                vert1 = edge1.Right;
+                vert2 = edge2.Right;
+                intersect = (vert1.InArc(vert2.Prev) != vert1.InArc(vert2.Next));
+            }
+                     
+            else if (Segment2D.OnSegment(left2, right2, left1)) {
+                if (edge2.VertexArea(edge1.Left.Prev) * edge2.VertexArea(edge1.Left.Next) < -epsilon) {
+                    intersect = true;
+                    vert1 = edge1.Left;
+                    vert2 = edge2.Split(vert1.Position);
                 }
             }
-            else if (Vector3.SqrMagnitude(node1.RightVert.Position - node2.RightVert.Position) < 0.0001) {
-                var vert1 = node1.RightVert;
-                var vert2 = node2.RightVert;
-
-                var c1 = Vertex.Clockwise(vert1.Prev, vert1, vert2.Next);
-                var c2 = Vertex.Clockwise(vert1.Next, vert1, vert2.Next);
-                var c3 = Vertex.Clockwise(vert1.Prev, vert1, vert2.Prev);
-                var c4 = Vertex.Clockwise(vert1.Next, vert1, vert2.Prev);
-
-                if ((c1 == c2) != (c3 == c4)) {
-                    Debug.Log("Right end intersection at " + vert1);
-                    // the triangles formed by these two ears overlap
-                    // swap the next verts for them
-
-                    var tempNext = vert1.Next;
-                    vert1.Next = vert2.Next;
-                    vert2.Next = tempNext;
-
-                    vert1.Next.Prev = vert1;
-                    vert2.Next.Prev = vert2;
+            else if (Segment2D.OnSegment(left2, right2, right1)) {
+                if (edge2.VertexArea(edge1.Right.Prev) * edge2.VertexArea(edge1.Right.Next) < -epsilon) {
+                    intersect = true;
+                    vert1 = edge1.Right;
+                    vert2 = edge2.Split(vert1.Position);
                 }
             }
-            else if (Segment2D.IntersectSegments(
-                node1.LeftVert.Position, node1.RightVert.Position,
-                node2.LeftVert.Position, node2.RightVert.Position, out vertPos)) {
-                // intersection
+            else if (Segment2D.OnSegment(left1, right1, left2)) {
+                if (edge1.VertexArea(edge2.Left.Prev) * edge1.VertexArea(edge2.Left.Next) < -epsilon) {
+                    intersect = true;
+                    vert2 = edge2.Left;
+                    vert1 = edge1.Split(vert2.Position);
+                }
+            }
+            else if (Segment2D.OnSegment(left1, right1, right2)) {
+                if (edge1.VertexArea(edge2.Right.Prev) * edge1.VertexArea(edge2.Right.Next) < -epsilon) {
+                    intersect = true;
+                    vert2 = edge2.Right;
+                    vert1 = edge1.Split(vert2.Position);
+                }
+            }
+            else if (Segment2D.IntersectSegments(left1, right1, left2, right2, out intersectPoint)) {
+                intersect = true;
+                intersectCount = 3;
+                vert1 = edge1.Split(intersectPoint);
+                vert2 = edge1.Split(intersectPoint);
+            }
 
-                var vert1 = new Vertex(vertPos, true);
-                var vert2 = new Vertex(vertPos, true);
+            if (intersect) {
+                var next1 = vert2.Next;
+                var next2 = vert1.Next;
 
-                Debug.Log("Regular intersection at " + vert1);
-
-                vert1.Prev = node1.Top ? node1.LeftVert : node1.RightVert;
-                vert2.Prev = node2.Top ? node2.LeftVert : node2.RightVert;
-
-                vert1.Next = vert2.Prev.Next;
-                vert2.Next = vert1.Prev.Next;
-
-                vert1.Prev.Next = vert1.Next.Prev = vert1;
-                vert2.Prev.Next = vert2.Next.Prev = vert2;
+                vert1.Next = next1;
+                vert2.Next = next2;
 
                 _vertexQueue.Add(vert1);
                 _vertexQueue.Add(vert2);
             }
+
+            _edges.Add(edge1);
+            _edges.Add(edge2);
         }
-        
-        
+
+        private bool EdgeSame(Edge edge1, Edge edge2) {
+            if (edge1.Top != edge2.Top) {
+                if (edge1.Top) {
+                    SwapEdges(ref edge1, ref edge2);
+                }
+                var vert1 = edge1.Left;
+                var vert2 = edge2.Right;
+                _vertexQueue.Remove(edge1.Right);
+                _vertexQueue.Remove(edge2.Left);
+                _edges.Remove(edge1);
+                _edges.Remove(edge2);
+                vert2.Prev = edge1.Right.Prev;
+                vert1.Prev = edge2.Left.Prev;
+                vert1.Prev.Next = vert1;
+                vert2.Prev.Next = vert2;
+                return true;
+            }
+            return false;
+        }
+
+        private bool EdgeOverlapPartial(Edge edge1, Edge edge2, Vertex vert1, Vertex vert2) {
+            if (edge1.Left.CompareTo(edge2.Left) == 1) {
+                MiscUtil.Swap(ref edge1, ref edge2);
+                MiscUtil.Swap(ref vert1, ref vert2);
+            }
+
+            //vert1 belongs to edge1, vert2 belongs to edge2
+            if (edge1.Top != edge2.Top) {
+                _edges.Remove(edge1);
+                _edges.Remove(edge2);
+                if (edge2.Top) {
+                    vert1.Next = edge2.Right;
+                    vert1.Next.Prev = vert1;
+                }
+                else {
+                    vert1.Prev = edge2.Right;
+                    vert1.Prev.Next = vert1;
+                }
+                edge1.Right = vert2;
+                return true;
+            }
+            else {
+                var vert3 = edge2.Right;
+                var vert4 = edge1.Right;
+                edge1.Right = vert3;
+                edge2.Right = vert4;
+                return true;
+            }
+            return false;
+        }
+
+        private bool EdgeVertexIntersection(Edge edge, Vertex vert1) {
+            var area1 = GeoUtil2D.Triangle2Area(edge.LeftPos, edge.RightPos, vert1.Prev.Position);
+            var area2 = GeoUtil2D.Triangle2Area(edge.RightPos, edge.LeftPos, vert1.Next.Position);
+            bool clockwise = Vertex.Clockwise(vert1.Prev, vert1, vert1.Next);
+            if (Mathf.Abs(area1 * area2) < epsilon) return false;
+            if (((area1 - area2 > 0) != edge.Top == clockwise) || (area1 * area2 > 0)) {
+                // either there is a crossing at "vert" or it "bounces off" in the opposite direction as the edge. 
+                // either way, we do the same thing
+                
+                var vert2 = edge.Split(vert1.Position);
+                
+                var next1 = vert1.Next;
+                var next2 = vert2.Next;
+                
+                vert1.Next = next1;
+                vert2.Next = next2;
+                
+                _vertexQueue.Add(vert1);
+                _vertexQueue.Add(vert2);
+                return true;
+            }
+            return false;
+        }
+
+        private void VertexVertexIntersection(Vertex vert1, Vertex vert2) {
+            if (vert1.InArc(vert2.Prev) != vert1.InArc(vert2.Next)) {
+                var next1 = vert2.Next;
+                var next2 = vert1.Next;
+                vert1.Next = next1;
+                vert2.Next = next2;
+            }
+        }
+
+        private bool VertexVertexCrossing(Vertex vert1, Vertex vert2) {
+            return (vert1.InArc(vert2.Prev) != vert1.InArc(vert2.Next));
+        }
 
         private class Vertex : IComparable<Vertex> {
-            public Vertex Next;
-            public Vertex Prev;
+            private Vertex _next;
+            private Vertex _prev;
+
+            public Vertex Next {
+                get { return _next; }
+                set {
+                    if (value != this) {
+                        _next = value;
+                        _next._prev = this;
+                    }
+                }
+            }
+
+            public Vertex Prev {
+                get { return _prev; }
+                set {
+                    if (value != this) {
+                        _prev = value;
+                        _prev._next = this;
+                    }
+                }
+            }
 
             public readonly Vector2 Position;
 
-            private readonly bool _intersection;
-
-            public Vertex(Vector2 position, bool intersection = false) {
-                _intersection = intersection;
+            public Vertex(Vector2 position) {
                 Position = position;
             }
 
             public int CompareTo(Vertex other) {
                 if (this == other) return 0;
-
-
                 if (Position != other.Position) {
-                    if (Math.Abs(Position.x - other.Position.x) > 0.001f) {
+                    if (Math.Abs(Position.x - other.Position.x) > epsilon) {
+                        // x coords are different, sort by x
                         // x coords are different, sort by x
                         // lower x values come first
                         return Position.x < other.Position.x ? -1 : 1;
@@ -363,21 +468,8 @@ namespace Voxelgon.Geometry2D {
                     }
                 }
                 else {
-                    if (Next == null || Prev == null || other.Next == null || other.Prev == null) return 0;
-
-                    var offset1 = (Position + Next.Position + Prev.Position) / 3;
-                    var offset2 = (other.Position + other.Next.Position + other.Prev.Position) / 3;
-
-                    if (Math.Abs(offset1.x - offset2.x) > 0.001f) {
-                        // x coords are different, sort by x
-                        // lower x values come first
-                        return offset1.x < offset2.x ? -1 : 1;
-                    }
-                    else {
-                        // x coords equal but y coords are different, sort by y
-                        // order doesnt strictly matter here as long as its consistant
-                        return offset1.y < offset2.y ? -1 : 1;
-                    }
+                    if (Prev == null || other.Prev == null) return 1;
+                    return (Prev.CompareTo(other.Prev));
                 }
             }
 
@@ -385,220 +477,137 @@ namespace Voxelgon.Geometry2D {
                 return Position.ToString();
             }
 
+            public bool InArc(Vertex test) {
+                var area1 = GeoUtil2D.Triangle2Area(Prev.Position, Position, Next.Position);
+                var area2 = GeoUtil2D.Triangle2Area(Prev.Position, Position, test.Position);
+                var area3 = GeoUtil2D.Triangle2Area(Position, Next.Position, test.Position);
+                return (Mathf.Abs(area1) < epsilon) ? area3 > 0 : area1 * area2 > 0 && area1 * area3 > 0;
+            }
+
             public static bool Clockwise(Vertex v0, Vertex v1, Vertex v2) {
-                return GeoUtil.Clockwise(v0.Position, v1.Position, v2.Position);
+                return GeoUtil2D.Clockwise(v0.Position, v1.Position, v2.Position);
             }
         }
-        /*
-
-        private class SweepLine {
-            private readonly TreeSet<Edge> _edges;
-            private readonly HashDictionary<Vertex, ArrayList<Edge>> _edgeDict;
-
-            public SweepLine() {
-                _edges = new TreeSet<Edge>();
-                _edgeDict = new HashDictionary<Vertex, ArrayList<Edge>>();
-            }
-
-            public void AddEdge(Vertex left, bool top, IntervalHeap<Vertex> heap) {
-                var edge = new Edge(left, top);
-                _edges.Add(edge);
-
-                if (!_edgeDict.Contains(left)) {
-                    _edgeDict.Add(left, new ArrayList<Edge>());
-                }
-                _edgeDict[left].Add(edge);
-
-                IntersectNeighbors(edge, heap);
-            }
-
-            public void RemoveEdge(Vertex right, bool top) {
-                var left = top ? right.Prev : right.Next;
-                var edge = GetEdge(left, right, top);
-                
-                if (edge != null) {
-                    _edges.Remove(edge);
-                    _edgeDict[left].Remove(edge);
-                }
-            }
-
-            public Edge GetEdge(Vertex left, Vertex right, bool top) {
-                if (!_edgeDict.Contains(left)) return null;
-                if (_edgeDict[left].Count == 0) {
-                    _edgeDict.Remove(left);
-                    return null;
-                }
-                return _edgeDict[left].First(o => o.RightVert == right);
-            }
-
-            public void IntersectNeighbors(Edge edge, IntervalHeap<Vertex> heap) {
-                Edge next;
-                if (_edges.TrySuccessor(edge, out next)) Intersect(edge, next, heap);
-                Edge prev;
-                if (_edges.TryPredecessor(edge, out prev)) Intersect(prev, edge, heap);
-            }
-
-            public int WindingNumber(Vertex vert) {
-                if (_edgeDict[vert.Prev].Count < 1) return 0;
-                if (_edgeDict[vert.Next].Count < 1) return 0;
-
-                var edge1 = _edgeDict[vert.Prev].First(o => o.RightVert == vert);
-                var edge2 = _edgeDict[vert.Next].First(o => o.RightVert == vert);
-                var upper = (edge1.CompareTo(edge2) == -1) ? edge1 : edge2;
-
-                var collection = _edges.RangeTo(upper);
-                return collection.Sum(o => o.Top ? 1 : -1) + (upper.Top ? 1 : -1);
-            }
-
-
-            #region Private Methods
-
-            private void Intersect(Edge node1, Edge node2, IntervalHeap<Vertex> heap) {
-                if (node1.LeftVert == node2.LeftVert ||
-                    node1.RightVert == node2.RightVert) return;
-
-                Vector2 vertPos;
-
-                // we never change anything about the left vert of the nodes, so use that as an anchor
-
-                if (Vector3.SqrMagnitude(node1.LeftVert.Position - node2.LeftVert.Position) < 0.0001) {
-                    var vert1 = node1.LeftVert;
-                    var vert2 = node2.LeftVert;
-
-                    var c1 = Vertex.Clockwise(vert1.Prev, vert1, vert2.Next);
-                    var c2 = Vertex.Clockwise(vert1.Next, vert1, vert2.Next);
-                    var c3 = Vertex.Clockwise(vert1.Prev, vert1, vert2.Prev);
-                    var c4 = Vertex.Clockwise(vert1.Next, vert1, vert2.Prev);
-
-                    if ((c1 == c2) != (c3 == c4)) {
-                        Debug.Log("Left end intersection at " + vert1);
-                        // the triangles formed by these two ears overlap
-                        // swap the next verts for them
-
-                        var tempNext = vert1.Next;
-                        vert1.Next = vert2.Next;
-                        vert2.Next = tempNext;
-
-                        vert1.Next.Prev = vert1;
-                        vert2.Next.Prev = vert2;
-                        _edges.Remove(node1);
-                        _edges.Remove(node2);
-                        _edges.Add(node1);
-                        _edges.Add(node2);
-                    }
-                }
-                else if (Vector3.SqrMagnitude(node1.RightVert.Position - node2.RightVert.Position) < 0.0001) {
-                    var vert1 = node1.RightVert;
-                    var vert2 = node2.RightVert;
-
-                    var c1 = Vertex.Clockwise(vert1.Prev, vert1, vert2.Next);
-                    var c2 = Vertex.Clockwise(vert1.Next, vert1, vert2.Next);
-                    var c3 = Vertex.Clockwise(vert1.Prev, vert1, vert2.Prev);
-                    var c4 = Vertex.Clockwise(vert1.Next, vert1, vert2.Prev);
-
-                    if ((c1 == c2) != (c3 == c4)) {
-                        Debug.Log("Right end intersection at " + vert1);
-                        // the triangles formed by these two ears overlap
-                        // swap the next verts for them
-
-                        var tempNext = vert1.Next;
-                        vert1.Next = vert2.Next;
-                        vert2.Next = tempNext;
-
-                        vert1.Next.Prev = vert1;
-                        vert2.Next.Prev = vert2;
-                    }
-                }
-                else if (Segment2D.IntersectSegments(
-                    node1.LeftVert.Position, node1.RightVert.Position,
-                    node2.LeftVert.Position, node2.RightVert.Position, out vertPos)) {
-                    // intersection
-
-                    var vert1 = new Vertex(vertPos, true);
-                    var vert2 = new Vertex(vertPos, true);
-
-                    Debug.Log("Regular intersection at " + vert1);
-
-                    vert1.Prev = node1.Top ? node1.LeftVert : node1.RightVert;
-                    vert2.Prev = node2.Top ? node2.LeftVert : node2.RightVert;
-
-                    vert1.Next = vert2.Prev.Next;
-                    vert2.Next = vert1.Prev.Next;
-
-                    vert1.Prev.Next = vert1.Next.Prev = vert1;
-                    vert2.Prev.Next = vert2.Next.Prev = vert2;
-
-                    heap.Add(vert1);
-                    heap.Add(vert2);
-                }
-            }
-
-            #endregion
-        }*/
 
         private class Edge : IComparable<Edge> {
             public readonly bool Top;
+            public Vertex Left { get; private set; }
 
-            public Vertex LeftVert { get; private set; }
-
-            public Vertex RightVert {
-                get { return Top ? LeftVert.Next : LeftVert.Prev; }
+            public Vertex Right {
+                get { return Top ? Left.Next : Left.Prev; }
+                set {
+                    if (Top) {
+                        Left.Next = value;
+                    }
+                    else {
+                        Left.Prev = value;
+                    }
+                }
             }
 
-            private float MinY {
-                get { return Mathf.Min(LeftVert.Position.y, RightVert.Position.y); }
+            public Edge Other { get; set; }
+
+            public float MinY {
+                get { return Mathf.Min(Left.Position.y, Right.Position.y); }
             }
 
-            private float MaxY {
-                get { return Mathf.Max(LeftVert.Position.y, RightVert.Position.y); }
+            public float MaxY {
+                get { return Mathf.Max(Left.Position.y, Right.Position.y); }
+            }
+
+            public Vector2 LeftPos {
+                get { return Left.Position; }
+            }
+
+            public Vector2 RightPos {
+                get { return Right.Position; }
             }
 
             public Edge(Vertex leftVert, bool top) {
-                LeftVert = leftVert;
+                Left = leftVert;
                 Top = top;
             }
 
+            public Vertex Split(Vector2 splitPoint) {
+                var middle = new Vertex(splitPoint);
+                if (Top) {
+                    middle.Next = Right;
+                    middle.Prev = Left;
+                    // this must be in the correct order 
+                    // to prevent crashes and infinite recursion :O
+                }
+                else {
+                    middle.Prev = Right;
+                    middle.Next = Left;
+                }
+                return middle;
+            }
+
             public override string ToString() {
-                return LeftVert.Position + " " + RightVert.Position;
+                return Left.Position + " " + Right.Position;
+            }
+
+            public float VertexArea(Vertex vert) {
+                return GeoUtil2D.TriangleArea(LeftPos, RightPos, vert.Position);
             }
 
             public int CompareTo(Edge other) {
                 if (other == this) return 0; //uh...
-
-                if (MinY - other.MaxY > 0.001f) return -1;
-                if (other.MinY - MaxY > 0.001f) return 1;
-
-                var rightArea = GeoUtil.TriangleArea(LeftVert.Position, RightVert.Position,
-                    other.RightVert.Position);
-                var leftArea = GeoUtil.TriangleArea(LeftVert.Position, RightVert.Position,
-                    other.LeftVert.Position);
-
-                if (Mathf.Abs(rightArea) < 0.001f &&
-                    Mathf.Abs(leftArea) < 0.001f) {
+                if (other.Left == Left && other.Right == Right) return 0;
+                if (MinY - other.MaxY > epsilon) return -1;
+                if (other.MinY - MaxY > epsilon) return 1;
+                
+                var rightArea = VertexArea(other.Right);
+                var leftArea = VertexArea(other.Left);
+                
+                if (Mathf.Abs(rightArea) < epsilon &&
+                    Mathf.Abs(leftArea) < epsilon) {
                     // edges are colinear so uh
                     // sort by left vert I guess?
-                    var left = LeftVert.CompareTo(other.LeftVert);
-                    return (left == 0) ? RightVert.CompareTo(other.RightVert) : left;
+                    var left = Left.CompareTo(other.Left);
+                    return (left == 0) ? Right.CompareTo(other.Right) : left;
                 }
                 else {
-                    if (LeftVert.Position == other.LeftVert.Position) {
+                    if (Mathf.Abs(leftArea) < epsilon) {
                         // same left node, sort by right node
                         return rightArea > 0 ? -1 : 1;
                     }
-                    else if (Mathf.Approximately(LeftVert.Position.x, other.LeftVert.Position.x)) {
-                        // different left node, sort by left node
-                        return LeftVert.Position.y > other.LeftVert.Position.y ? -1 : 1;
+                    else if (Mathf.Abs(rightArea) < epsilon) {
+                        return leftArea > 0 ? -1 : 1;
                     }
-                    else if (LeftVert.CompareTo(other.LeftVert) == -1) {
-                        var otherArea =
-                            GeoUtil.TriangleArea(other.LeftVert.Position, other.RightVert.Position,
-                                LeftVert.Position);
-                        return otherArea < 0 ? -1 : 1;
+                    else if (Mathf.Approximately(LeftPos.x, other.LeftPos.x)) {
+                        // different left node, sort by left node
+                        return LeftPos.y > other.LeftPos.y ? -1 : 1;
+                    }
+                    else if (Left.CompareTo(other.Left) == -1) {
+                        return other.VertexArea(Left) > 0 ? -1 : 1;
                     }
                     else {
                         return leftArea > 0 ? -1 : 1;
                     }
                 }
+            }
+        }
+
+        private struct RightElbowData {
+            public int WindingNumber;
+            public bool Clockwise;
+
+            public bool InResult(Operation op) {
+                switch (op) {
+                    case Operation.Not:
+                    case Operation.Or:
+                    default:
+                        return WindingNumber == (Clockwise ? 1 : 0);
+                    case Operation.And:
+                        return WindingNumber == (Clockwise ? 2 : 1);
+                    case Operation.Xor:
+                        return true;
+                }
+            }
+
+            public bool XorInvert() {
+                return (Clockwise == (WindingNumber % 2 == 0));
             }
         }
     }

@@ -183,14 +183,29 @@ namespace Voxelgon.Geometry2D {
             var v2 = b2 - b1;
             var v3 = (a2 - a1).Ortho();
 
-            var denom = 1 / Vector2.Dot(v2, v3);
-            var t1 = denom * Vector3.Cross(v2, v1).z * -1;
+            var dot = Vector2.Dot(v2, v3);
+            if (Mathf.Approximately(dot, 0)) {
+                intersection = Vector2.zero;
+                return false;
+            }
+            
+            var denom = 1 / dot;
+            var t1 = denom * Vector3.Cross(v1, v2).z;
             var t2 = denom * Vector2.Dot(v1, v3);
 
             intersection = b1 + (v2 * t2);
-            return (t1 > 0 && t1 < 1 && t2 > 0 && t2 < 1);
+            return (t1 + 0.0001f >= 0 && 
+                    t1 - 0.0001f <= 1 && 
+                    t2 + 0.0001f >= 0 && 
+                    t2 - 0.0001f <= 1);
         }
 
+        public static bool OnSegment(Vector2 a1, Vector2 a2, Vector2 point) {
+            if (Mathf.Abs(GeoUtil2D.Triangle2Area(a1, a2, point)) > 0.0001f) return false;
+            
+            return Vector2.Dot(point - a1, point - a2) < -0.0001f;
+        }
+        
         #endregion
     }
 }

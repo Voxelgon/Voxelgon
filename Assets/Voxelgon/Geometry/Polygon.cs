@@ -102,7 +102,7 @@ namespace Voxelgon.Geometry {
 
         //the area of the polygon
         public float Area {
-            get { return Mathf.Abs(GeoUtil.Shoelace(FlatVertices()) / 2); }
+            get { return Mathf.Abs(GeoUtil2D.Shoelace(FlatVertices()) / 2); }
         }
 
         //the number of vertices in the polygon
@@ -141,7 +141,7 @@ namespace Voxelgon.Geometry {
             get {
                 var indices = new List<int>(VertexCount * 3);
                 var vertices2D = GeoUtil.FlattenPoints(_center, _vertices, _normal);
-                GeoUtil.TriangulateSegment(vertices2D, indices, 0, 1);
+                GeoUtil2D.TriangulateSegment(vertices2D, indices, 0, 1);
 
                 return indices.ToArray();
             }
@@ -351,9 +351,9 @@ namespace Voxelgon.Geometry {
             for (var i = 0; i < VertexCount - 1; i++) {
                 normalA = normalB;
                 normalB = rotation2D * (newVertices[(i + 1) % VertexCount] - newVertices[i]).normalized * amount;
-                newVertices[i] += (Vector3)GeoUtil.Miter(normalA, normalB); ;
+                newVertices[i] += (Vector3)GeoUtil2D.Miter(normalA, normalB); ;
             }
-            newVertices[VertexCount - 1] += (Vector3)GeoUtil.Miter(normalB, lastNormal);
+            newVertices[VertexCount - 1] += (Vector3)GeoUtil2D.Miter(normalB, lastNormal);
 
             rotation = Quaternion.Inverse(rotation);
             GeoUtil.TransformPoints(newVertices, Matrix4x4.TRS(Vector3.zero, rotation, Vector3.one));
@@ -375,9 +375,9 @@ namespace Voxelgon.Geometry {
             for (var i = 0; i < VertexCount - 1; i++) {
                 normalA = normalB;
                 normalB = rotation2D * (newVertices[(i + 1) % VertexCount] - newVertices[i]).normalized * amounts[i];
-                newVertices[i] += (Vector3)GeoUtil.Miter(normalA, normalB); ;
+                newVertices[i] += (Vector3)GeoUtil2D.Miter(normalA, normalB); ;
             }
-            newVertices[VertexCount - 1] += (Vector3)GeoUtil.Miter(normalB, lastNormal);
+            newVertices[VertexCount - 1] += (Vector3)GeoUtil2D.Miter(normalB, lastNormal);
 
             rotation = Quaternion.Inverse(rotation);
             GeoUtil.TransformPoints(newVertices, Matrix4x4.TRS(Vector3.zero, rotation, Vector3.one));
@@ -391,7 +391,7 @@ namespace Voxelgon.Geometry {
 
         public void CopyTris(List<int> dest, int offset) {
             var vertices2D = GeoUtil.FlattenPoints(_center, _vertices, _normal);
-            GeoUtil.TriangulateSegment(vertices2D, dest, 0, 1, offset);
+            GeoUtil2D.TriangulateSegment(vertices2D, dest, 0, 1, offset);
         }
 
         //draw the polygon in the world for 1 frame
@@ -429,7 +429,7 @@ namespace Voxelgon.Geometry {
                 }
             }
             //check for real normal
-            var shoelace = GeoUtil.Shoelace(GeoUtil.FlattenPoints(vertices, tmpNormal));
+            var shoelace = GeoUtil2D.Shoelace(GeoUtil.FlattenPoints(vertices, tmpNormal));
             if (shoelace > 0.001f) {
                 return -tmpNormal;
             } else if (shoelace < -0.001f) {

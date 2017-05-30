@@ -94,7 +94,7 @@ namespace Voxelgon.Geometry2D {
                         var test = indices[first];
                         if (test == i0 || test == i1 || test == i2) continue;
 
-                        if (GeoUtil.TriangleContains(vertices[i0], vertices[i1], vertices[i2], vertices[test])) {
+                        if (GeoUtil2D.TriangleContains(vertices[i0], vertices[i1], vertices[i2], vertices[test])) {
                             isEar = false;
                             break;
                         }
@@ -179,7 +179,7 @@ namespace Voxelgon.Geometry2D {
             var v1 = indices[links[vert].Next];
 
             var v2 = indices[links[vert].Prev];
-            return (GeoUtil.WindingOrder(vertices[v0], vertices[v1], vertices[v2]) != -1);
+            return (GeoUtil2D.WindingOrder(vertices[v0], vertices[v1], vertices[v2]) != -1);
         }
 
         #endregion

@@ -55,7 +55,7 @@ namespace Voxelgon.Geometry2D {
                     int j = (i + 1) % VertexCount;
                     int k = (i + 2) % VertexCount;
 
-                    if (GeoUtil.WindingOrder(
+                    if (GeoUtil2D.WindingOrder(
                             _vertices[i],
                             _vertices[j],
                             _vertices[k]) != 1) {
@@ -71,14 +71,14 @@ namespace Voxelgon.Geometry2D {
         /// The area of the polygon
         /// </summary>
         public float Area {
-            get { return GeoUtil.Shoelace(_vertices) * 0.5f; }
+            get { return GeoUtil2D.Shoelace(_vertices) * 0.5f; }
         }
 
         /// <summary>
         /// The geometric center of the polygon
         /// </summary>
         public Vector2 Center {
-            get { return GeoUtil.VectorAvg(_vertices); }
+            get { return GeoUtil2D.VectorAvg(_vertices); }
         }
 
         /// <summary>
@@ -145,7 +145,7 @@ namespace Voxelgon.Geometry2D {
         ///-1 = counter-clockwise
         /// </remarks>
         public int WindingOrder {
-            get { return GeoUtil.Shoelace(_vertices) > 0 ? 1 : -1; }
+            get { return GeoUtil2D.Shoelace(_vertices) > 0 ? 1 : -1; }
         }
 
         /// <summary>
@@ -335,7 +335,7 @@ namespace Voxelgon.Geometry2D {
 
 
             for (int i = 0; i < VertexCount; i++) {
-                if (GeoUtil.WindingOrder(point, point + dir, (_vertices[i])) > 0) {
+                if (GeoUtil2D.WindingOrder(point, point + dir, (_vertices[i])) > 0) {
                     trim.Add(i);
                 }
             }
@@ -353,7 +353,7 @@ namespace Voxelgon.Geometry2D {
 
                     var segmentPoint = _vertices[trim[i]];
                     var segmentDir = _vertices[lastVert] - segmentPoint;
-                    var intersection = GeoUtil.LineIntersection(point, dir, segmentPoint, segmentDir);
+                    var intersection = GeoUtil2D.LineIntersection(point, dir, segmentPoint, segmentDir);
                     verts.Add(intersection);
                 }
                 if (trim[nextTrim] != nextVert || trim.Count == 1) {
@@ -361,7 +361,7 @@ namespace Voxelgon.Geometry2D {
 
                     var segmentPoint = _vertices[trim[i]];
                     var segmentDir = _vertices[nextVert] - segmentPoint;
-                    var intersection = GeoUtil.LineIntersection(point, dir, segmentPoint, segmentDir);
+                    var intersection = GeoUtil2D.LineIntersection(point, dir, segmentPoint, segmentDir);
                     verts.Add(intersection);
                 }
             }
@@ -379,7 +379,7 @@ namespace Voxelgon.Geometry2D {
 
             return new SimplePolygon2D(_vertices.Select(o => {
                 var normal = GetEdgeNormal(i) * thickness;
-                var value = o + GeoUtil.Miter(lastNormal, normal);
+                var value = o + GeoUtil2D.Miter(lastNormal, normal);
                 lastNormal = normal;
                 i++;
                 return value;
@@ -392,7 +392,7 @@ namespace Voxelgon.Geometry2D {
 
             return new SimplePolygon2D(_vertices.Select(o => {
                 var normal = GetEdgeNormal(i) * thicknesses[i];
-                var value = o + GeoUtil.Miter(lastNormal, normal);
+                var value = o + GeoUtil2D.Miter(lastNormal, normal);
                 lastNormal = normal;
                 i++;
                 return value;
@@ -404,7 +404,7 @@ namespace Voxelgon.Geometry2D {
         }
 
         public void CopyTris(List<int> dest, int offset) {
-            GeoUtil.TriangulateSegment(_vertices, dest, 0, 1, offset);
+            GeoUtil2D.TriangulateSegment(_vertices, dest, 0, 1, offset);
         }
 
         #region Debug Methods
