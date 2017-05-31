@@ -57,7 +57,7 @@ namespace Voxelgon.Ship.Editor {
             var p1 = new SimplePolygon2D(Vector2.zero, Mathf.Sqrt(2), 4, Vector2.one);
             //var p1 = new SimplePolygon2D(new Vector2[] { new Vector2(-1, 1), new Vector2(1, 1), new Vector2(0, -1) });
             //var p2 = new SimplePolygon2D(Vector2.one, 1f, 4, Vector2.zero);
-            var p2 = new SimplePolygon2D(new Vector2(1, 1), 1, 4, Vector2.up);
+            var p2 = new SimplePolygon2D(new Vector2(1, 0), 1, 4, Vector2.up);
             var p3 = new SimplePolygon2D(Vector2.down, 0.5f, 12, Vector2.down);
             
             var b = new BooleanOps(p1);

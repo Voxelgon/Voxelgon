@@ -26,6 +26,7 @@ namespace Voxelgon.Geometry2D {
 
         private readonly IPolygon2D _subject;
         private bool _firstRun;
+        private Vertex _currentVertex;
 
         public enum Operation {
             Or,
@@ -87,22 +88,22 @@ namespace Voxelgon.Geometry2D {
 
             while (!_vertexQueue.IsEmpty && safetyCounter > 0) {
                 safetyCounter--;
-                var currentVertex = _vertexQueue.DeleteMin();
+                _currentVertex = _vertexQueue.DeleteMin();
 
-                var prevTop = (currentVertex.CompareTo(currentVertex.Prev) != -1);
-                var nextTop = (currentVertex.CompareTo(currentVertex.Next) != 1);
+                var prevTop = (_currentVertex.CompareTo(_currentVertex.Prev) != -1);
+                var nextTop = (_currentVertex.CompareTo(_currentVertex.Next) != 1);
 
                 if (nextTop == prevTop) {
-                    RemoveEdge(currentVertex, nextTop);
-                    AddEdge(currentVertex, nextTop);
+                    RemoveEdge(_currentVertex, nextTop);
+                    AddEdge(_currentVertex, nextTop);
                 }
                 else if (nextTop) {
-                    AddEdge(currentVertex, true);
-                    AddEdge(currentVertex, false);
+                    AddEdge(_currentVertex, true);
+                    AddEdge(_currentVertex, false);
                 }
                 else {
-                    var edge1 = RemoveEdge(currentVertex, true);
-                    var edge2 = RemoveEdge(currentVertex, false);
+                    var edge1 = RemoveEdge(_currentVertex, true);
+                    var edge2 = RemoveEdge(_currentVertex, false);
                     var data = new RightElbowData();
 
                     if (edge1.CompareTo(edge2) == 1) {
@@ -110,11 +111,15 @@ namespace Voxelgon.Geometry2D {
                     }
 
                     data.Clockwise = edge1.Top;
-                    data.WindingNumber = op == Operation.Xor
-                        ? _edges.CountTo(edge1) + 1
-                        : _edges.RangeTo(edge1).Sum(o => o.Top ? 1 : -1) + (data.Clockwise ? 1 : -1);
+                    if (op == Operation.Xor) {
+                        data.WindingNumber = _edges.CountTo(edge1) + 1;
+                    }
+                    else {
+                        var collection = _edges.RangeTo(edge1);
+                        data.WindingNumber = collection.Sum(o => o.Top ? 1 : -1) + (data.Clockwise ? 1 : -1);
+                    }
 
-                    rightMaxima.Add(currentVertex, data);
+                    rightMaxima.Add(_currentVertex, data);
 
                     Edge nextEdge;
                     Edge prevEdge;
@@ -232,16 +237,16 @@ namespace Voxelgon.Geometry2D {
 
             if (edge.Other != null) {
                 if (edge.Top == top) {
-                    _edgeDict[left] = edge.Other;
+                    //_edgeDict[left] = edge.Other;
                 }
                 else {
                     edge = edge.Other;
                 }
 
-                edge.Other = edge.Other.Other = null;
+                //edge.Other = edge.Other.Other = null;
             }
             else {
-                _edgeDict.Remove(left);
+                //_edgeDict.Remove(left);
             }
             _edges.Remove(edge);
 
@@ -263,10 +268,10 @@ namespace Voxelgon.Geometry2D {
             if (GeoUtil2D.SqrDistance(left1, right2) < epsilon) return;
             if (GeoUtil2D.SqrDistance(left2, right1) < epsilon) return;
 
-            _edges.Remove(edge1);
-            _edges.Remove(edge2);
+            //_edges.Remove(edge1);
+            //_edges.Remove(edge2);
 
-            bool intersect= false;
+            bool intersect = false;
             int intersectCount = -1;
             Vector2 intersectPoint;
             Vertex vert1 = null, vert2 = null;
@@ -283,7 +288,7 @@ namespace Voxelgon.Geometry2D {
                 vert2 = edge2.Right;
                 intersect = (vert1.InArc(vert2.Prev) != vert1.InArc(vert2.Next));
             }
-                     
+
             else if (Segment2D.OnSegment(left2, right2, left1)) {
                 if (edge2.VertexArea(edge1.Left.Prev) * edge2.VertexArea(edge1.Left.Next) < -epsilon) {
                     intersect = true;
@@ -320,6 +325,9 @@ namespace Voxelgon.Geometry2D {
             }
 
             if (intersect) {
+                _vertexQueue.Remove(vert1);
+                _vertexQueue.Remove(vert2);
+                
                 var next1 = vert2.Next;
                 var next2 = vert1.Next;
 
@@ -330,8 +338,10 @@ namespace Voxelgon.Geometry2D {
                 _vertexQueue.Add(vert2);
             }
 
-            _edges.Add(edge1);
-            _edges.Add(edge2);
+            //if (edge1.Right.CompareTo(_currentVertex) > 0) 
+            //_edges.Add(edge1);
+            //if (edge2.Right.CompareTo(_currentVertex) > 0) 
+            //_edges.Add(edge2);
         }
 
         private bool EdgeSame(Edge edge1, Edge edge2) {
@@ -383,43 +393,6 @@ namespace Voxelgon.Geometry2D {
                 return true;
             }
             return false;
-        }
-
-        private bool EdgeVertexIntersection(Edge edge, Vertex vert1) {
-            var area1 = GeoUtil2D.Triangle2Area(edge.LeftPos, edge.RightPos, vert1.Prev.Position);
-            var area2 = GeoUtil2D.Triangle2Area(edge.RightPos, edge.LeftPos, vert1.Next.Position);
-            bool clockwise = Vertex.Clockwise(vert1.Prev, vert1, vert1.Next);
-            if (Mathf.Abs(area1 * area2) < epsilon) return false;
-            if (((area1 - area2 > 0) != edge.Top == clockwise) || (area1 * area2 > 0)) {
-                // either there is a crossing at "vert" or it "bounces off" in the opposite direction as the edge. 
-                // either way, we do the same thing
-                
-                var vert2 = edge.Split(vert1.Position);
-                
-                var next1 = vert1.Next;
-                var next2 = vert2.Next;
-                
-                vert1.Next = next1;
-                vert2.Next = next2;
-                
-                _vertexQueue.Add(vert1);
-                _vertexQueue.Add(vert2);
-                return true;
-            }
-            return false;
-        }
-
-        private void VertexVertexIntersection(Vertex vert1, Vertex vert2) {
-            if (vert1.InArc(vert2.Prev) != vert1.InArc(vert2.Next)) {
-                var next1 = vert2.Next;
-                var next2 = vert1.Next;
-                vert1.Next = next1;
-                vert2.Next = next2;
-            }
-        }
-
-        private bool VertexVertexCrossing(Vertex vert1, Vertex vert2) {
-            return (vert1.InArc(vert2.Prev) != vert1.InArc(vert2.Next));
         }
 
         private class Vertex : IComparable<Vertex> {
@@ -556,10 +529,10 @@ namespace Voxelgon.Geometry2D {
                 if (other.Left == Left && other.Right == Right) return 0;
                 if (MinY - other.MaxY > epsilon) return -1;
                 if (other.MinY - MaxY > epsilon) return 1;
-                
+
                 var rightArea = VertexArea(other.Right);
                 var leftArea = VertexArea(other.Left);
-                
+
                 if (Mathf.Abs(rightArea) < epsilon &&
                     Mathf.Abs(leftArea) < epsilon) {
                     // edges are colinear so uh
