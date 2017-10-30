@@ -51,9 +51,9 @@ namespace Voxelgon.Geometry2D {
         /// </summary>
         public bool IsConvex {
             get {
-                for (int i = 0; i < VertexCount; i++) {
-                    int j = (i + 1) % VertexCount;
-                    int k = (i + 2) % VertexCount;
+                for (var i = 0; i < VertexCount; i++) {
+                    var j = (i + 1) % VertexCount;
+                    var k = (i + 2) % VertexCount;
 
                     if (GeoUtil2D.WindingOrder(
                             _vertices[i],

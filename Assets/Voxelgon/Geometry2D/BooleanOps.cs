@@ -111,13 +111,9 @@ namespace Voxelgon.Geometry2D {
                     }
 
                     data.Clockwise = edge1.Top;
-                    if (op == Operation.Xor) {
-                        data.WindingNumber = _edges.CountTo(edge1) + 1;
-                    }
-                    else {
-                        var collection = _edges.RangeTo(edge1);
-                        data.WindingNumber = collection.Sum(o => o.Top ? 1 : -1) + (data.Clockwise ? 1 : -1);
-                    }
+                    data.WindingNumber = (op == Operation.Xor)
+                        ? _edges.CountTo(edge1) + 1
+                        : _edges.RangeTo(edge1).Sum(o => o.Top ? 1 : -1) + (data.Clockwise ? 1 : -1);
 
                     rightMaxima.Add(_currentVertex, data);
 
@@ -213,16 +209,9 @@ namespace Voxelgon.Geometry2D {
         }
 
         private void AddEdge(Vertex left, bool top) {
+            var right = (top) ? left.Next : left.Prev;
             var edge = new Edge(left, top);
             _edges.Add(edge);
-
-            if (_edgeDict.Contains(left)) {
-                edge.Other = _edgeDict[left];
-                edge.Other.Other = edge;
-            }
-            else {
-                _edgeDict.Add(left, edge);
-            }
 
             Edge nextEdge;
             Edge prevEdge;
@@ -232,25 +221,8 @@ namespace Voxelgon.Geometry2D {
 
         private Edge RemoveEdge(Vertex right, bool top) {
             var left = top ? right.Prev : right.Next;
-
-            var edge = _edgeDict[left];
-
-            if (edge.Other != null) {
-                if (edge.Top == top) {
-                    //_edgeDict[left] = edge.Other;
-                }
-                else {
-                    edge = edge.Other;
-                }
-
-                //edge.Other = edge.Other.Other = null;
-            }
-            else {
-                //_edgeDict.Remove(left);
-            }
+            var edge = new Edge(left, top);
             _edges.Remove(edge);
-
-
             return edge;
         }
 
@@ -259,17 +231,8 @@ namespace Voxelgon.Geometry2D {
             if (edge1.MinY - edge2.MaxY > epsilon) return;
             if (edge2.MinY - edge2.MaxY > epsilon) return;
 
-            // save these variables so we dont have to type them all out each time
-            var left1 = edge1.Left.Position;
-            var left2 = edge2.Left.Position;
-            var right1 = edge1.Right.Position;
-            var right2 = edge2.Right.Position;
-
-            if (GeoUtil2D.SqrDistance(left1, right2) < epsilon) return;
-            if (GeoUtil2D.SqrDistance(left2, right1) < epsilon) return;
-
-            //_edges.Remove(edge1);
-            //_edges.Remove(edge2);
+            if (GeoUtil2D.SqrDistance(edge1.LeftPos, edge2.RightPos) < epsilon) return;
+            if (GeoUtil2D.SqrDistance(edge2.LeftPos, edge1.RightPos) < epsilon) return;
 
             bool intersect = false;
             int intersectCount = -1;
@@ -277,71 +240,72 @@ namespace Voxelgon.Geometry2D {
             Vertex vert1 = null, vert2 = null;
             Edge splitEdge = null;
 
-            if (GeoUtil2D.SqrDistance(left1, left2) < epsilon) {
+            if (GeoUtil2D.SqrDistance(edge1.LeftPos, edge2.LeftPos) < epsilon) {
                 intersect = true;
                 vert1 = edge1.Left;
                 vert2 = edge2.Left;
                 intersect = (vert1.InArc(vert2.Prev) != vert1.InArc(vert2.Next));
             }
-            else if (GeoUtil2D.SqrDistance(right1, right2) < epsilon) {
+            else if (GeoUtil2D.SqrDistance(edge1.RightPos, edge2.RightPos) < epsilon) {
                 vert1 = edge1.Right;
                 vert2 = edge2.Right;
                 intersect = (vert1.InArc(vert2.Prev) != vert1.InArc(vert2.Next));
             }
 
-            else if (Segment2D.OnSegment(left2, right2, left1)) {
+            else if (Segment2D.OnSegment(edge2.LeftPos, edge2.RightPos, edge1.LeftPos)) {
                 if (edge2.VertexArea(edge1.Left.Prev) * edge2.VertexArea(edge1.Left.Next) < -epsilon) {
                     intersect = true;
                     vert1 = edge1.Left;
-                    vert2 = edge2.Split(vert1.Position);
+                    vert2 = SplitEdge(edge2, vert1.Position);
                 }
             }
-            else if (Segment2D.OnSegment(left2, right2, right1)) {
+            else if (Segment2D.OnSegment(edge2.LeftPos, edge2.RightPos, edge1.RightPos)) {
                 if (edge2.VertexArea(edge1.Right.Prev) * edge2.VertexArea(edge1.Right.Next) < -epsilon) {
                     intersect = true;
                     vert1 = edge1.Right;
-                    vert2 = edge2.Split(vert1.Position);
+                    vert2 = SplitEdge(edge2, vert1.Position);
                 }
             }
-            else if (Segment2D.OnSegment(left1, right1, left2)) {
+            else if (Segment2D.OnSegment(edge1.LeftPos, edge1.RightPos, edge2.LeftPos)) {
                 if (edge1.VertexArea(edge2.Left.Prev) * edge1.VertexArea(edge2.Left.Next) < -epsilon) {
                     intersect = true;
                     vert2 = edge2.Left;
-                    vert1 = edge1.Split(vert2.Position);
+                    vert1 = SplitEdge(edge1, vert2.Position);
                 }
             }
-            else if (Segment2D.OnSegment(left1, right1, right2)) {
+            else if (Segment2D.OnSegment(edge1.LeftPos, edge1.RightPos, edge2.RightPos)) {
                 if (edge1.VertexArea(edge2.Right.Prev) * edge1.VertexArea(edge2.Right.Next) < -epsilon) {
                     intersect = true;
                     vert2 = edge2.Right;
-                    vert1 = edge1.Split(vert2.Position);
+                    vert1 = SplitEdge(edge1, vert2.Position);
                 }
             }
-            else if (Segment2D.IntersectSegments(left1, right1, left2, right2, out intersectPoint)) {
+            else if (Segment2D.IntersectSegments(edge1.LeftPos, edge1.RightPos, edge2.LeftPos, edge2.RightPos,
+                out intersectPoint)) {
                 intersect = true;
                 intersectCount = 3;
-                vert1 = edge1.Split(intersectPoint);
-                vert2 = edge1.Split(intersectPoint);
+                vert1 = SplitEdge(edge1, intersectPoint);
+                vert2 = SplitEdge(edge1, intersectPoint);
             }
 
             if (intersect) {
-                _vertexQueue.Remove(vert1);
-                _vertexQueue.Remove(vert2);
-                
+                //_vertexQueue.Remove(vert1);
+                //_vertexQueue.Remove(vert2);
+                _edges.Remove(edge1);
+                _edges.Remove(edge2);
+
                 var next1 = vert2.Next;
                 var next2 = vert1.Next;
 
                 vert1.Next = next1;
                 vert2.Next = next2;
 
-                _vertexQueue.Add(vert1);
-                _vertexQueue.Add(vert2);
-            }
+                _edges.Add(edge1);
+                _edges.Add(edge2);
 
-            //if (edge1.Right.CompareTo(_currentVertex) > 0) 
-            //_edges.Add(edge1);
-            //if (edge2.Right.CompareTo(_currentVertex) > 0) 
-            //_edges.Add(edge2);
+                //_vertexQueue.Add(vert1);
+                //_vertexQueue.Add(vert2);
+            }
         }
 
         private bool EdgeSame(Edge edge1, Edge edge2) {
@@ -357,39 +321,8 @@ namespace Voxelgon.Geometry2D {
                 _edges.Remove(edge2);
                 vert2.Prev = edge1.Right.Prev;
                 vert1.Prev = edge2.Left.Prev;
-                vert1.Prev.Next = vert1;
-                vert2.Prev.Next = vert2;
-                return true;
-            }
-            return false;
-        }
-
-        private bool EdgeOverlapPartial(Edge edge1, Edge edge2, Vertex vert1, Vertex vert2) {
-            if (edge1.Left.CompareTo(edge2.Left) == 1) {
-                MiscUtil.Swap(ref edge1, ref edge2);
-                MiscUtil.Swap(ref vert1, ref vert2);
-            }
-
-            //vert1 belongs to edge1, vert2 belongs to edge2
-            if (edge1.Top != edge2.Top) {
-                _edges.Remove(edge1);
-                _edges.Remove(edge2);
-                if (edge2.Top) {
-                    vert1.Next = edge2.Right;
-                    vert1.Next.Prev = vert1;
-                }
-                else {
-                    vert1.Prev = edge2.Right;
-                    vert1.Prev.Next = vert1;
-                }
-                edge1.Right = vert2;
-                return true;
-            }
-            else {
-                var vert3 = edge2.Right;
-                var vert4 = edge1.Right;
-                edge1.Right = vert3;
-                edge2.Right = vert4;
+                //vert1.Prev.Next = vert1;
+                //vert2.Prev.Next = vert2;
                 return true;
             }
             return false;
@@ -430,7 +363,6 @@ namespace Voxelgon.Geometry2D {
                 if (Position != other.Position) {
                     if (Math.Abs(Position.x - other.Position.x) > epsilon) {
                         // x coords are different, sort by x
-                        // x coords are different, sort by x
                         // lower x values come first
                         return Position.x < other.Position.x ? -1 : 1;
                     }
@@ -462,8 +394,29 @@ namespace Voxelgon.Geometry2D {
             }
         }
 
+
+        private Vertex SplitEdge(Edge edge, Vector2 splitPoint) {
+            _edges.Remove(edge);
+
+            var middle = new Vertex(splitPoint);
+            if (edge.Top) {
+                middle.Next = edge.Right;
+                middle.Prev = edge.Left;
+                // this must be in the correct order 
+                // to prevent crashes and infinite recursion :O
+            }
+            else {
+                middle.Prev = edge.Right;
+                middle.Next = edge.Left;
+            }
+
+            _vertexQueue.Add(middle);
+            _edges.Add(new Edge(edge.Left, edge.Top));
+            return middle;
+        }
+
         private class Edge : IComparable<Edge> {
-            public readonly bool Top;
+            public bool Top { get; private set; }
             public Vertex Left { get; private set; }
 
             public Vertex Right {
@@ -476,6 +429,14 @@ namespace Voxelgon.Geometry2D {
                         Left.Prev = value;
                     }
                 }
+            }
+
+            public Vertex Prev {
+                get { return Top ? Left : Left.Next; }
+            }
+
+            public Vertex Next {
+                get { return Top ? Left.Next : Left; }
             }
 
             public Edge Other { get; set; }
@@ -499,21 +460,6 @@ namespace Voxelgon.Geometry2D {
             public Edge(Vertex leftVert, bool top) {
                 Left = leftVert;
                 Top = top;
-            }
-
-            public Vertex Split(Vector2 splitPoint) {
-                var middle = new Vertex(splitPoint);
-                if (Top) {
-                    middle.Next = Right;
-                    middle.Prev = Left;
-                    // this must be in the correct order 
-                    // to prevent crashes and infinite recursion :O
-                }
-                else {
-                    middle.Prev = Right;
-                    middle.Next = Left;
-                }
-                return middle;
             }
 
             public override string ToString() {
@@ -541,22 +487,15 @@ namespace Voxelgon.Geometry2D {
                     return (left == 0) ? Right.CompareTo(other.Right) : left;
                 }
                 else {
-                    if (Mathf.Abs(leftArea) < epsilon) {
-                        // same left node, sort by right node
-                        return rightArea > 0 ? -1 : 1;
-                    }
-                    else if (Mathf.Abs(rightArea) < epsilon) {
-                        return leftArea > 0 ? -1 : 1;
-                    }
-                    else if (Mathf.Approximately(LeftPos.x, other.LeftPos.x)) {
-                        // different left node, sort by left node
-                        return LeftPos.y > other.LeftPos.y ? -1 : 1;
-                    }
-                    else if (Left.CompareTo(other.Left) == -1) {
-                        return other.VertexArea(Left) > 0 ? -1 : 1;
+                    if (Mathf.Abs(LeftPos.x - other.LeftPos.x) < epsilon) {
+                        return (Mathf.Abs(LeftPos.y - other.LeftPos.y) < epsilon)
+                            ? (rightArea > 0 ? -1 : 1)
+                            : (leftArea > 0 ? -1 : 1);
                     }
                     else {
-                        return leftArea > 0 ? -1 : 1;
+                        return Left.CompareTo(other.Left) > 0
+                            ? (leftArea > 0 ? -1 : 1)
+                            : (other.VertexArea(Left) < 0 ? -1 : 1);
                     }
                 }
             }
